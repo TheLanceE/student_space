@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Challenge Management</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f0f4f8;
+      color: #333;
+    }
+    h1 {
+      color: #6c5ce7;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    h2 {
+      color: #00b894;
+      margin-bottom: 15px;
+    }
+    section {
+      background: #ffffff;
+      padding: 20px;
+      margin-bottom: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      margin-bottom: 12px;
+      padding: 10px;
+      border-left: 5px solid #6c5ce7;
+      border-radius: 8px;
+    }
+    a {
+      text-decoration: none;
+      color: #e74c3c;
+      margin-left: 10px;
+      font-weight: bold;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    input, textarea, select, button {
+      font-family: Arial, sans-serif;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-top: 5px;
+      width: 100%;
+    }
+    button {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      cursor: pointer;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+    button:hover {
+      background: #c0392b;
+    }
+    hr {
+      border: none;
+      border-top: 2px dashed #dfe6e9;
+      margin: 35px 0;
+    }
+    a.back-dashboard {
+      display: inline-block;
+      margin-top: 20px;
+      color: #fff;
+      background: #e74c3c;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: bold;
+      text-decoration: none;
+    }
+    a.back-dashboard:hover {
+      background: #c0392b;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎯 Challenge Management</h1>
+
+  <section id="challenge-list">
+    <h2>📋 Existing Challenges</h2>
+    <ul>
+      <li>
+        Challenge 1: Math Quiz — Points: 10 — Difficulty: Easy — Status: Active
+        <a href="#edit-challenge">✏️ Edit</a> | <a href="#">🗑 Delete</a>
+      </li>
+      <li>
+        Challenge 2: Science Quiz — Points: 20 — Difficulty: Medium — Status: Active
+        <a href="#edit-challenge">✏️ Edit</a> | <a href="#">🗑 Delete</a>
+      </li>
+    </ul>
+  </section>
+
+  <hr>
+
+  <section id="create-challenge">
+    <h2>➕ Create New Challenge</h2>
+    <form method="post" action="#">
+      <label>Title:</label><br>
+      <input type="text" name="title"><br><br>
+
+      <label>Description:</label><br>
+      <textarea name="description" rows="4"></textarea><br><br>
+
+      <label>Points:</label><br>
+      <input type="number" name="points" min="0"><br><br>
+
+      <label>Difficulty:</label><br>
+      <select name="difficulty">
+        <option>Easy</option>
+        <option>Medium</option>
+        <option>Hard</option>
+      </select><br><br>
+
+      <button type="submit">✅ Create Challenge</button>
+    </form>
+  </section>
+
+  <hr>
+
+  <section id="edit-challenge">
+    <h2>✏️ Edit Challenge</h2>
+    <form method="post" action="#">
+      <label>Title:</label><br>
+      <input type="text" name="title" value="Math Quiz"><br><br>
+
+      <label>Description:</label><br>
+      <textarea name="description" rows="4">Solve 10 math problems</textarea><br><br>
+
+      <label>Points:</label><br>
+      <input type="number" name="points" value="10" min="0"><br><br>
+
+      <label>Difficulty:</label><br>
+      <select name="difficulty">
+        <option selected>Easy</option>
+        <option>Medium</option>
+        <option>Hard</option>
+      </select><br><br>
+
+      <button type="submit">✅ Update Challenge</button>
+    </form>
+  </section>
+
+  <a href="dashboard.html" class="back-dashboard">🏠 Back to Dashboard</a>
+</body>
+</html>
