@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Skills - EduMind+</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <style>
+    .skills-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .skills-header {
+      margin-bottom: 3rem;
+    }
+
+    .skills-header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      color: #2c3e50;
+    }
+
+    .overall-progress {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 2rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .progress-circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      font-weight: bold;
+    }
+
+    .progress-info h2 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.5rem;
+    }
+
+    .progress-info p {
+      margin: 0;
+      font-size: 0.95rem;
+      opacity: 0.9;
+    }
+
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .skill-category {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      padding: 1.5rem;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .skill-category:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .category-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      gap: 1rem;
+    }
+
+    .category-icon {
+      font-size: 2.5rem;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f0f2f5;
+      border-radius: 10px;
+    }
+
+    .category-info h3 {
+      margin: 0 0 0.25rem 0;
+      color: #2c3e50;
+      font-size: 1.25rem;
+    }
+
+    .category-info p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: #7f8c8d;
+    }
+
+    .skill-item {
+      margin-bottom: 1.25rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid #ecf0f1;
+    }
+
+    .skill-item:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .skill-name {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .skill-name label {
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    .skill-score {
+      font-size: 0.85rem;
+      background: #e3f2fd;
+      color: #1976d2;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #ecf0f1;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    .level-indicator {
+      font-size: 0.75rem;
+      color: #7f8c8d;
+      margin-top: 0.35rem;
+    }
+
+    .recommendations-section {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .recommendations-section h2 {
+      margin-top: 0;
+      color: #2c3e50;
+      margin-bottom: 1.5rem;
+    }
+
+    .recommendation-card {
+      background: white;
+      padding: 1.25rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      border-left: 4px solid #667eea;
+    }
+
+    .recommendation-card.high {
+      border-left-color: #e74c3c;
+    }
+
+    .recommendation-card.medium {
+      border-left-color: #f39c12;
+    }
+
+    .recommendation-type {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #667eea;
+      margin-bottom: 0.5rem;
+    }
+
+    .recommendation-card.high .recommendation-type {
+      color: #e74c3c;
+    }
+
+    .recommendation-card.medium .recommendation-type {
+      color: #f39c12;
+    }
+
+    .recommendation-text {
+      font-size: 0.95rem;
+      color: #2c3e50;
+      margin: 0;
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 2rem;
+      color: #7f8c8d;
+    }
+
+    @media (max-width: 768px) {
+      .skills-container {
+        padding: 1rem;
+      }
+
+      .overall-progress {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .skills-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .skills-header h1 {
+        font-size: 1.75rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav style="background: #2c3e50; color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
+    <h2 style="margin: 0;">📚 EduMind+ Student Portal</h2>
+    <div style="display: flex; gap: 1rem; align-items: center;">
+      <span id="userDisplay" style="margin-right: 1rem;"></span>
+      <button onclick="logout()" style="padding: 0.5rem 1rem; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer;">Logout</button>
+    </div>
+  </nav>
+
+  <div class="skills-container">
+    <div class="skills-header">
+      <h1>📊 My Skills Development</h1>
+      <p style="color: #7f8c8d; margin: 0;">Track your progress across different skill areas</p>
+    </div>
+
+    <div id="overallProgressSection" style="display: none;">
+      <div class="overall-progress">
+        <div class="progress-circle" id="overallScore">0%</div>
+        <div class="progress-info" style="flex: 1; margin-left: 2rem;">
+          <h2>Overall Progress</h2>
+          <p id="progressDescription">Loading your skill development...</p>
+          <p style="font-size: 0.85rem; margin-top: 0.5rem;"><strong id="categoryCount">0</strong> skill categories tracked</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="skillsGridContainer" style="display: none;">
+      <div class="skills-grid" id="skillsGrid"></div>
+    </div>
+
+    <div id="recommendationsSection" style="display: none;" class="recommendations-section">
+      <h2>🎯 Personalized Recommendations</h2>
+      <div id="recommendationsList"></div>
+    </div>
+
+    <div id="noDataMessage" class="no-data">
+      <p>Loading your skill data...</p>
+    </div>
+  </div>
+
+  <script src="../../shared/users.js"></script>
+  <script src="../../shared/skills.js"></script>
+  <script src="assets/js/storage.js"></script>
+  <script src="assets/js/auth.js"></script>
+
+  <script>
+    const currentUser = auth.getCurrentUser();
+
+    if(!currentUser || currentUser.role !== 'student'){
+      window.location.href = 'login.html';
+    }
+
+    document.getElementById('userDisplay').textContent = `👤 ${currentUser.username}`;
+
+    function renderSkillsUI(){
+      const progress = UM.skills.getStudentOverallProgress(currentUser.id);
+      const recommendations = UM.skills.recommendSkillsForStudent(currentUser.id);
+
+      // Overall Progress
+      if(progress.overallProgress > 0 || progress.categories.some(c => c.average > 0)){
+        document.getElementById('overallScore').textContent = progress.overallProgress + '%';
+        document.getElementById('progressDescription').textContent = 
+          progress.overallProgress < 25 ? 'Just getting started! 🌱' :
+          progress.overallProgress < 50 ? 'Making good progress! 💪' :
+          progress.overallProgress < 75 ? 'Great job! Keep it up! ⭐' :
+          'Excellent! You\'re a top performer! 🏆';
+        document.getElementById('categoryCount').textContent = progress.categories.length;
+        document.getElementById('overallProgressSection').style.display = 'block';
+      }
+
+      // Skills by Category
+      const skillsGrid = document.getElementById('skillsGrid');
+      skillsGrid.innerHTML = '';
+
+      progress.categories.forEach(cat => {
+        const category = UM.skills.getCategoryById(cat.categoryId);
+        if(!category) return;
+
+        let categoryHTML = `
+          <div class="skill-category">
+            <div class="category-header">
+              <div class="category-icon" style="background: ${category.color}20; color: ${category.color};">
+                ${category.icon}
+              </div>
+              <div class="category-info">
+                <h3>${category.name}</h3>
+                <p>${cat.average}% overall</p>
+              </div>
+            </div>
+        `;
+
+        cat.scores.forEach(skill => {
+          const level = Math.round((skill.score / 100) * 5);
+          const levelText = ['Novice', 'Beginner', 'Developing', 'Proficient', 'Advanced', 'Expert'][level];
+          
+          categoryHTML += `
+            <div class="skill-item">
+              <div class="skill-name">
+                <label>${skill.skillName}</label>
+                <span class="skill-score">${skill.score}%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: ${skill.score}%; background: ${category.color};"></div>
+              </div>
+              <div class="level-indicator">${levelText}</div>
+            </div>
+          `;
+        });
+
+        categoryHTML += `</div>`;
+        const div = document.createElement('div');
+        div.innerHTML = categoryHTML;
+        skillsGrid.appendChild(div.firstElementChild);
+      });
+
+      if(progress.categories.length > 0){
+        document.getElementById('skillsGridContainer').style.display = 'block';
+      }
+
+      // Recommendations
+      if(recommendations.length > 0){
+        const recList = document.getElementById('recommendationsList');
+        recList.innerHTML = recommendations.map(rec => `
+          <div class="recommendation-card ${rec.priority}">
+            <div class="recommendation-type">${rec.type === 'focus_area' ? '⚠️ Focus Area' : '⭐ Advancement'}</div>
+            <p class="recommendation-text"><strong>${rec.category}:</strong> ${rec.reason}</p>
+          </div>
+        `).join('');
+        document.getElementById('recommendationsSection').style.display = 'block';
+      }
+
+      // Hide loading message
+      document.getElementById('noDataMessage').style.display = 'none';
+    }
+
+    function logout(){
+      auth.logout();
+      window.location.href = 'login.html';
+    }
+
+    // Render on load
+    document.addEventListener('DOMContentLoaded', () => {
+      renderSkillsUI();
+    });
+
+    // Simulate some score data for demo
+    if(UM.skills.getStudentSkillScores(currentUser.id).length === 0){
+      const allSkills = UM.skills.getAll();
+      allSkills.slice(0, 8).forEach(skill => {
+        const randomScore = Math.floor(Math.random() * 80) + 20; // 20-100
+        UM.skills.recordSkillScore({
+          studentId: currentUser.id,
+          skillId: skill.id,
+          score: randomScore,
+          notes: 'Baseline assessment'
+        });
+      });
+      renderSkillsUI();
+    }
+  </script>
+</body>
+</html>
