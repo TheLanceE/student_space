@@ -1,7 +1,8 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <title>Challenge Management</title>
   <style>
     body {
@@ -19,7 +20,7 @@
       color: #00b894;
       margin-bottom: 15px;
     }
-    section {
+    .section {
       background: #ffffff;
       padding: 20px;
       margin-bottom: 25px;
@@ -89,68 +90,53 @@
 
   <h1>🎯 Challenge Management</h1>
 
-  <!-- EXISTING CHALLENGES -->
-  <section id="challenge-list">
+  <div class="section" id="challenge-list">
     <h2>📋 Existing Challenges</h2>
     <ul>
       <li>
         Challenge 1: Math Quiz — Points: 10 — Type: Quiz — Difficulty: Easy — Status: Active
         <a href="#edit-challenge">✏️ Edit</a> | <a href="#">🗑 Delete</a>
       </li>
-
       <li>
         Challenge 2: Science Quiz — Points: 20 — Type: Quiz — Difficulty: Medium — Status: Active
         <a href="#edit-challenge">✏️ Edit</a> | <a href="#">🗑 Delete</a>
       </li>
-
       <li>
         Challenge 3: Attend 3 classes this week — Points: 15 — Type: Attendance — Difficulty: Easy — Status: Active
         <a href="#edit-challenge">✏️ Edit</a> | <a href="#">🗑 Delete</a>
       </li>
-
       <li>
         Challenge 4: Read Chapter 5 and summarize — Points: 25 — Type: Study Task — Difficulty: Hard — Status: Active
         <a href="#edit-challenge">✏️ Edit</a> | <a href="#">🗑 Delete</a>
       </li>
-
       <li>
         Challenge 5: Participate in a study group — Points: 30 — Type: Participation — Difficulty: Medium — Status: Active
         <a href="#edit-challenge">✏️ Edit</a> | <a href="#">🗑 Delete</a>
       </li>
     </ul>
-  </section>
+  </div>
 
   <hr>
 
-  <!-- CREATE NEW CHALLENGE -->
-  <section id="create-challenge">
+  <div class="section" id="create-challenge">
     <h2>➕ Create New Challenge</h2>
     <form method="post" action="#">
       <label>Title:</label>
       <input type="text" name="title">
-
       <br><br>
-
       <label>Description:</label>
       <textarea name="description" rows="4"></textarea>
-
       <br><br>
-
       <label>Points:</label>
-      <input type="number" name="points" min="0">
-
+      <input type="text" name="points">
       <br><br>
-
       <label>Difficulty:</label>
       <select name="difficulty">
         <option>Easy</option>
         <option>Medium</option>
         <option>Hard</option>
       </select>
-
       <br><br>
-
-      <!-- NEW DROPDOWN FOR CHALLENGE TYPE -->
       <label>Challenge Type:</label>
       <select name="type">
         <option value="quiz">📝 Quiz</option>
@@ -159,43 +145,32 @@
         <option value="participation">🤝 Participation</option>
         <option value="skill">⭐ Skill Improvement</option>
       </select>
-
       <br><br>
-
       <button type="submit">✅ Create Challenge</button>
     </form>
-  </section>
+  </div>
 
   <hr>
 
-  <!-- EDIT CHALLENGE -->
-  <section id="edit-challenge">
+  <div class="section" id="edit-challenge">
     <h2>✏️ Edit Challenge</h2>
     <form method="post" action="#">
       <label>Title:</label>
       <input type="text" name="title" value="Math Quiz">
-
       <br><br>
-
       <label>Description:</label>
       <textarea name="description" rows="4">Solve 10 math problems</textarea>
-
       <br><br>
-
       <label>Points:</label>
-      <input type="number" name="points" value="10" min="0">
-
+      <input type="text" name="points" value="10">
       <br><br>
-
       <label>Difficulty:</label>
       <select name="difficulty">
         <option selected>Easy</option>
         <option>Medium</option>
         <option>Hard</option>
       </select>
-
       <br><br>
-
       <label>Challenge Type:</label>
       <select name="type">
         <option selected value="quiz">📝 Quiz</option>
@@ -204,14 +179,13 @@
         <option value="participation">🤝 Participation</option>
         <option value="skill">⭐ Skill Improvement</option>
       </select>
-
       <br><br>
-
       <button type="submit">✅ Update Challenge</button>
     </form>
-  </section>
+  </div>
 
   <a href="dashboard.html" class="back-dashboard">🏠 Back to Dashboard</a>
 
 </body>
 </html>
+
