@@ -86,17 +86,35 @@
   </style>
 </head>
 <body>
+
   <h1>🎯 Challenge Management</h1>
 
+  <!-- EXISTING CHALLENGES -->
   <section id="challenge-list">
     <h2>📋 Existing Challenges</h2>
     <ul>
       <li>
-        Challenge 1: Math Quiz — Points: 10 — Difficulty: Easy — Status: Active
+        Challenge 1: Math Quiz — Points: 10 — Type: Quiz — Difficulty: Easy — Status: Active
         <a href="#edit-challenge">✏️ Edit</a> | <a href="#">🗑 Delete</a>
       </li>
+
       <li>
-        Challenge 2: Science Quiz — Points: 20 — Difficulty: Medium — Status: Active
+        Challenge 2: Science Quiz — Points: 20 — Type: Quiz — Difficulty: Medium — Status: Active
+        <a href="#edit-challenge">✏️ Edit</a> | <a href="#">🗑 Delete</a>
+      </li>
+
+      <li>
+        Challenge 3: Attend 3 classes this week — Points: 15 — Type: Attendance — Difficulty: Easy — Status: Active
+        <a href="#edit-challenge">✏️ Edit</a> | <a href="#">🗑 Delete</a>
+      </li>
+
+      <li>
+        Challenge 4: Read Chapter 5 and summarize — Points: 25 — Type: Study Task — Difficulty: Hard — Status: Active
+        <a href="#edit-challenge">✏️ Edit</a> | <a href="#">🗑 Delete</a>
+      </li>
+
+      <li>
+        Challenge 5: Participate in a study group — Points: 30 — Type: Participation — Difficulty: Medium — Status: Active
         <a href="#edit-challenge">✏️ Edit</a> | <a href="#">🗑 Delete</a>
       </li>
     </ul>
@@ -104,24 +122,45 @@
 
   <hr>
 
+  <!-- CREATE NEW CHALLENGE -->
   <section id="create-challenge">
     <h2>➕ Create New Challenge</h2>
     <form method="post" action="#">
-      <label>Title:</label><br>
-      <input type="text" name="title"><br><br>
+      <label>Title:</label>
+      <input type="text" name="title">
 
-      <label>Description:</label><br>
-      <textarea name="description" rows="4"></textarea><br><br>
+      <br><br>
 
-      <label>Points:</label><br>
-      <input type="number" name="points" min="0"><br><br>
+      <label>Description:</label>
+      <textarea name="description" rows="4"></textarea>
 
-      <label>Difficulty:</label><br>
+      <br><br>
+
+      <label>Points:</label>
+      <input type="number" name="points" min="0">
+
+      <br><br>
+
+      <label>Difficulty:</label>
       <select name="difficulty">
         <option>Easy</option>
         <option>Medium</option>
         <option>Hard</option>
-      </select><br><br>
+      </select>
+
+      <br><br>
+
+      <!-- NEW DROPDOWN FOR CHALLENGE TYPE -->
+      <label>Challenge Type:</label>
+      <select name="type">
+        <option value="quiz">📝 Quiz</option>
+        <option value="attendance">📅 Attendance</option>
+        <option value="study">📚 Study Task</option>
+        <option value="participation">🤝 Participation</option>
+        <option value="skill">⭐ Skill Improvement</option>
+      </select>
+
+      <br><br>
 
       <button type="submit">✅ Create Challenge</button>
     </form>
@@ -129,29 +168,50 @@
 
   <hr>
 
+  <!-- EDIT CHALLENGE -->
   <section id="edit-challenge">
     <h2>✏️ Edit Challenge</h2>
     <form method="post" action="#">
-      <label>Title:</label><br>
-      <input type="text" name="title" value="Math Quiz"><br><br>
+      <label>Title:</label>
+      <input type="text" name="title" value="Math Quiz">
 
-      <label>Description:</label><br>
-      <textarea name="description" rows="4">Solve 10 math problems</textarea><br><br>
+      <br><br>
 
-      <label>Points:</label><br>
-      <input type="number" name="points" value="10" min="0"><br><br>
+      <label>Description:</label>
+      <textarea name="description" rows="4">Solve 10 math problems</textarea>
 
-      <label>Difficulty:</label><br>
+      <br><br>
+
+      <label>Points:</label>
+      <input type="number" name="points" value="10" min="0">
+
+      <br><br>
+
+      <label>Difficulty:</label>
       <select name="difficulty">
         <option selected>Easy</option>
         <option>Medium</option>
         <option>Hard</option>
-      </select><br><br>
+      </select>
+
+      <br><br>
+
+      <label>Challenge Type:</label>
+      <select name="type">
+        <option selected value="quiz">📝 Quiz</option>
+        <option value="attendance">📅 Attendance</option>
+        <option value="study">📚 Study Task</option>
+        <option value="participation">🤝 Participation</option>
+        <option value="skill">⭐ Skill Improvement</option>
+      </select>
+
+      <br><br>
 
       <button type="submit">✅ Update Challenge</button>
     </form>
   </section>
 
   <a href="dashboard.html" class="back-dashboard">🏠 Back to Dashboard</a>
+
 </body>
 </html>
