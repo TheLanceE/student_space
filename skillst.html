@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Track Student Skills - EduMind+</title>
+  <link rel="stylesheet" href="assets/css/styles.css" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; }
+
+    nav {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    nav h2 { margin: 0; }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .header {
+      margin-bottom: 2rem;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      color: #2c3e50;
+      margin-bottom: 0.5rem;
+    }
+
+    .controls {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .controls select, .controls input, .controls button {
+      padding: 0.75rem 1rem;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.95rem;
+    }
+
+    .controls button {
+      background: #667eea;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .controls button:hover {
+      background: #5568d3;
+    }
+
+    .students-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .student-card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .student-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .student-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .student-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .progress-badge {
+      background: rgba(255, 255, 255, 0.25);
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .student-body {
+      padding: 1.5rem;
+    }
+
+    .skill-assessment {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid #ecf0f1;
+    }
+
+    .skill-assessment:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .skill-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .score-input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .score-display {
+      font-size: 0.85rem;
+      color: #7f8c8d;
+    }
+
+    .save-btn {
+      width: 100%;
+      padding: 0.75rem;
+      background: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s;
+      margin-top: 1rem;
+    }
+
+    .save-btn:hover {
+      background: #229954;
+    }
+
+    .assessment-summary {
+      background: #f8f9fa;
+      padding: 2rem;
+      border-radius: 10px;
+      margin-top: 2rem;
+    }
+
+    .assessment-summary h2 {
+      color: #2c3e50;
+      margin-bottom: 1.5rem;
+    }
+
+    .summary-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #667eea;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: #7f8c8d;
+      margin-top: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .container { padding: 1rem; }
+      .students-grid { grid-template-columns: 1fr; }
+      .controls { flex-direction: column; }
+      .controls select, .controls input { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <h2>👨‍🏫 EduMind+ Teacher Portal</h2>
+    <div style="display: flex; gap: 1rem; align-items: center;">
+      <span id="userDisplay"></span>
+      <button onclick="logout()" style="padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 4px; cursor: pointer;">Logout</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="header">
+      <h1>📊 Track Student Skills</h1>
+      <p style="color: #7f8c8d;">Assess and track your students' skill development</p>
+    </div>
+
+    <div class="controls">
+      <select id="categoryFilter" style="flex: 1; min-width: 200px;">
+        <option value="">All Categories</option>
+      </select>
+      <input type="text" id="searchStudent" placeholder="Search students..." style="flex: 1; min-width: 200px;">
+      <button onclick="createNewAssessment()">➕ New Assessment</button>
+    </div>
+
+    <div id="studentsContainer" class="students-grid"></div>
+
+    <div class="assessment-summary">
+      <h2>📈 Class Summary</h2>
+      <div class="summary-stats">
+        <div class="stat-card">
+          <div class="stat-number" id="totalStudents">0</div>
+          <div class="stat-label">Total Students</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="avgProgress">0%</div>
+          <div class="stat-label">Class Average</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="recordsCreated">0</div>
+          <div class="stat-label">Skill Records</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="topCategory">-</div>
+          <div class="stat-label">Top Category</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <script type="text/javascript" src="../../shared/users.js"></script>
+    <script type="text/javascript" src="../../shared/skills.js"></script>
+    <script type="text/javascript" src="assets/js/storage.js"></script>
+    <script type="text/javascript" src="assets/js/auth-teacher.js"></script>
+
+    <script type="text/javascript">
+    const currentUser = auth.getCurrentUser();
+
+    if(!currentUser || currentUser.role !== 'teacher'){
+      window.location.href = 'login.html';
+    }
+
+    document.getElementById('userDisplay').textContent = `👨‍🏫 ${currentUser.username}`;
+
+    let allStudents = [];
+    let filteredStudents = [];
+
+    function loadStudents(){
+      allStudents = UM.list().filter(u => u.role === 'student' && u.status === 'active');
+      filterStudents();
+      updateSummary();
+    }
+
+    function filterStudents(){
+      const categoryFilter = document.getElementById('categoryFilter').value;
+      const searchTerm = document.getElementById('searchStudent').value.toLowerCase();
+
+      filteredStudents = allStudents.filter(student => {
+        const matchesSearch = student.username.toLowerCase().includes(searchTerm);
+        return matchesSearch;
+      });
+
+      renderStudents();
+    }
+
+    function renderStudents(){
+      const container = document.getElementById('studentsContainer');
+      container.innerHTML = '';
+
+      filteredStudents.forEach(student => {
+        const progress = UM.skills.getStudentOverallProgress(student.id);
+        const scores = UM.skills.getStudentSkillScores(student.id);
+        const allSkills = UM.skills.getAll();
+
+        const card = document.createElement('div');
+        card.className = 'student-card';
+        card.innerHTML = `
+          <div class="student-header">
+            <div class="student-name">👤 ${student.username}</div>
+            <div class="progress-badge">${progress.overallProgress}%</div>
+          </div>
+          <div class="student-body">
+            <div id="skillsFor_${student.id}"></div>
+            <button class="save-btn" onclick="saveStudentScores('${student.id}')">💾 Save Assessments</button>
+          </div>
+        `;
+        container.appendChild(card);
+
+        // Render skills
+        const skillsDiv = document.getElementById(`skillsFor_${student.id}`);
+        const categories = UM.skills.listCategories();
+        
+        categories.forEach(category => {
+          const categorySkills = UM.skills.findByCategory(category.id);
+          if(!categorySkills.length) return;
+
+          let html = `<div style="margin-bottom: 1rem;">
+            <div style="font-size: 0.85rem; font-weight: 600; color: ${category.color}; margin-bottom: 0.75rem;">
+              ${category.icon} ${category.name}
+            </div>`;
+
+          categorySkills.slice(0, 3).forEach(skill => {
+            const currentScore = scores.find(s => s.skillId === skill.id)?.score || 0;
+            html += `
+              <div class="skill-assessment">
+                <div class="skill-label">
+                  <span>${skill.name}</span>
+                </div>
+                <input type="range" min="0" max="100" value="${currentScore}" 
+                       class="scoreInput" data-student="${student.id}" data-skill="${skill.id}"
+                       style="width: 100%; cursor: pointer;">
+                <div class="score-display"><span class="scoreValue">${currentScore}</span>%</div>
+              </div>
+            `;
+          });
+
+          html += `</div>`;
+          skillsDiv.innerHTML += html;
+        });
+
+        // Add listeners to sliders
+        card.querySelectorAll('.scoreInput').forEach(input => {
+          input.addEventListener('input', (e) => {
+            const valueSpan = e.target.nextElementSibling.querySelector('.scoreValue');
+            valueSpan.textContent = e.target.value;
+          });
+        });
+      });
+    }
+
+    function saveStudentScores(studentId){
+      const inputs = document.querySelectorAll(`.scoreInput[data-student="${studentId}"]`);
+      let count = 0;
+
+      inputs.forEach(input => {
+        const skillId = input.dataset.skill;
+        const score = parseInt(input.value);
+        
+        const existing = UM.skills.getStudentSkillScore(studentId, skillId);
+        if(!existing || existing.score !== score){
+          UM.skills.recordSkillScore({
+            studentId,
+            skillId,
+            score,
+            notes: 'Teacher assessment'
+          });
+          count++;
+        }
+      });
+
+      alert(`✅ Saved ${count} skill assessments!`);
+      loadStudents();
+    }
+
+    function updateSummary(){
+      document.getElementById('totalStudents').textContent = allStudents.length;
+      
+      const allScores = UM.skills.listScores();
+      let totalProgress = 0;
+      let categoryScores = {};
+
+      allStudents.forEach(student => {
+        const progress = UM.skills.getStudentOverallProgress(student.id);
+        totalProgress += progress.overallProgress;
+        
+        progress.categories.forEach(cat => {
+          categoryScores[cat.categoryName] = (categoryScores[cat.categoryName] || 0) + cat.average;
+        });
+      });
+
+      const avgProgress = allStudents.length ? Math.round(totalProgress / allStudents.length) : 0;
+      document.getElementById('avgProgress').textContent = avgProgress + '%';
+      document.getElementById('recordsCreated').textContent = allScores.length;
+
+      if(Object.keys(categoryScores).length > 0){
+        const topCat = Object.entries(categoryScores).sort((a, b) => b[1] - a[1])[0];
+        document.getElementById('topCategory').textContent = topCat[0].split(' ')[0];
+      }
+    }
+
+    function createNewAssessment(){
+      const title = prompt('Assessment Title:', 'Quiz Assessment');
+      if(!title) return;
+      
+      const assessment = UM.skills.createAssessment({
+        teacherId: currentUser.id,
+        title,
+        skillIds: UM.skills.getAll().slice(0, 5).map(s => s.id),
+        dueDate: new Date(Date.now() + 7*24*60*60*1000).toISOString()
+      });
+      
+      alert(`✅ Assessment "${title}" created!`);
+    }
+
+    // Load categories filter
+    document.addEventListener('DOMContentLoaded', () => {
+      const categories = UM.skills.listCategories();
+      const filter = document.getElementById('categoryFilter');
+      
+      categories.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat.id;
+        option.textContent = cat.name;
+        filter.appendChild(option);
+      });
+
+      loadStudents();
+    });
+
+    // Event listeners
+    document.getElementById('categoryFilter').addEventListener('change', filterStudents);
+    document.getElementById('searchStudent').addEventListener('input', filterStudents);
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
