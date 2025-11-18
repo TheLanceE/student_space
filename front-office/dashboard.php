@@ -29,24 +29,37 @@
   <main class="container py-4">
     <div class="row g-4">
       <div class="col-12 col-lg-8">
-        <div class="card shadow-sm h-100">
+        <div class="card shadow-sm mb-4">
           <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <h2 class="h5 mb-0">Progress Overview</h2>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h2 class="h5 mb-0">📊 My Performance</h2>
               <div class="d-flex gap-2">
                 <a href="courses.php" class="btn btn-sm btn-primary">Take Quiz</a>
-                <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#skillsModal">View Skills</button>
+                <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#scoresModal">View Scores</button>
               </div>
             </div>
-            <canvas id="progressChart" height="120"></canvas>
+            <canvas id="progressChart" height="100"></canvas>
+          </div>
+        </div>
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h2 class="h5 mb-3">📅 Upcoming Events</h2>
+            <div id="upcomingEvents"></div>
           </div>
         </div>
       </div>
       <div class="col-12 col-lg-4">
-        <div class="card shadow-sm h-100">
+        <div class="card shadow-sm mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+          <div class="card-body text-center py-4">
+            <img src="../shared-assets/img/student-portal.jpg" alt="Student" class="rounded-circle mb-3" style="width: 80px; height: 80px; object-fit: cover; border: 3px solid white;">
+            <h3 class="h5 mb-1" id="studentName">Loading...</h3>
+            <p class="mb-0 small opacity-75" id="studentGrade">Grade N/A</p>
+          </div>
+        </div>
+        <div class="card shadow-sm">
           <div class="card-body">
-            <h2 class="h5">Continue Learning</h2>
-            <p class="text-muted small">Personalized suggestions based on your recent activity.</p>
+            <h2 class="h5 mb-3">💡 Continue Learning</h2>
+            <p class="text-muted small">Personalized suggestions</p>
             <ul id="suggestionsList" class="list-group list-group-flush"></ul>
           </div>
         </div>
@@ -68,16 +81,16 @@
     </div>
   </main>
 
-  <div class="modal fade" id="skillsModal" tabindex="-1" aria-hidden="true" aria-labelledby="skillsModalLabel">
+  <div class="modal fade" id="scoresModal" tabindex="-1" aria-hidden="true" aria-labelledby="scoresModalLabel">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5" id="skillsModalLabel">Skill Levels</h1>
+          <h1 class="modal-title fs-5" id="scoresModalLabel">📈 My Scores by Subject</h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <p class="text-muted small">Skill levels are based on your average quiz scores for each subject.</p>
-          <ul class="list-group" id="skillList"></ul>
+          <p class="text-muted small">Average scores based on your quiz performance.</p>
+          <ul class="list-group" id="scoresList"></ul>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

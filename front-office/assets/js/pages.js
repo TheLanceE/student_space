@@ -49,8 +49,8 @@
       Auth.register(formData);
     });
   };
-  const renderSkillLevels = (scores) => {
-    const list = document.getElementById('skillList');
+  const renderScoreLevels = (scores) => {
+    const list = document.getElementById('scoresList');
     if(!list || !window.Data) return;
     const courses = Data.courses || [];
     if(!courses.length){
@@ -75,18 +75,63 @@
       list.appendChild(li);
     });
   };
+
+  const renderUpcomingEvents = () => {
+    const container = document.getElementById('upcomingEvents');
+    if(!container || !window.Database) return;
+    const events = Database.table('events') || [];
+    const today = new Date().toISOString().split('T')[0];
+    const upcoming = events.filter(e => e.date >= today).sort((a, b) => {
+      const dateCompare = a.date.localeCompare(b.date);
+      return dateCompare !== 0 ? dateCompare : a.startTime.localeCompare(b.startTime);
+    }).slice(0, 3);
+    
+    if(!upcoming.length){
+      container.innerHTML = '<p class="text-muted small">No upcoming events scheduled.</p>';
+      return;
+    }
+    
+    container.innerHTML = upcoming.map(e => {
+      const eventDate = new Date(e.date);
+      const dateStr = eventDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      return `
+        <div class="card mb-2 border-start border-primary border-4">
+          <div class="card-body py-2 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h6 class="mb-1">${e.title}</h6>
+                <p class="mb-0 small text-muted">
+                  <span class="badge bg-${e.type === 'Lecture' ? 'info' : e.type === 'Quiz' ? 'warning' : 'secondary'}">${e.type}</span>
+                  ${dateStr} · ${e.startTime.substring(0, 5)} - ${e.endTime.substring(0, 5)}
+                  ${e.location ? ' · ' + e.location : ''}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  };
+
   const handleDashboard = () => {
     requireAuth();
     safeBindLogout('logoutBtn');
     const currentUser = getCurrentUser();
     const scores = getScoresForCurrentUser();
+    
+    // Populate student info
+    const nameEl = document.getElementById('studentName');
+    const gradeEl = document.getElementById('studentGrade');
+    if(nameEl && currentUser) nameEl.textContent = currentUser.fullName || currentUser.username;
+    if(gradeEl && currentUser) gradeEl.textContent = currentUser.gradeLevel || 'Grade N/A';
+    
     if(window.Charts){ Charts.renderProgress('progressChart', scores); }
     if(window.UI){ UI.renderRecentResults('recentResults', scores); }
     if(window.SuggestionEngine && currentUser){
       const suggestions = SuggestionEngine.generate(currentUser);
       UI.renderSuggestions('suggestionsList', suggestions);
     }
-    renderSkillLevels(scores);
+    renderScoreLevels(scores);
+    renderUpcomingEvents();
   };
   const handleCourses = () => {
     requireAuth();

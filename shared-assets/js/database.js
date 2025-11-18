@@ -58,6 +58,18 @@
     { id: 'log_2', level: 'warn', message: 'Pending approvals detected', ts: daysAgo(2) }
   ];
 
+  const futureDate = (days) => {
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    return d.toISOString().split('T')[0];
+  };
+
+  const defaultEvents = [
+    { id: 'evt_1', title: 'Math Review Session', date: futureDate(3), startTime: '14:00:00', endTime: '15:30:00', course: 'Math Basics', type: 'Lecture', location: 'Room 101', maxParticipants: 30, description: 'Review of algebra and equations before midterm exam', teacherId: 'teach_jane', createdAt: nowISO() },
+    { id: 'evt_2', title: 'Science Lab: Chemical Reactions', date: futureDate(5), startTime: '10:00:00', endTime: '12:00:00', course: 'Science Basics', type: 'Lecture', location: 'Lab 2B', maxParticipants: 20, description: 'Hands-on experiments with chemical reactions', teacherId: 'teach_lee', createdAt: nowISO() },
+    { id: 'evt_3', title: 'Weekly Quiz Challenge', date: futureDate(1), startTime: '16:00:00', endTime: '17:00:00', course: 'Math Basics', type: 'Quiz', location: '', maxParticipants: 50, description: 'Weekly competitive quiz for all students', teacherId: 'teach_jane', createdAt: nowISO() }
+  ];
+
   const defaultDb = {
     meta: { version: DB_VERSION, seededAt: nowISO() },
     admins: [{ id: 'admin_root', username: 'admin', name: 'Admin', createdAt: daysAgo(90), lastLoginAt: daysAgo(1) }],
@@ -66,7 +78,7 @@
     courses: defaultCourses,
     quizzes: defaultQuizzes,
     scores: defaultScores,
-    events: [],
+    events: defaultEvents,
     recommendations: [],
     logs: defaultLogs
   };
