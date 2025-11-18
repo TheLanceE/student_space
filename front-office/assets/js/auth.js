@@ -70,7 +70,7 @@
     },
     logout(){
       localStorage.removeItem(CURRENT_KEY);
-      window.location.href = 'login.php';
+      window.location.href = '../index.php';
     },
     current(){ return Storage.get(CURRENT_KEY, null); }
   };

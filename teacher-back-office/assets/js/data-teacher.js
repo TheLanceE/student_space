@@ -9,8 +9,10 @@
     get quizzes(){ return Database.table('quizzes'); },
     get students(){ return Database.table('students'); },
     get scores(){ return Database.table('scores'); },
+    get events(){ return Database.table('events'); },
     getTeacherCourses(teacherId){ return this.courses.filter(c => c.teacherId === teacherId); },
     getTeacherQuizzes(teacherId){ return this.quizzes.filter(q => q.createdBy === teacherId); },
+    getTeacherEvents(teacherId){ return this.events.filter(e => e.teacherId === teacherId); },
     getScoresForTeacher(teacherId){
       const courseIds = new Set(this.getTeacherCourses(teacherId).map(c => c.id));
       return this.scores.filter(score => courseIds.has(score.courseId));
@@ -33,7 +35,9 @@
         Database.insert('quizzes', quiz);
       }
     },
-    removeQuiz(quizId){ Database.deleteWhere('quizzes', q => q.id === quizId); }
+    removeQuiz(quizId){ Database.deleteWhere('quizzes', q => q.id === quizId); },
+    saveEvent(event){ Database.insert('events', event); },
+    removeEvent(eventId){ Database.deleteWhere('events', e => e.id === eventId); }
   };
 
   window.TData = TData;

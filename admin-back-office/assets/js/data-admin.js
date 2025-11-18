@@ -25,6 +25,7 @@
     get courses(){ return Database.table('courses'); },
     get quizzes(){ return Database.table('quizzes'); },
     get scores(){ return Database.table('scores'); },
+    get events(){ return Database.table('events'); },
     get logs(){ return Database.table('logs'); },
     get recommendations(){ return Database.table('recommendations'); },
     nextId(prefix){ return Database.nextId(prefix); },
@@ -44,6 +45,7 @@
       Database.deleteWhere('quizzes', quiz => quiz.courseId === id);
     },
     removeQuiz(id){ Database.deleteWhere('quizzes', q => q.id === id); },
+    removeEvent(eventId){ Database.deleteWhere('events', e => e.id === eventId); },
     appendLog(entry){ Database.insert('logs', entry); }
   };
 

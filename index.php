@@ -41,7 +41,7 @@
                   <h2 class="h1 mb-0">92%</h2>
                   <small class="text-success">▲ Avg. mastery</small>
                 </div>
-                <img src="https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=400&q=80" alt="Dashboard preview" class="img-fluid rounded" style="max-width: 180px;">
+                <img src="shared-assets/img/dashboard-preview.jpg" alt="Dashboard preview" class="img-fluid rounded" style="max-width: 180px;">
               </div>
               <div class="progress" style="height: .5rem;">
                 <div class="progress-bar" style="width: 78%;"></div>
@@ -67,7 +67,7 @@
         <div class="col-12 col-md-4">
           <a class="card-link" href="front-office/index.php">
             <div class="card shadow-sm h-100">
-              <img src="https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?auto=format&fit=crop&w=900&q=80" class="showcase-img" alt="Student portal" loading="lazy">
+              <img src="shared-assets/img/student-portal.jpg" class="showcase-img" alt="Student portal" loading="lazy">
               <div class="card-body">
                 <h3 class="h5">Student Space</h3>
                 <p class="text-muted">Adaptive quizzes, streak-based motivation, and personalized recommendations.</p>
@@ -79,7 +79,7 @@
         <div class="col-12 col-md-4">
           <a class="card-link" href="teacher-back-office/login.php">
             <div class="card shadow-sm h-100">
-              <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=900&q=80" class="showcase-img" alt="Teacher workspace" loading="lazy">
+              <img src="shared-assets/img/teacher-workspace.jpg" class="showcase-img" alt="Teacher workspace" loading="lazy">
               <div class="card-body">
                 <h3 class="h5">Teacher Workspace</h3>
                 <p class="text-muted">Create quizzes in minutes, monitor cohorts, and export progress snapshots.</p>
@@ -91,7 +91,7 @@
         <div class="col-12 col-md-4">
           <a class="card-link" href="admin-back-office/login.php">
             <div class="card shadow-sm h-100">
-              <img src="https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=900&q=80" class="showcase-img" alt="Admin console" loading="lazy">
+              <img src="shared-assets/img/admin-console.jpg" class="showcase-img" alt="Admin console" loading="lazy">
               <div class="card-body">
                 <h3 class="h5">Admin Console</h3>
                 <p class="text-muted">Approve content, track logs, manage roles, and export compliance-ready reports.</p>
@@ -128,7 +128,7 @@
               <h3 class="h4">STEM Showcase: Project Nova</h3>
               <p class="text-muted">See how District 45 used EduMind+ challenges to double math mastery in one semester.</p>
               <div class="ratio ratio-16x9 rounded overflow-hidden mb-3">
-                <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80" alt="STEM showcase" class="w-100 h-100 object-fit-cover">
+                <img src="shared-assets/img/stem-showcase.jpg" alt="STEM showcase" class="w-100 h-100 object-fit-cover">
               </div>
               <div class="d-flex gap-3 flex-wrap small text-muted">
                 <span>📍 Austin, TX</span>
@@ -173,10 +173,10 @@
             <div class="card-body">
               <p class="text-uppercase text-warning small mb-2">Integrations</p>
               <div class="logo-grid d-flex flex-wrap gap-4">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/4/45/Google_Logo.svg" alt="Google">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" alt="React">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Microsoft_logo_%282012%29.svg" alt="Microsoft">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/c/cd/Blackboard_Inc._logo.svg" alt="Blackboard">
+                <span style="font-size: 1.5rem; font-weight: bold; color: #4285F4;">Google</span>
+                <img src="shared-assets/img/react-icon.svg" alt="React" height="30">
+                <span style="font-size: 1.5rem; font-weight: bold; color: #00A4EF;">Microsoft</span>
+                <span style="font-size: 1.5rem; font-weight: bold; color: #000;">Blackboard</span>
               </div>
             </div>
           </div>

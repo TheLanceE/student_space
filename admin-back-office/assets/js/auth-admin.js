@@ -26,7 +26,7 @@
       Storage.set(CURRENT_KEY, { ...admin, lastLoginAt: lastLogin, role: 'admin' });
       window.location.href = 'dashboard.php';
     },
-    logout(){ localStorage.removeItem(CURRENT_KEY); window.location.href = 'login.php'; },
+    logout(){ localStorage.removeItem(CURRENT_KEY); window.location.href = '../index.php'; },
     current(){ return Storage.get(CURRENT_KEY, null); }
   };
 

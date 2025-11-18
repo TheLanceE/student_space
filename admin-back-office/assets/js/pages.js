@@ -329,12 +329,57 @@
     });
   };
 
+  const handleEvents = () => {
+    if(!ensureAuth()) return;
+    bindLogout();
+    if(!data()) return;
+    const renderEvents = () => {
+      const events = data().events;
+      const list = document.getElementById('eventsList');
+      if(!list) return;
+      if(!events.length){
+        list.innerHTML = '<p class="text-muted">No events in the system.</p>';
+        return;
+      }
+      const teachers = data().teachers;
+      const teacherMap = teachers.reduce((acc, t) => {
+        acc[t.id] = t.fullName || t.username;
+        return acc;
+      }, {});
+      list.innerHTML = events.map(e => `
+        <div class="card mb-3">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h3 class="h5">${e.title}</h3>
+                <p class="mb-1"><strong>Date:</strong> ${e.date} | <strong>Time:</strong> ${e.startTime} - ${e.endTime}</p>
+                <p class="mb-1"><strong>Type:</strong> ${e.type} | <strong>Course:</strong> ${e.course}</p>
+                <p class="mb-1"><strong>Teacher:</strong> ${teacherMap[e.teacherId] || 'Unknown'}</p>
+                ${e.location ? `<p class="mb-1"><strong>Location:</strong> ${e.location}</p>` : ''}
+                <p class="mb-0 text-muted">${e.description || 'No description'}</p>
+              </div>
+              <button class="btn btn-danger btn-sm" onclick="deleteEvent('${e.id}')">Delete</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    };
+    window.deleteEvent = (id) => {
+      if(confirm('Delete this event?')){
+        data().removeEvent(id);
+        renderEvents();
+      }
+    };
+    renderEvents();
+  };
+
   const handlers = {
     'admin-index': handleIndex,
     'admin-login': handleLogin,
     'admin-dashboard': handleDashboard,
     'admin-courses': handleCourses,
     'admin-users': handleUsers,
+    'admin-events': handleEvents,
     'admin-logs': handleLogs,
     'admin-roles': handleRoles,
     'admin-reports': handleReports,

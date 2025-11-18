@@ -66,6 +66,7 @@
     courses: defaultCourses,
     quizzes: defaultQuizzes,
     scores: defaultScores,
+    events: [],
     recommendations: [],
     logs: defaultLogs
   };

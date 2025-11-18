@@ -46,6 +46,29 @@
     });
   };
 
+  const handleRegister = () => {
+    if(!auth()) return;
+    const form = document.getElementById('registerForm');
+    if(!form) return;
+    form.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      if(!form.checkValidity()){
+        form.classList.add('was-validated');
+        return;
+      }
+      const formData = {
+        login: document.getElementById('regLogin').value.trim(),
+        fullName: document.getElementById('regFullName').value.trim(),
+        email: document.getElementById('regEmail').value.trim(),
+        mobile: document.getElementById('regMobile').value.trim(),
+        address: document.getElementById('regAddress').value.trim(),
+        subject: document.getElementById('regSubject').value,
+        nationalId: document.getElementById('regNationalId').value.trim()
+      };
+      auth().register(formData);
+    });
+  };
+
   const handleDashboard = () => {
     if(!ensureAuth()) return;
     bindLogout();
@@ -228,14 +251,84 @@
     });
   };
 
+  const handleEvents = () => {
+    if(!ensureAuth()) return;
+    bindLogout();
+    if(!data()) return;
+    const teacher = auth()?.current();
+    if(!teacher) return;
+    const form = document.getElementById('addEventForm');
+    const typeSelect = document.getElementById('type');
+    const locationWrapper = document.getElementById('locationWrapper');
+    const renderEvents = () => {
+      const events = data().getTeacherEvents(teacher.id);
+      const list = document.getElementById('eventsList');
+      if(!list) return;
+      if(!events.length){
+        list.innerHTML = '<p class="text-muted">No events yet. Create one above.</p>';
+        return;
+      }
+      list.innerHTML = events.map(e => `
+        <div class="card mb-3">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h3 class="h5">${e.title}</h3>
+                <p class="mb-1"><strong>Date:</strong> ${e.date} | <strong>Time:</strong> ${e.startTime} - ${e.endTime}</p>
+                <p class="mb-1"><strong>Type:</strong> ${e.type} | <strong>Course:</strong> ${e.course}</p>
+                ${e.location ? `<p class="mb-1"><strong>Location:</strong> ${e.location}</p>` : ''}
+                <p class="mb-0 text-muted">${e.description || 'No description'}</p>
+              </div>
+              <button class="btn btn-danger btn-sm" onclick="deleteEvent('${e.id}')">Delete</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    };
+    window.deleteEvent = (id) => {
+      if(confirm('Delete this event?')){
+        data().removeEvent(id);
+        renderEvents();
+      }
+    };
+    if(typeSelect && locationWrapper){
+      typeSelect.addEventListener('change', () => {
+        locationWrapper.style.display = typeSelect.value === 'Lecture' ? 'block' : 'none';
+      });
+    }
+    form?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const eventData = {
+        id: randomId(),
+        title: document.getElementById('title').value.trim(),
+        date: document.getElementById('date').value,
+        startTime: document.getElementById('startTime').value,
+        endTime: document.getElementById('endTime').value,
+        course: document.getElementById('course').value.trim(),
+        type: document.getElementById('type').value,
+        location: document.getElementById('type').value === 'Lecture' ? document.getElementById('location').value.trim() : '',
+        maxParticipants: parseInt(document.getElementById('maxParticipants').value, 10),
+        description: document.getElementById('description').value.trim(),
+        teacherId: teacher.id,
+        createdAt: new Date().toISOString()
+      };
+      data().saveEvent(eventData);
+      form.reset();
+      renderEvents();
+    });
+    renderEvents();
+  };
+
   const handlers = {
     'teacher-index': handleIndex,
     'teacher-login': handleLogin,
+    'teacher-register': handleRegister,
     'teacher-dashboard': handleDashboard,
     'teacher-courses': handleCourses,
     'teacher-students': handleStudents,
     'teacher-reports': handleReports,
-    'teacher-quiz-builder': handleQuizBuilder
+    'teacher-quiz-builder': handleQuizBuilder,
+    'teacher-events': handleEvents
   };
 
   document.addEventListener('DOMContentLoaded', ()=>{

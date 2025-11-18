@@ -22,6 +22,7 @@
               </div>
               <div class="d-grid gap-2">
                 <button type="submit" class="btn btn-primary">Log In</button>
+                <a class="btn btn-outline-success" href="register.php">Create Teacher Account</a>
               </div>
             </form>
           </div>
