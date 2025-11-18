@@ -10,13 +10,13 @@
   };
 
   const defaultStudents = [
-    { id: 'stu_alice', username: 'alice', fullName: 'Alice Stone', email: 'alice@edumind.app', gradeLevel: 'Grade 8', createdAt: daysAgo(20), lastLoginAt: daysAgo(1) },
-    { id: 'stu_bob', username: 'bob', fullName: 'Bob Carter', email: 'bob@edumind.app', gradeLevel: 'Grade 9', createdAt: daysAgo(28), lastLoginAt: daysAgo(3) }
+    { id: 'stu_alice', username: 'alice', fullName: 'Alice Stone', email: 'alice@edumind.app', mobile: '+123456789', address: '123 Main St, City', gradeLevel: 'Grade 8', createdAt: daysAgo(20), lastLoginAt: daysAgo(1) },
+    { id: 'stu_bob', username: 'bob', fullName: 'Bob Carter', email: 'bob@edumind.app', mobile: '+987654321', address: '456 Oak Ave, Town', gradeLevel: 'Grade 9', createdAt: daysAgo(28), lastLoginAt: daysAgo(3) }
   ];
 
   const defaultTeachers = [
-    { id: 'teach_jane', username: 'teacher_jane', fullName: 'Jane Miller', email: 'jane@edumind.app', specialty: 'Mathematics', createdAt: daysAgo(60), lastLoginAt: daysAgo(2) },
-    { id: 'teach_lee', username: 'teacher_lee', fullName: 'Lee Sanders', email: 'lee@edumind.app', specialty: 'Science', createdAt: daysAgo(55), lastLoginAt: daysAgo(4) }
+    { id: 'teach_jane', username: 'teacher_jane', fullName: 'Jane Miller', email: 'jane@edumind.app', mobile: '+555100200', address: '789 Elm St, District', specialty: 'Mathematics', nationalId: 'NAT-001-JM', createdAt: daysAgo(60), lastLoginAt: daysAgo(2) },
+    { id: 'teach_lee', username: 'teacher_lee', fullName: 'Lee Sanders', email: 'lee@edumind.app', mobile: '+555300400', address: '321 Pine Rd, Campus', specialty: 'Science', nationalId: 'NAT-002-LS', createdAt: daysAgo(55), lastLoginAt: daysAgo(4) }
   ];
 
   const defaultCourses = [

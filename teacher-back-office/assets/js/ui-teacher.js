@@ -1,6 +1,6 @@
 (function(){
   const TUI = {
-    requireAuth(){ if(!Storage.get('TEACHER_currentUser')){ window.location.replace('login.html'); } },
+    requireAuth(){ if(!Storage.get('TEACHER_currentUser')){ window.location.replace('login.php'); } },
     bindLogout(id){ const btn = document.getElementById(id); if(btn){ btn.addEventListener('click', ()=> TAuth.logout()); } },
     renderCourses(containerId, courses, quizzes = [], onDelete){
       const el = document.getElementById(containerId); if(!el) return;

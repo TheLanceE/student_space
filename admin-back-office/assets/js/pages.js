@@ -7,7 +7,7 @@
   const ensureAuth = () => {
     if(!auth()) return false;
     if(!auth().current()){
-      window.location.replace('login.html');
+      window.location.replace('login.php');
       return false;
     }
     return true;
@@ -22,7 +22,7 @@
 
   const handleIndex = () => {
     const current = auth()?.current();
-    window.location.replace(current ? 'dashboard.html' : 'login.html');
+    window.location.replace(current ? 'dashboard.php' : 'login.php');
   };
 
   const handleLogin = () => {
@@ -174,11 +174,24 @@
       if(role === 'student'){
         data().saveStudent({ ...baseRecord, gradeLevel: 'Grade 8' });
       } else if(role === 'teacher'){
-        data().saveTeacher({ ...baseRecord, specialty: 'General Studies' });
+        const emailInput = document.getElementById('uEmail');
+        const mobileInput = document.getElementById('uMobile');
+        const addressInput = document.getElementById('uAddress');
+        const subjectInput = document.getElementById('uSubject');
+        const nationalIdInput = document.getElementById('uNationalId');
+        data().saveTeacher({
+          ...baseRecord,
+          email: emailInput?.value.trim() || baseRecord.email,
+          mobile: mobileInput?.value.trim() || '',
+          address: addressInput?.value.trim() || '',
+          specialty: subjectInput?.value.trim() || 'General Studies',
+          nationalId: nationalIdInput?.value.trim() || ''
+        });
       } else if(role === 'admin'){
         data().saveAdmin({ ...baseRecord, name: baseRecord.fullName });
       }
       form.reset();
+      document.getElementById('teacherFields').style.display = 'none';
       render();
     });
     render();

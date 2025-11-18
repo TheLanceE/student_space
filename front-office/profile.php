@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>EduMind+ | Profile</title>
   <link href="../shared-assets/vendor/bootstrap.min.css" rel="stylesheet">
-  <link href="assets/css/styles.css" rel="stylesheet">
+  <link href="../shared-assets/css/global.css" rel="stylesheet">
 </head>
 <body data-page="front-profile">
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -17,9 +17,9 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarsExample07">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link" href="dashboard.html">Dashboard</a></li>
-          <li class="nav-item"><a class="nav-link" href="courses.html">Courses</a></li>
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="profile.html">Profile</a></li>
+          <li class="nav-item"><a class="nav-link" href="dashboard.php">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="courses.php">Courses</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="profile.php">Profile</a></li>
         </ul>
         <div class="d-flex"><button id="logoutBtn" class="btn btn-outline-light btn-sm">Logout</button></div>
       </div>

@@ -14,7 +14,7 @@
   };
   const handleIndex = () => {
     const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
-    window.location.replace(user ? 'dashboard.html' : 'login.html');
+    window.location.replace(user ? 'dashboard.php' : 'login.php');
   };
   const handleLogin = () => {
     const form = document.getElementById('loginForm');
@@ -38,8 +38,15 @@
         form.classList.add('was-validated');
         return;
       }
-      const username = document.getElementById('regUsername').value.trim();
-      Auth.register(username);
+      const formData = {
+        login: document.getElementById('regLogin').value.trim(),
+        fullName: document.getElementById('regFullName').value.trim(),
+        email: document.getElementById('regEmail').value.trim(),
+        mobile: document.getElementById('regMobile').value.trim(),
+        address: document.getElementById('regAddress').value.trim(),
+        gradeLevel: document.getElementById('regGrade').value
+      };
+      Auth.register(formData);
     });
   };
   const renderSkillLevels = (scores) => {
@@ -90,7 +97,7 @@
     requireAuth();
     safeBindLogout('logoutBtn');
     const user = getCurrentUser();
-    if(!user){ window.location.replace('login.html'); return; }
+    if(!user){ window.location.replace('login.php'); return; }
     const scores = getScoresForCurrentUser();
     const info = document.getElementById('profileInfo');
     if(info){

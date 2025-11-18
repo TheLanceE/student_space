@@ -3,16 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>EduMind+ | Admin Back Office</title>
+  <title>EduMind+ | Front Office</title>
   <link href="../shared-assets/vendor/bootstrap.min.css" rel="stylesheet">
-  <link href="assets/css/styles.css" rel="stylesheet">
+  <link href="../shared-assets/css/global.css" rel="stylesheet">
 </head>
-<body data-page="admin-index">
-  <script src="../shared-assets/vendor/bootstrap.bundle.min.js"></script>
+<body data-page="front-index">
   <script src="../shared-assets/js/database.js"></script>
   <script src="assets/js/storage.js"></script>
-  <script src="assets/js/data-admin.js"></script>
-  <script src="assets/js/auth-admin.js"></script>
   <script src="assets/js/pages.js"></script>
 </body>
 </html>

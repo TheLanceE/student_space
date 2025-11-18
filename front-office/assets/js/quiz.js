@@ -101,8 +101,8 @@
             <ul id="resultSuggestions" class="mt-2"></ul>
           </div>
           <div class="d-flex gap-2">
-            <a href="courses.html" class="btn btn-outline-secondary">Back to Courses</a>
-            <a href="dashboard.html" class="btn btn-primary">Go to Dashboard</a>
+            <a href="courses.php" class="btn btn-outline-secondary">Back to Courses</a>
+            <a href="dashboard.php" class="btn btn-primary">Go to Dashboard</a>
           </div>
         </div>
       </div>

@@ -19,9 +19,9 @@
       const lastLogin = nowISO();
       Database.updateWhere('teachers', entry => entry.id === teacher.id, entry => ({ ...entry, lastLoginAt: lastLogin }));
       Storage.set(CURRENT_KEY, { ...teacher, lastLoginAt: lastLogin, role: 'teacher' });
-      window.location.href = 'dashboard.html';
+      window.location.href = 'dashboard.php';
     },
-    logout(){ localStorage.removeItem(CURRENT_KEY); window.location.href = 'login.html'; },
+    logout(){ localStorage.removeItem(CURRENT_KEY); window.location.href = 'login.php'; },
     current(){ return Storage.get(CURRENT_KEY, null); }
   };
 

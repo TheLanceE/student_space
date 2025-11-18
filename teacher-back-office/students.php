@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Courses | Teacher</title>
+  <title>Students | Teacher</title>
   <link href="../shared-assets/vendor/bootstrap.min.css" rel="stylesheet">
-  <link href="assets/css/styles.css" rel="stylesheet">
+  <link href="../shared-assets/css/global.css" rel="stylesheet">
 </head>
-<body data-page="teacher-courses">
+<body data-page="teacher-students">
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
       <a class="navbar-brand" href="#">EduMind+ Teacher</a>
@@ -16,10 +16,10 @@
       </button>
       <div class="collapse navbar-collapse" id="nav">
         <ul class="navbar-nav me-auto">
-          <li class="nav-item"><a class="nav-link" href="dashboard.html">Dashboard</a></li>
-          <li class="nav-item"><a class="nav-link active" href="courses.html">Courses</a></li>
-          <li class="nav-item"><a class="nav-link" href="students.html">Students</a></li>
-          <li class="nav-item"><a class="nav-link" href="reports.html">Reports</a></li>
+          <li class="nav-item"><a class="nav-link" href="dashboard.php">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="courses.php">Courses</a></li>
+          <li class="nav-item"><a class="nav-link active" href="students.php">Students</a></li>
+          <li class="nav-item"><a class="nav-link" href="reports.php">Reports</a></li>
         </ul>
         <button id="logoutBtn" class="btn btn-outline-light btn-sm">Logout</button>
       </div>
@@ -28,23 +28,19 @@
 
   <main class="container py-4">
     <div class="row g-4">
-      <div class="col-12 col-lg-4">
-        <div class="card shadow-sm">
+      <div class="col-12 col-lg-6">
+        <div class="card shadow-sm h-100">
           <div class="card-body">
-            <h2 class="h6">Add Course</h2>
-            <form id="addCourseForm">
-              <div class="mb-2"><label class="form-label">Title</label><input class="form-control" id="cTitle" required></div>
-              <div class="mb-2"><label class="form-label">Description</label><textarea class="form-control" id="cDesc" rows="3"></textarea></div>
-              <button class="btn btn-primary btn-sm" type="submit">Add</button>
-            </form>
+            <h2 class="h6">Students Overview</h2>
+            <div id="studentsTable"></div>
           </div>
         </div>
       </div>
-      <div class="col-12 col-lg-8">
-        <div class="card shadow-sm">
+      <div class="col-12 col-lg-6">
+        <div class="card shadow-sm h-100">
           <div class="card-body">
-            <h2 class="h6">Your Courses</h2>
-            <div class="row g-3" id="courseList"></div>
+            <h2 class="h6">Topline Insights</h2>
+            <ul class="mb-0" id="insights"></ul>
           </div>
         </div>
       </div>

@@ -2,7 +2,7 @@
   const UI = {
     requireAuth(){
       if(!Storage.get('currentUser')){
-        window.location.replace('login.html');
+        window.location.replace('login.php');
       }
     },
     bindLogout(id){

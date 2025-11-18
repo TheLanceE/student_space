@@ -34,24 +34,27 @@
   }
 
   const Auth = {
-    register(username){
-      if(!username){ return; }
-      if(findAccount(username)){
-        alert('Username already exists. Please pick another or contact your administrator.');
+    register(formData){
+      if(!formData || !formData.login){ return; }
+      const login = formData.login.trim();
+      if(findAccount(login)){
+        alert('Login ID already exists. Please pick another or contact your administrator.');
         return;
       }
       const record = {
         id: Database.nextId('stu'),
-        username: username.trim(),
-        fullName: username.trim(),
-        email: `${username.trim()}@student.local`,
-        gradeLevel: 'Unassigned',
+        username: login,
+        fullName: formData.fullName || login,
+        email: formData.email || `${login}@student.local`,
+        mobile: formData.mobile || '',
+        address: formData.address || '',
+        gradeLevel: formData.gradeLevel || 'Unassigned',
         createdAt: nowISO(),
         lastLoginAt: nowISO()
       };
       Database.insert('students', record);
       Storage.set(CURRENT_KEY, normalizeAccount(record, 'student'));
-      window.location.href = 'dashboard.html';
+      window.location.href = 'dashboard.php';
     },
     login(username){
       if(!username){ return; }
@@ -63,11 +66,11 @@
       const updatedLogin = nowISO();
       updateLastLogin(account.role === 'student' ? 'students' : 'teachers', account.record.id);
       Storage.set(CURRENT_KEY, normalizeAccount({ ...account.record, lastLoginAt: updatedLogin }, account.role));
-      window.location.href = 'dashboard.html';
+      window.location.href = 'dashboard.php';
     },
     logout(){
       localStorage.removeItem(CURRENT_KEY);
-      window.location.href = 'login.html';
+      window.location.href = 'login.php';
     },
     current(){ return Storage.get(CURRENT_KEY, null); }
   };

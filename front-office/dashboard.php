@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>EduMind+ | Student Dashboard</title>
   <link href="../shared-assets/vendor/bootstrap.min.css" rel="stylesheet">
-  <link href="assets/css/styles.css" rel="stylesheet">
+  <link href="../shared-assets/css/global.css" rel="stylesheet">
 </head>
 <body data-page="front-dashboard">
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -17,9 +17,9 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarsExample07">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="dashboard.html">Dashboard</a></li>
-          <li class="nav-item"><a class="nav-link" href="courses.html">Courses</a></li>
-          <li class="nav-item"><a class="nav-link" href="profile.html">Profile</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="dashboard.php">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="courses.php">Courses</a></li>
+          <li class="nav-item"><a class="nav-link" href="profile.php">Profile</a></li>
         </ul>
         <div class="d-flex"><button id="logoutBtn" class="btn btn-outline-light btn-sm">Logout</button></div>
       </div>
@@ -34,7 +34,7 @@
             <div class="d-flex justify-content-between align-items-center mb-2">
               <h2 class="h5 mb-0">Progress Overview</h2>
               <div class="d-flex gap-2">
-                <a href="courses.html" class="btn btn-sm btn-primary">Take Quiz</a>
+                <a href="courses.php" class="btn btn-sm btn-primary">Take Quiz</a>
                 <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#skillsModal">View Skills</button>
               </div>
             </div>
@@ -59,7 +59,7 @@
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-2">
               <h2 class="h5 mb-0">Recent Results</h2>
-              <a href="courses.html" class="btn btn-sm btn-outline-secondary">Take a Quiz</a>
+              <a href="courses.php" class="btn btn-sm btn-outline-secondary">Take a Quiz</a>
             </div>
             <div id="recentResults" class="table-responsive"></div>
           </div>

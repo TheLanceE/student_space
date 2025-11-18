@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Quiz Builder | Teacher</title>
   <link href="../shared-assets/vendor/bootstrap.min.css" rel="stylesheet">
-  <link href="assets/css/styles.css" rel="stylesheet">
+  <link href="../shared-assets/css/global.css" rel="stylesheet">
 </head>
 <body data-page="teacher-quiz-builder">
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -16,10 +16,10 @@
       </button>
       <div class="collapse navbar-collapse" id="nav">
         <ul class="navbar-nav me-auto">
-          <li class="nav-item"><a class="nav-link" href="dashboard.html">Dashboard</a></li>
-          <li class="nav-item"><a class="nav-link" href="courses.html">Courses</a></li>
-          <li class="nav-item"><a class="nav-link" href="students.html">Students</a></li>
-          <li class="nav-item"><a class="nav-link" href="reports.html">Reports</a></li>
+          <li class="nav-item"><a class="nav-link" href="dashboard.php">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="courses.php">Courses</a></li>
+          <li class="nav-item"><a class="nav-link" href="students.php">Students</a></li>
+          <li class="nav-item"><a class="nav-link" href="reports.php">Reports</a></li>
         </ul>
         <button id="logoutBtn" class="btn btn-outline-light btn-sm">Logout</button>
       </div>
@@ -49,7 +49,7 @@
         <button id="addQuestion" type="button" class="btn btn-outline-primary btn-sm mt-2">Add Question</button>
       </div>
       <div class="card-footer d-flex justify-content-end gap-2">
-        <a href="courses.html" class="btn btn-outline-secondary">Back</a>
+        <a href="courses.php" class="btn btn-outline-secondary">Back</a>
         <button class="btn btn-primary" type="submit">Save Quiz</button>
       </div>
     </form>

@@ -13,7 +13,7 @@
   const ensureAuth = () => {
     if(!auth()) return false;
     if(!auth().current()){
-      window.location.replace('login.html');
+      window.location.replace('login.php');
       return false;
     }
     return true;
@@ -28,7 +28,7 @@
 
   const handleIndex = () => {
     const user = auth()?.current();
-    window.location.replace(user ? 'dashboard.html' : 'login.html');
+    window.location.replace(user ? 'dashboard.php' : 'login.php');
   };
 
   const handleLogin = () => {
@@ -224,7 +224,7 @@
         data().saveQuiz(quizPayload);
       }
       alert('Quiz saved.');
-      window.location.href = 'courses.html';
+      window.location.href = 'courses.php';
     });
   };
 

@@ -3,17 +3,17 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>EduMind+ | Admin Login</title>
+  <title>EduMind+ | Teacher Login</title>
   <link href="../shared-assets/vendor/bootstrap.min.css" rel="stylesheet">
-  <link href="assets/css/styles.css" rel="stylesheet">
+  <link href="../shared-assets/css/global.css" rel="stylesheet">
 </head>
-<body class="bg-light d-flex align-items-center" style="min-height: 100vh;" data-page="admin-login">
+<body class="bg-light d-flex align-items-center" style="min-height: 100vh;" data-page="teacher-login">
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-12 col-md-6 col-lg-4">
         <div class="card shadow-sm">
           <div class="card-body p-4">
-            <h1 class="h4 mb-3 text-center">Admin Login</h1>
+            <h1 class="h4 mb-3 text-center">Teacher Login</h1>
             <form id="loginForm" class="needs-validation" novalidate>
               <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
@@ -34,8 +34,7 @@
   <script src="../shared-assets/vendor/bootstrap.bundle.min.js"></script>
   <script src="../shared-assets/js/database.js"></script>
   <script src="assets/js/storage.js"></script>
-  <script src="assets/js/data-admin.js"></script>
-  <script src="assets/js/auth-admin.js"></script>
+  <script src="assets/js/auth-teacher.js"></script>
   <script src="assets/js/pages.js"></script>
 </body>
 </html>

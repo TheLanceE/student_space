@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>EduMind+ | Quiz</title>
+  <title>EduMind+ | Courses</title>
   <link href="../shared-assets/vendor/bootstrap.min.css" rel="stylesheet">
-  <link href="assets/css/styles.css" rel="stylesheet">
+  <link href="../shared-assets/css/global.css" rel="stylesheet">
 </head>
-<body data-page="front-quiz">
+<body data-page="front-courses">
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container-fluid">
       <a class="navbar-brand" href="#">EduMind+</a>
@@ -17,9 +17,9 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarsExample07">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link" href="dashboard.html">Dashboard</a></li>
-          <li class="nav-item"><a class="nav-link" href="courses.html">Courses</a></li>
-          <li class="nav-item"><a class="nav-link" href="profile.html">Profile</a></li>
+          <li class="nav-item"><a class="nav-link" href="dashboard.php">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="courses.php">Courses</a></li>
+          <li class="nav-item"><a class="nav-link" href="profile.php">Profile</a></li>
         </ul>
         <div class="d-flex"><button id="logoutBtn" class="btn btn-outline-light btn-sm">Logout</button></div>
       </div>
@@ -28,21 +28,10 @@
 
   <main class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1 id="quizTitle" class="h4 mb-0">Quiz</h1>
-      <div>
-        <span class="badge bg-dark badge-timer">Time left: <span id="timeLeft">--</span>s</span>
-      </div>
+      <h1 class="h4 mb-0">Courses</h1>
+      <a href="dashboard.php" class="btn btn-sm btn-outline-secondary">Back to Dashboard</a>
     </div>
-
-    <form id="quizForm" class="card shadow-sm">
-      <div id="questions" class="card-body"></div>
-      <div class="card-footer d-flex justify-content-between">
-        <a class="btn btn-outline-secondary" href="courses.html">Back</a>
-        <button id="submitBtn" type="submit" class="btn btn-primary">Submit</button>
-      </div>
-    </form>
-
-    <div id="resultPanel" class="mt-4" style="display:none;"></div>
+    <div id="courseList" class="row g-4"></div>
   </main>
 
   <script src="../shared-assets/vendor/bootstrap.bundle.min.js"></script>
@@ -50,9 +39,7 @@
   <script src="assets/js/storage.js"></script>
   <script src="assets/js/auth.js"></script>
   <script src="assets/js/data.js"></script>
-  <script src="assets/js/suggestionEngine.js"></script>
   <script src="assets/js/ui.js"></script>
-  <script src="assets/js/quiz.js"></script>
   <script src="assets/js/pages.js"></script>
 </body>
 </html>
