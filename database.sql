@@ -192,21 +192,21 @@ CREATE TABLE IF NOT EXISTS tasks (
     INDEX idx_priority (priority)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Insert default admin account
+-- Insert default admin account (password: admin123)
 INSERT INTO admins (id, username, password, name, createdAt, lastLoginAt) 
-VALUES ('admin_root', 'admin', 'admin123', 'Admin', DATE_SUB(NOW(), INTERVAL 90 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY))
+VALUES ('admin_root', 'admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Admin', DATE_SUB(NOW(), INTERVAL 90 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY))
 ON DUPLICATE KEY UPDATE username=username;
 
--- Insert sample students
+-- Insert sample students (password: password123)
 INSERT INTO students (id, username, password, fullName, email, mobile, address, gradeLevel, createdAt, lastLoginAt) VALUES
-('stu_alice', 'alice', 'password123', 'Alice Stone', 'alice@edumind.app', '+123456789', '123 Main St, City', 'Grade 8', DATE_SUB(NOW(), INTERVAL 20 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY)),
-('stu_bob', 'bob', 'password123', 'Bob Carter', 'bob@edumind.app', '+987654321', '456 Oak Ave, Town', 'Grade 9', DATE_SUB(NOW(), INTERVAL 28 DAY), DATE_SUB(NOW(), INTERVAL 3 DAY))
+('stu_alice', 'alice', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Alice Stone', 'alice@edumind.app', '+123456789', '123 Main St, City', 'Grade 8', DATE_SUB(NOW(), INTERVAL 20 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY)),
+('stu_bob', 'bob', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Bob Carter', 'bob@edumind.app', '+987654321', '456 Oak Ave, Town', 'Grade 9', DATE_SUB(NOW(), INTERVAL 28 DAY), DATE_SUB(NOW(), INTERVAL 3 DAY))
 ON DUPLICATE KEY UPDATE username=username;
 
--- Insert sample teachers
+-- Insert sample teachers (password: password123)
 INSERT INTO teachers (id, username, password, fullName, email, mobile, address, specialty, nationalId, createdAt, lastLoginAt) VALUES
-('teach_jane', 'teacher_jane', 'password123', 'Jane Miller', 'jane@edumind.app', '+555100200', '789 Elm St, District', 'Mathematics', 'NAT-001-JM', DATE_SUB(NOW(), INTERVAL 60 DAY), DATE_SUB(NOW(), INTERVAL 2 DAY)),
-('teach_lee', 'teacher_lee', 'password123', 'Lee Sanders', 'lee@edumind.app', '+555300400', '321 Pine Rd, Campus', 'Science', 'NAT-002-LS', DATE_SUB(NOW(), INTERVAL 55 DAY), DATE_SUB(NOW(), INTERVAL 4 DAY))
+('teach_jane', 'teacher_jane', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Jane Miller', 'jane@edumind.app', '+555100200', '789 Elm St, District', 'Mathematics', 'NAT-001-JM', DATE_SUB(NOW(), INTERVAL 60 DAY), DATE_SUB(NOW(), INTERVAL 2 DAY)),
+('teach_lee', 'teacher_lee', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Lee Sanders', 'lee@edumind.app', '+555300400', '321 Pine Rd, Campus', 'Science', 'NAT-002-LS', DATE_SUB(NOW(), INTERVAL 55 DAY), DATE_SUB(NOW(), INTERVAL 4 DAY))
 ON DUPLICATE KEY UPDATE username=username;
 
 -- Insert sample courses
