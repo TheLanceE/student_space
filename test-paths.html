@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduMind+ Path Test</title>
+    <link href="shared-assets/vendor/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .test-result { padding: 10px; margin: 5px 0; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>EduMind+ Path Test</h1>
+        <div id="results"></div>
+        <hr>
+        <h3>Bootstrap Test</h3>
+        <button class="btn btn-primary">If this button is styled, Bootstrap CSS loaded!</button>
+    </div>
+
+    <script src="shared-assets/vendor/bootstrap.bundle.min.js"></script>
+    <script src="shared-assets/js/database.js"></script>
+    <script>
+        const results = document.getElementById('results');
+        
+        function addResult(test, passed) {
+            const div = document.createElement('div');
+            div.className = `test-result ${passed ? 'success' : 'error'}`;
+            div.textContent = `${passed ? '✓' : '✗'} ${test}`;
+            results.appendChild(div);
+        }
+
+        // Test Bootstrap
+        addResult('Bootstrap JS loaded', typeof bootstrap !== 'undefined');
+        
+        // Test Database
+        addResult('Database.js loaded', typeof Database !== 'undefined');
+        
+        if (typeof Database !== 'undefined') {
+            addResult('Database has students table', Database.table('students') !== undefined);
+            addResult('Database has teachers table', Database.table('teachers') !== undefined);
+            addResult('Database has admins table', Database.table('admins') !== undefined);
+        }
+        
+        console.log('Test complete! Check console for any errors.');
+    </script>
+</body>
+</html>

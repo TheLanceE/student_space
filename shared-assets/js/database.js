@@ -80,7 +80,8 @@
     scores: defaultScores,
     events: defaultEvents,
     recommendations: [],
-    logs: defaultLogs
+    logs: defaultLogs,
+    quizReports: []
   };
 
   function readRaw(){

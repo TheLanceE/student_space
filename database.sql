@@ -8,6 +8,7 @@ USE edumind;
 CREATE TABLE IF NOT EXISTS admins (
     id VARCHAR(50) PRIMARY KEY,
     username VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
     name VARCHAR(255),
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     lastLoginAt DATETIME
@@ -17,6 +18,7 @@ CREATE TABLE IF NOT EXISTS admins (
 CREATE TABLE IF NOT EXISTS students (
     id VARCHAR(50) PRIMARY KEY,
     username VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
     fullName VARCHAR(255),
     email VARCHAR(255),
     mobile VARCHAR(50),
@@ -32,6 +34,7 @@ CREATE TABLE IF NOT EXISTS students (
 CREATE TABLE IF NOT EXISTS teachers (
     id VARCHAR(50) PRIMARY KEY,
     username VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
     fullName VARCHAR(255),
     email VARCHAR(255),
     mobile VARCHAR(50),
@@ -137,21 +140,73 @@ CREATE TABLE IF NOT EXISTS logs (
     INDEX idx_timestamp (ts)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Quiz Reports table
+CREATE TABLE IF NOT EXISTS quiz_reports (
+    id VARCHAR(100) PRIMARY KEY,
+    quizId VARCHAR(100) NOT NULL,
+    questionId VARCHAR(100),
+    reportedBy VARCHAR(50) NOT NULL,
+    reportType ENUM('incorrect_answer', 'wrong_display', 'typo', 'other') DEFAULT 'other',
+    description TEXT NOT NULL,
+    status ENUM('pending', 'reviewed', 'resolved', 'dismissed') DEFAULT 'pending',
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    reviewedBy VARCHAR(50),
+    reviewedAt DATETIME,
+    FOREIGN KEY (reportedBy) REFERENCES students(id) ON DELETE CASCADE,
+    INDEX idx_quiz (quizId),
+    INDEX idx_status (status),
+    INDEX idx_created (createdAt)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Projects table
+CREATE TABLE IF NOT EXISTS projects (
+    id VARCHAR(100) PRIMARY KEY,
+    projectName VARCHAR(255) NOT NULL,
+    description TEXT,
+    createdBy VARCHAR(50) NOT NULL,
+    assignedTo VARCHAR(50),
+    status ENUM('not_started', 'in_progress', 'completed', 'on_hold') DEFAULT 'not_started',
+    dueDate DATE,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_created_by (createdBy),
+    INDEX idx_assigned_to (assignedTo),
+    INDEX idx_status (status),
+    INDEX idx_due_date (dueDate)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tasks table
+CREATE TABLE IF NOT EXISTS tasks (
+    id VARCHAR(100) PRIMARY KEY,
+    projectId VARCHAR(100) NOT NULL,
+    taskName VARCHAR(255) NOT NULL,
+    description TEXT,
+    isComplete BOOLEAN DEFAULT FALSE,
+    priority ENUM('low', 'medium', 'high') DEFAULT 'medium',
+    dueDate DATE,
+    completedAt DATETIME,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (projectId) REFERENCES projects(id) ON DELETE CASCADE,
+    INDEX idx_project (projectId),
+    INDEX idx_complete (isComplete),
+    INDEX idx_priority (priority)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Insert default admin account
-INSERT INTO admins (id, username, name, createdAt, lastLoginAt) 
-VALUES ('admin_root', 'admin', 'Admin', DATE_SUB(NOW(), INTERVAL 90 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY))
+INSERT INTO admins (id, username, password, name, createdAt, lastLoginAt) 
+VALUES ('admin_root', 'admin', 'admin123', 'Admin', DATE_SUB(NOW(), INTERVAL 90 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY))
 ON DUPLICATE KEY UPDATE username=username;
 
 -- Insert sample students
-INSERT INTO students (id, username, fullName, email, mobile, address, gradeLevel, createdAt, lastLoginAt) VALUES
-('stu_alice', 'alice', 'Alice Stone', 'alice@edumind.app', '+123456789', '123 Main St, City', 'Grade 8', DATE_SUB(NOW(), INTERVAL 20 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY)),
-('stu_bob', 'bob', 'Bob Carter', 'bob@edumind.app', '+987654321', '456 Oak Ave, Town', 'Grade 9', DATE_SUB(NOW(), INTERVAL 28 DAY), DATE_SUB(NOW(), INTERVAL 3 DAY))
+INSERT INTO students (id, username, password, fullName, email, mobile, address, gradeLevel, createdAt, lastLoginAt) VALUES
+('stu_alice', 'alice', 'password123', 'Alice Stone', 'alice@edumind.app', '+123456789', '123 Main St, City', 'Grade 8', DATE_SUB(NOW(), INTERVAL 20 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY)),
+('stu_bob', 'bob', 'password123', 'Bob Carter', 'bob@edumind.app', '+987654321', '456 Oak Ave, Town', 'Grade 9', DATE_SUB(NOW(), INTERVAL 28 DAY), DATE_SUB(NOW(), INTERVAL 3 DAY))
 ON DUPLICATE KEY UPDATE username=username;
 
 -- Insert sample teachers
-INSERT INTO teachers (id, username, fullName, email, mobile, address, specialty, nationalId, createdAt, lastLoginAt) VALUES
-('teach_jane', 'teacher_jane', 'Jane Miller', 'jane@edumind.app', '+555100200', '789 Elm St, District', 'Mathematics', 'NAT-001-JM', DATE_SUB(NOW(), INTERVAL 60 DAY), DATE_SUB(NOW(), INTERVAL 2 DAY)),
-('teach_lee', 'teacher_lee', 'Lee Sanders', 'lee@edumind.app', '+555300400', '321 Pine Rd, Campus', 'Science', 'NAT-002-LS', DATE_SUB(NOW(), INTERVAL 55 DAY), DATE_SUB(NOW(), INTERVAL 4 DAY))
+INSERT INTO teachers (id, username, password, fullName, email, mobile, address, specialty, nationalId, createdAt, lastLoginAt) VALUES
+('teach_jane', 'teacher_jane', 'password123', 'Jane Miller', 'jane@edumind.app', '+555100200', '789 Elm St, District', 'Mathematics', 'NAT-001-JM', DATE_SUB(NOW(), INTERVAL 60 DAY), DATE_SUB(NOW(), INTERVAL 2 DAY)),
+('teach_lee', 'teacher_lee', 'password123', 'Lee Sanders', 'lee@edumind.app', '+555300400', '321 Pine Rd, Campus', 'Science', 'NAT-002-LS', DATE_SUB(NOW(), INTERVAL 55 DAY), DATE_SUB(NOW(), INTERVAL 4 DAY))
 ON DUPLICATE KEY UPDATE username=username;
 
 -- Insert sample courses
@@ -167,7 +222,10 @@ INSERT INTO quizzes (id, courseId, title, durationSec, difficulty, questions, cr
 'teach_jane', DATE_SUB(NOW(), INTERVAL 20 DAY)),
 ('sci101_quiz1', 'sci101', 'Science Basics · Quiz 1', 60, 'beginner',
 '[{"id":"s1_q1","text":"Water boils at what °C?","options":["50","80","100","120"],"correctIndex":2},{"id":"s1_q2","text":"What gas do plants produce?","options":["CO₂","O₂","N₂","CH₄"],"correctIndex":1},{"id":"s1_q3","text":"Earth is the ___ planet from the Sun.","options":["2nd","3rd","4th","5th"],"correctIndex":1},{"id":"s1_q4","text":"Basic unit of life is the:","options":["Atom","Molecule","Cell","Organ"],"correctIndex":2},{"id":"s1_q5","text":"H₂O is:","options":["Oxygen","Hydrogen","Water","Helium"],"correctIndex":2}]',
-'teach_lee', DATE_SUB(NOW(), INTERVAL 18 DAY))
+'teach_lee', DATE_SUB(NOW(), INTERVAL 18 DAY)),
+('challenge_daily', 'math101', 'Daily Math Challenge', 120, 'intermediate',
+'[{"id":"c1_q1","text":"15 + 27 = ?","options":["40","41","42","43"],"correctIndex":2},{"id":"c1_q2","text":"100 - 37 = ?","options":["62","63","64","65"],"correctIndex":1},{"id":"c1_q3","text":"12 × 8 = ?","options":["84","92","96","104"],"correctIndex":2},{"id":"c1_q4","text":"144 / 12 = ?","options":["10","11","12","13"],"correctIndex":2},{"id":"c1_q5","text":"Solve: 2x + 5 = 15","options":["3","4","5","6"],"correctIndex":2},{"id":"c1_q6","text":"√64 = ?","options":["6","7","8","9"],"correctIndex":2},{"id":"c1_q7","text":"3² + 4² = ?","options":["20","23","25","27"],"correctIndex":2},{"id":"c1_q8","text":"50% of 200 = ?","options":["75","100","125","150"],"correctIndex":1},{"id":"c1_q9","text":"Prime number after 7:","options":["8","9","10","11"],"correctIndex":3},{"id":"c1_q10","text":"Area of 5×6 rectangle:","options":["11","22","30","36"],"correctIndex":2}]',
+'teach_jane', DATE_SUB(NOW(), INTERVAL 15 DAY))
 ON DUPLICATE KEY UPDATE title=title;
 
 -- Insert sample scores

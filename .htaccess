@@ -1,0 +1,36 @@
+# Apache Configuration for EduMind+
+# Place this file in the root directory (Front&Back/)
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /edumind/
+
+    # Redirect root to index.php
+    DirectoryIndex index.php
+
+    # Allow access to assets
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Handle Views routing
+    RewriteRule ^Views/(.*)$ Views/$1 [L]
+
+    # Handle shared assets
+    RewriteRule ^shared-assets/(.*)$ shared-assets/$1 [L]
+</IfModule>
+
+# Security headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# Disable directory browsing
+Options -Indexes
+
+# Enable gzip compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+</IfModule>
