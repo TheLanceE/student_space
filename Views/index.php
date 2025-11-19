@@ -11,7 +11,12 @@
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
     <div class="container">
-      <a class="navbar-brand fw-bold" href="#">EduMind+ <span class="d-block text-uppercase text-white-50">By Weblynx</span></a>
+      <a class="navbar-brand fw-bold" href="#">
+        <img src="../logo.jpg" alt="EduMind+ Logo" height="45" class="d-inline-block align-middle me-2">
+        <span class="d-inline-block align-middle">
+          EduMind+ <span class="d-block text-uppercase text-white-50" style="font-size: 0.6rem;">By Weblynx</span>
+        </span>
+      </a>
       <div class="ms-auto d-none d-lg-flex gap-3 small text-white-50">
         <span>24/7 Support</span>
         <span>5K+ Learners</span>
