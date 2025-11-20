@@ -1,0 +1,42 @@
+/* Merged styles.css for teacher-back-office */
+/* Based on your group's teacher CSS: clean, minimal */
+
+body {
+  background-color: #f8fafc;
+}
+
+.navbar-brand {
+  font-weight: 700;
+}
+
+.card {
+  border-radius: .75rem;
+}
+
+.table td, .table th {
+  vertical-align: middle;
+}
+
+.placeholder-text {
+  color: #6c757d;
+  font-style: italic;
+}
+
+.btn-pill {
+  border-radius: 9999px;
+}
+
+.badge-soft {
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
+/* Additional for consistency */
+.btn {
+  border-radius: .5rem;
+}
+
+.form-control, .form-select {
+  border-radius: .5rem;
+  border: 1px solid #d1d5db;
+}
