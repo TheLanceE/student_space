@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>EduMind+ | Admin Panel</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f7fb;
+      margin: 0;
+      padding: 0;
+      display: flex;
+    }
+    
+    .sidebar {
+      width: 250px;
+      background: linear-gradient(180deg, #4361ee 0%, #3f37c9 100%);
+      color: white;
+      height: 100vh;
+      position: fixed;
+      padding: 20px 0;
+    }
+    
+    .sidebar-header {
+      padding: 0 20px 20px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 20px;
+    }
+    
+    .sidebar-nav {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .sidebar-nav li {
+      margin: 5px 0;
+    }
+    
+    .sidebar-nav a {
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      padding: 12px 20px;
+      display: block;
+      border-radius: 5px;
+      transition: all 0.3s;
+    }
+    
+    .sidebar-nav a:hover, .sidebar-nav a.active {
+      color: white;
+      background-color: rgba(255,255,255,0.15);
+    }
+    
+    .sidebar-nav i {
+      width: 20px;
+      margin-right: 10px;
+      text-align: center;
+    }
+    
+    .main-content {
+      margin-left: 250px;
+      padding: 20px;
+      flex: 1;
+    }
+    
+    .navbar {
+      background-color: #4361ee;
+      padding: 15px 0;
+      margin-bottom: 20px;
+      border-radius: 10px;
+    }
+    
+    .navbar-brand {
+      color: white;
+      font-weight: bold;
+      font-size: 24px;
+      text-decoration: none;
+      margin-left: 20px;
+    }
+    
+    .container-fluid {
+      padding: 0 20px;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+      border: 1px solid #e0e0e0;
+    }
+    
+    .card-header {
+      padding: 15px 20px;
+      border-bottom: 1px solid #e0e0e0;
+      font-weight: bold;
+      background: #f8f9fa;
+      border-radius: 10px 10px 0 0;
+    }
+    
+    .card-body {
+      padding: 20px;
+    }
+    
+    .stats-card {
+      text-align: center;
+      padding: 20px 15px;
+    }
+    
+    .stats-card i {
+      font-size: 32px;
+      margin-bottom: 15px;
+      color: #4361ee;
+    }
+    
+    .stats-card .number {
+      font-size: 32px;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+    
+    .btn-outline-primary {
+      background: transparent;
+      color: #4361ee;
+      border: 1px solid #4361ee;
+      padding: 8px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s;
+    }
+    
+    .btn-outline-primary:hover {
+      background: #4361ee;
+      color: white;
+    }
+    
+    .btn-danger {
+      background: #e63946;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    
+    .btn-danger:hover {
+      background: #c1121f;
+    }
+    
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+    
+    .table th {
+      text-align: left;
+      padding: 15px;
+      border-bottom: 2px solid #e0e0e0;
+      font-weight: bold;
+      color: #666;
+      background: #f8f9fa;
+    }
+    
+    .table td {
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .table tr:hover {
+      background: #f8f9fa;
+    }
+    
+    .badge {
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-weight: bold;
+      color: white;
+      font-size: 12px;
+    }
+    
+    .bg-success {
+      background: #4cc9f0;
+    }
+    
+    .bg-warning {
+      background: #fca311;
+    }
+    
+    .bg-danger {
+      background: #e63946;
+    }
+    
+    .bg-primary {
+      background: #4361ee;
+    }
+    
+    .text-muted {
+      color: #666;
+    }
+    
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      margin: 0 -15px;
+    }
+    
+    .col-md-3 {
+      width: 25%;
+      padding: 0 15px;
+      box-sizing: border-box;
+    }
+    
+    .col-md-6 {
+      width: 50%;
+      padding: 0 15px;
+      box-sizing: border-box;
+    }
+    
+    .col-md-4 {
+      width: 33.333%;
+      padding: 0 15px;
+      box-sizing: border-box;
+    }
+    
+    .d-flex {
+      display: flex;
+    }
+    
+    .justify-content-between {
+      justify-content: space-between;
+    }
+    
+    .align-items-center {
+      align-items: center;
+    }
+    
+    .mb-4 {
+      margin-bottom: 30px;
+    }
+    
+    .mt-4 {
+      margin-top: 30px;
+    }
+    
+    .read-only {
+      opacity: 0.7;
+    }
+    
+    .read-only .btn {
+      display: none;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+    
+    .empty-state i {
+      font-size: 48px;
+      margin-bottom: 15px;
+      color: #ddd;
+    }
+    
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      
+      .main-content {
+        margin-left: 0;
+      }
+      
+      .col-md-3, .col-md-6, .col-md-4 {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h3 style="margin: 0; color: white;"><i class="fas fa-tachometer-alt"></i> Admin Panel</h3>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="#" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+      <li><a href="#"><i class="fas fa-users"></i> Users</a></li>
+      <li><a href="#"><i class="fas fa-question-circle"></i> Quizzes</a></li>
+      <li><a href="#"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+      <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+    </ul>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Top Navigation -->
+    <div class="navbar">
+      <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center">
+          <a href="#" class="navbar-brand">EduMind+ Admin</a>
+          <div>
+            <a href="front-office.html" class="btn-outline-primary" style="color: white; border-color: white; margin-right: 10px;">
+              <i class="fas fa-eye"></i> View Site
+            </a>
+            <button class="btn-outline-primary" style="color: white; border-color: white;">
+              <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 style="margin: 0;">Platform Overview</h1>
+      <div class="text-muted">Admin Mode</div>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="card stats-card">
+          <i class="fas fa-users"></i>
+          <div class="number" id="totalUsers">1,284</div>
+          <div class="text-muted">Total Users</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card stats-card">
+          <i class="fas fa-user-check"></i>
+          <div class="number" id="activeUsers">892</div>
+          <div class="text-muted">Active Users</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card stats-card">
+          <i class="fas fa-question-circle"></i>
+          <div class="number" id="totalQuizzes">45</div>
+          <div class="text-muted">Total Quizzes</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card stats-card">
+          <i class="fas fa-chart-line"></i>
+          <div class="number" id="avgScore">78%</div>
+          <div class="text-muted">Avg. Score</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quiz Management -->
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>All Quizzes</span>
+        <small class="text-muted">Admin can delete quizzes but cannot create new ones</small>
+      </div>
+      <div class="card-body">
+        <div id="quizzesContainer">
+          <!-- Quizzes will be loaded here dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-4">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">Recent User Activity</div>
+          <div class="card-body">
+            <div style="overflow-x: auto;">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Role</th>
+                    <th>Activity</th>
+                    <th>Time</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>john.doe@example.com</td>
+                    <td><span class="badge bg-warning">Student</span></td>
+                    <td>Completed Math Quiz</td>
+                    <td>2 mins ago</td>
+                  </tr>
+                  <tr>
+                    <td>sarah.smith@example.com</td>
+                    <td><span class="badge bg-success">Teacher</span></td>
+                    <td>Created New Quiz</td>
+                    <td>15 mins ago</td>
+                  </tr>
+                  <tr>
+                    <td>mike.johnson@example.com</td>
+                    <td><span class="badge bg-warning">Student</span></td>
+                    <td>Started Science Quiz</td>
+                    <td>1 hour ago</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">Platform Analytics</div>
+          <div class="card-body">
+            <p><strong>Total Quizzes Created:</strong> <span id="analyticsTotalQuizzes">45</span></p>
+            <p><strong>Total Quiz Attempts:</strong> 1,284</p>
+            <p><strong>Average Score:</strong> 78%</p>
+            <p><strong>Active Teachers:</strong> <span id="analyticsActiveTeachers">12</span></p>
+            <p><strong>Active Students:</strong> 880</p>
+            <p><strong>User Satisfaction:</strong> 4.5/5</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt-4">
+      <div class="card-header">System Information</div>
+      <div class="card-body">
+        <p><strong>Platform Status:</strong> <span class="badge bg-success">Operational</span></p>
+        <p><strong>Last Backup:</strong> Oct 15, 2023 02:00 AM</p>
+        <p><strong>Active Sessions:</strong> 234</p>
+        <p><strong>Server Load:</strong> 42%</p>
+        <p class="text-muted"><em>Administrative functions: View and delete quizzes only. Teachers manage quiz creation in the front office.</em></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Quiz data storage and management
+    document.addEventListener('DOMContentLoaded', function() {
+      // Helper to read/write JSON in cookies (non-HTML5 storage)
+      function readCookieJSON(name) {
+        try {
+          var v = document.cookie.replace(new RegExp('(?:(?:^|.*;\\s*)' + name + '\\s*\\=\\s*([^;]*).*$)|^.*$'), '$1');
+          if (!v) return null;
+          return JSON.parse(decodeURIComponent(v));
+        } catch (e) { return null; }
+      }
+
+      function writeCookieJSON(name, obj, days) {
+        try {
+          var s = encodeURIComponent(JSON.stringify(obj));
+          var ex = '';
+          if (days) {
+            var d = new Date();
+            d.setDate(d.getDate() + days);
+            ex = '; expires=' + d.toUTCString();
+          }
+          document.cookie = name + '=' + s + ex + '; path=/';
+        } catch (e) {}
+      }
+
+      // Initialize quiz storage or load from cookie
+      let allQuizzes = readCookieJSON('allQuizzes') || [
+        {
+          id: 'math-basics',
+          title: 'Math Basics',
+          category: 'math',
+          grade: '5',
+          description: 'Numbers, operations, and simple algebra.',
+          questionCount: 15,
+          status: 'active',
+          createdBy: 'system',
+          createdByName: 'System',
+          createdDate: 'Sep 15, 2023',
+          attempts: 142
+        },
+        {
+          id: 'science-basics',
+          title: 'Science Basics',
+          category: 'science',
+          grade: '6',
+          description: 'Introduction to scientific concepts.',
+          questionCount: 20,
+          status: 'active',
+          createdBy: 'teacher',
+          createdByName: 'Dr. Smith',
+          createdDate: 'Sep 18, 2023',
+          attempts: 128
+        },
+        {
+          id: 'world-history',
+          title: 'World History',
+          category: 'history',
+          grade: '9',
+          description: 'Major events in world history.',
+          questionCount: 25,
+          status: 'active',
+          createdBy: 'teacher',
+          createdByName: 'Prof. Davis',
+          createdDate: 'Oct 1, 2023',
+          attempts: 98
+        },
+        {
+          id: 'algebra-basics',
+          title: 'Algebra Basics',
+          category: 'math',
+          grade: '8',
+          description: 'Introduction to algebraic concepts.',
+          questionCount: 10,
+          status: 'active',
+          createdBy: 'teacher',
+          createdByName: 'Ms. Wilson',
+          createdDate: 'Oct 10, 2023',
+          attempts: 76
+        }
+      ];
+
+      // Save to cookie if not already there
+      if (!readCookieJSON('allQuizzes')) {
+        writeCookieJSON('allQuizzes', allQuizzes, 30);
+      }
+
+      // Display all quizzes
+      displayAllQuizzes();
+      updateStats();
+
+      function displayAllQuizzes() {
+        const container = document.getElementById('quizzesContainer');
+        
+        if (allQuizzes.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <i class="fas fa-file-alt"></i>
+              <h4>No quizzes available</h4>
+              <p>Teachers haven't created any quizzes yet</p>
+            </div>
+          `;
+          return;
+        }
+
+        let html = `
+          <div style="overflow-x: auto;">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Quiz Name</th>
+                  <th>Created By</th>
+                  <th>Category</th>
+                  <th>Questions</th>
+                  <th>Grade Level</th>
+                  <th>Status</th>
+                  <th>Created Date</th>
+                  <th>Attempts</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+        `;
+
+        allQuizzes.forEach(quiz => {
+          const statusBadge = quiz.status === 'active' ? 
+            '<span class="badge bg-success">Active</span>' : 
+            '<span class="badge bg-warning">Draft</span>';
+          
+          const categoryBadge = getCategoryBadge(quiz.category);
+          
+          // Only show delete button for teacher-created quizzes, not system ones
+          const deleteButton = quiz.createdBy === 'system' ? 
+            '<span class="text-muted">System Quiz</span>' :
+            `<button class="btn-danger" onclick="deleteQuiz('${quiz.id}')">
+               <i class="fas fa-trash"></i> Delete
+             </button>`;
+          
+          html += `
+            <tr>
+              <td>${quiz.title}</td>
+              <td>${quiz.createdByName}</td>
+              <td>${categoryBadge}</td>
+              <td>${quiz.questionCount}</td>
+              <td>Grade ${quiz.gradeLevel}</td>
+              <td>${statusBadge}</td>
+              <td>${quiz.createdDate}</td>
+              <td>${quiz.attempts}</td>
+              <td>${deleteButton}</td>
+            </tr>
+          `;
+        });
+
+        html += `
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        container.innerHTML = html;
+      }
+
+      function getCategoryBadge(category) {
+        const categories = {
+          'math': { name: 'Mathematics', class: 'bg-primary' },
+          'science': { name: 'Science', class: 'bg-warning' },
+          'history': { name: 'History', class: 'bg-danger' },
+          'english': { name: 'English', class: 'bg-success' },
+          'geography': { name: 'Geography', class: 'bg-primary' },
+          'art': { name: 'Art', class: 'bg-warning' },
+          'music': { name: 'Music', class: 'bg-danger' }
+        };
+        
+        const cat = categories[category] || { name: category, class: 'bg-success' };
+        return `<span class="badge ${cat.class}">${cat.name}</span>`;
+      }
+
+      function updateStats() {
+        // Update stats based on actual data
+        const teacherQuizzes = allQuizzes.filter(quiz => quiz.createdBy === 'teacher');
+        const uniqueTeachers = [...new Set(teacherQuizzes.map(quiz => quiz.createdByName))].length;
+        
+        document.getElementById('totalQuizzes').textContent = allQuizzes.length;
+        document.getElementById('analyticsTotalQuizzes').textContent = allQuizzes.length;
+        document.getElementById('analyticsActiveTeachers').textContent = uniqueTeachers;
+      }
+
+      // Global function for deleting quizzes
+      window.deleteQuiz = function(quizId) {
+        if (confirm('Are you sure you want to delete this quiz? This action cannot be undone.')) {
+          // Remove from all quizzes
+          allQuizzes = allQuizzes.filter(quiz => quiz.id !== quizId);
+          writeCookieJSON('allQuizzes', allQuizzes, 30);
+          
+          // Update display
+          displayAllQuizzes();
+          updateStats();
+          
+          // Show success message (you could add a toast notification here)
+          alert('Quiz deleted successfully!');
+        }
+      };
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>EduMind+ | Student Portal</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f7fb;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .navbar {
+      background-color: #4361ee;
+      padding: 15px 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .navbar-brand {
+      color: white;
+      font-weight: bold;
+      font-size: 24px;
+      text-decoration: none;
+      margin-left: 20px;
+    }
+    
+    .nav-links {
+      display: flex;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      margin-left: 30px;
+    }
+    
+    .nav-links li {
+      margin-right: 20px;
+    }
+    
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+    }
+    
+    .nav-links a.active {
+      background-color: rgba(255,255,255,0.2);
+    }
+    
+    .user-role {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-left: 10px;
+      cursor: pointer;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .welcome-section {
+      background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%);
+      color: white;
+      border-radius: 10px;
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+      padding: 20px;
+      border: 1px solid #e0e0e0;
+    }
+    
+    .stats-card {
+      text-align: center;
+      padding: 20px 15px;
+    }
+    
+    .stats-card i {
+      font-size: 32px;
+      margin-bottom: 15px;
+      color: #4361ee;
+    }
+    
+    .stats-card .number {
+      font-size: 32px;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+    
+    .quiz-card {
+      position: relative;
+      height: 100%;
+      transition: transform 0.3s;
+    }
+    
+    .quiz-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .quiz-badge {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: #4361ee;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-weight: bold;
+      font-size: 12px;
+    }
+    
+    .teacher-badge {
+      background: #4cc9f0;
+      color: white;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-left: 5px;
+    }
+    
+    .btn-primary {
+      background: #4361ee;
+      color: white;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    
+    .btn-success {
+      background: #4cc9f0;
+      color: white;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    
+    .btn-outline-primary {
+      background: transparent;
+      color: #4361ee;
+      border: 1px solid #4361ee;
+      padding: 8px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    
+    /* Quiz Taking Styles */
+    .quiz-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .question-card {
+      margin-bottom: 20px;
+      border-left: 4px solid #4361ee;
+    }
+    
+    .question-number {
+      font-weight: bold;
+      color: #4361ee;
+      margin-bottom: 10px;
+    }
+    
+    .question-text {
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+    
+    .option-label {
+      display: block;
+      padding: 12px 15px;
+      margin-bottom: 8px;
+      border: 1px solid #e0e0e0;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .option-label:hover {
+      background: #f8f9fa;
+    }
+    
+    .option-label.selected {
+      background: #e8f4ff;
+      border-color: #4361ee;
+    }
+    
+    .option-input {
+      margin-right: 10px;
+    }
+    
+    .quiz-progress {
+      margin-bottom: 20px;
+    }
+    
+    .progress-bar {
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: #4361ee;
+      transition: width 0.3s;
+    }
+    
+    .quiz-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .quiz-timer {
+      background: #f8f9fa;
+      padding: 8px 15px;
+      border-radius: 5px;
+      font-weight: bold;
+      color: #4361ee;
+    }
+    
+    /* Results Styles */
+    .results-container {
+      text-align: center;
+      padding: 30px;
+    }
+    
+    .score-circle {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: #4361ee;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      margin: 0 auto 20px;
+    }
+    
+    .score-percentage {
+      font-size: 32px;
+      font-weight: bold;
+    }
+    
+    .score-text {
+      font-size: 14px;
+    }
+    
+    .question-review {
+      text-align: left;
+      margin-top: 30px;
+    }
+    
+    .correct-answer {
+      color: #2ecc71;
+      font-weight: bold;
+    }
+    
+    .incorrect-answer {
+      color: #e63946;
+      font-weight: bold;
+    }
+    
+    /* Grid Layout */
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      margin: 0 -15px;
+    }
+    
+    .col-md-3 {
+      width: 25%;
+      padding: 0 15px;
+      box-sizing: border-box;
+    }
+    
+    .col-md-4 {
+      width: 33.333%;
+      padding: 0 15px;
+      box-sizing: border-box;
+    }
+    
+    .col-md-6 {
+      width: 50%;
+      padding: 0 15px;
+      box-sizing: border-box;
+    }
+    
+    .col-md-8 {
+      width: 66.666%;
+      padding: 0 15px;
+      box-sizing: border-box;
+    }
+    
+    .d-flex {
+      display: flex;
+    }
+    
+    .justify-content-between {
+      justify-content: space-between;
+    }
+    
+    .align-items-center {
+      align-items: center;
+    }
+    
+    .mb-4 {
+      margin-bottom: 30px;
+    }
+    
+    .mt-4 {
+      margin-top: 30px;
+    }
+    
+    .text-muted {
+      color: #666;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    /* Quiz List Styles */
+    .quiz-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+    
+    .empty-state i {
+      font-size: 48px;
+      margin-bottom: 15px;
+      color: #ddd;
+    }
+    
+    @media (max-width: 768px) {
+      .col-md-3, .col-md-4, .col-md-6, .col-md-8 {
+        width: 100%;
+      }
+      
+      .quiz-list {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- NAVIGATION BAR -->
+  <div class="navbar">
+    <div class="container">
+      <div class="d-flex align-items-center">
+        <a href="#" class="navbar-brand">
+          <i class="fas fa-graduation-cap"></i> EduMind+
+        </a>
+        <ul class="nav-links">
+          <li><a href="#" class="active">Dashboard</a></li>
+          <li><a href="#">My Quizzes</a></li>
+          <li><a href="#">Progress</a></li>
+        </ul>
+        <div style="margin-left: auto;" class="d-flex align-items-center">
+          <span class="user-role">Student</span>
+          <button class="btn-outline-primary" style="color: white; border-color: white; margin-left: 10px;">Logout</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="container">
+    <!-- WELCOME SECTION -->
+    <div class="welcome-section">
+      <div class="row">
+        <div class="col-md-8">
+          <h1 style="margin: 0 0 10px 0;">Welcome to EduMind+ Student Portal</h1>
+          <p style="margin: 0; font-size: 16px;">Take quizzes created by your teachers and track your progress.</p>
+        </div>
+        <div class="col-md-4 text-end">
+          <div style="background: white; color: #4361ee; border-radius: 50%; width: 80px; height: 80px; display: inline-flex; align-items: center; justify-content: center;">
+            <i class="fas fa-user-graduate" style="font-size: 32px;"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS CARDS -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="card stats-card">
+          <i class="fas fa-list-alt"></i>
+          <div class="number" id="availableQuizzes">12</div>
+          <div class="text-muted">Available Quizzes</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card stats-card">
+          <i class="fas fa-check-circle"></i>
+          <div class="number" id="completedQuizzes">7</div>
+          <div class="text-muted">Quizzes Completed</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card stats-card">
+          <i class="fas fa-trophy"></i>
+          <div class="number" id="averageScore">85%</div>
+          <div class="text-muted">Average Score</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card stats-card">
+          <i class="fas fa-star"></i>
+          <div class="number" id="totalPoints">350</div>
+          <div class="text-muted">Total Points</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AVAILABLE QUIZZES -->
+    <div class="card">
+      <div class="card-header">
+        <h3 style="margin: 0;">Available Quizzes</h3>
+      </div>
+      <div class="card-body">
+        <div class="quiz-list" id="availableQuizzesContainer">
+          <!-- Quizzes will be dynamically added here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- QUIZ TAKING INTERFACE (HIDDEN BY DEFAULT) -->
+    <div id="quizTakingInterface" class="hidden">
+      <div class="quiz-container">
+        <div class="card">
+          <div class="card-header">
+            <div class="quiz-header">
+              <h3 id="quizTitle">Quiz Title</h3>
+              <div class="quiz-timer">
+                <i class="fas fa-clock"></i> Time: <span id="quizTimer">00:00</span>
+              </div>
+            </div>
+            <div class="quiz-progress">
+              <div>Question <span id="currentQuestion">1</span> of <span id="totalQuestions">10</span></div>
+              <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 10%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="questionContainer">
+              <!-- Questions will be dynamically added here -->
+            </div>
+            <div class="d-flex justify-content-between mt-4">
+              <button class="btn-outline-primary" id="prevQuestionBtn" disabled>
+                <i class="fas fa-arrow-left"></i> Previous
+              </button>
+              <button class="btn-primary" id="nextQuestionBtn">
+                Next <i class="fas fa-arrow-right"></i>
+              </button>
+              <button class="btn-success hidden" id="submitQuizBtn">
+                <i class="fas fa-paper-plane"></i> Submit Quiz
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUIZ RESULTS (HIDDEN BY DEFAULT) -->
+    <div id="quizResults" class="hidden">
+      <div class="card">
+        <div class="card-body results-container">
+          <div class="score-circle">
+            <div class="score-percentage" id="scorePercentage">85%</div>
+            <div class="score-text">Your Score</div>
+          </div>
+          <h3>Quiz Completed!</h3>
+          <p>You scored <span id="finalScore">17</span> out of <span id="totalScore">20</span> points</p>
+          <div class="d-flex justify-content-center mt-4">
+            <button class="btn-outline-primary me-2" id="reviewQuizBtn">
+              <i class="fas fa-search"></i> Review Answers
+            </button>
+            <button class="btn-primary" id="backToQuizzesBtn">
+              <i class="fas fa-list"></i> Back to Quizzes
+            </button>
+          </div>
+          
+          <div id="questionReview" class="question-review hidden">
+            <h4 class="mt-4">Question Review</h4>
+            <div id="reviewContainer">
+              <!-- Review content will be added here -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Student Front Office JavaScript
+    document.addEventListener('DOMContentLoaded', function() {
+      // Quiz data - in a real app, this would come from an API
+      const availableQuizzes = [
+        {
+          id: 'math-basics',
+          title: 'Math Basics',
+          category: 'Mathematics',
+          description: 'Numbers, operations, and simple algebra.',
+          questionCount: 5,
+          gradeLevel: '5',
+          teacher: 'Mr. Johnson',
+          timeLimit: 10, // minutes
+          questions: [
+            {
+              id: 1,
+              text: 'What is 15 + 27?',
+              options: [
+                { id: 'a', text: '32' },
+                { id: 'b', text: '42' },
+                { id: 'c', text: '52' },
+                { id: 'd', text: '62' }
+              ],
+              correctAnswer: 'b'
+            },
+            {
+              id: 2,
+              text: 'What is 8 × 7?',
+              options: [
+                { id: 'a', text: '48' },
+                { id: 'b', text: '56' },
+                { id: 'c', text: '64' },
+                { id: 'd', text: '72' }
+              ],
+              correctAnswer: 'b'
+            },
+            {
+              id: 3,
+              text: 'What is 144 ÷ 12?',
+              options: [
+                { id: 'a', text: '10' },
+                { id: 'b', text: '11' },
+                { id: 'c', text: '12' },
+                { id: 'd', text: '13' }
+              ],
+              correctAnswer: 'c'
+            },
+            {
+              id: 4,
+              text: 'What is the value of 3² + 4²?',
+              options: [
+                { id: 'a', text: '7' },
+                { id: 'b', text: '12' },
+                { id: 'c', text: '25' },
+                { id: 'd', text: '49' }
+              ],
+              correctAnswer: 'c'
+            },
+            {
+              id: 5,
+              text: 'If x = 5, what is 2x + 3?',
+              options: [
+                { id: 'a', text: '8' },
+                { id: 'b', text: '10' },
+                { id: 'c', text: '13' },
+                { id: 'd', text: '15' }
+              ],
+              correctAnswer: 'c'
+            }
+          ]
+        },
+        {
+          id: 'science-basics',
+          title: 'Science Basics',
+          category: 'Science',
+          description: 'Introduction to scientific concepts.',
+          questionCount: 4,
+          gradeLevel: '6',
+          teacher: 'Dr. Smith',
+          timeLimit: 8,
+          questions: [
+            {
+              id: 1,
+              text: 'What is the chemical symbol for water?',
+              options: [
+                { id: 'a', text: 'H2O' },
+                { id: 'b', text: 'O2' },
+                { id: 'c', text: 'CO2' },
+                { id: 'd', text: 'NaCl' }
+              ],
+              correctAnswer: 'a'
+            },
+            {
+              id: 2,
+              text: 'Which planet is known as the Red Planet?',
+              options: [
+                { id: 'a', text: 'Venus' },
+                { id: 'b', text: 'Mars' },
+                { id: 'c', text: 'Jupiter' },
+                { id: 'd', text: 'Saturn' }
+              ],
+              correctAnswer: 'b'
+            },
+            {
+              id: 3,
+              text: 'What is the process by which plants make their food?',
+              options: [
+                { id: 'a', text: 'Respiration' },
+                { id: 'b', text: 'Photosynthesis' },
+                { id: 'c', text: 'Digestion' },
+                { id: 'd', text: 'Transpiration' }
+              ],
+              correctAnswer: 'b'
+            },
+            {
+              id: 4,
+              text: 'What force pulls objects toward the center of the Earth?',
+              options: [
+                { id: 'a', text: 'Magnetism' },
+                { id: 'b', text: 'Friction' },
+                { id: 'c', text: 'Gravity' },
+                { id: 'd', text: 'Inertia' }
+              ],
+              correctAnswer: 'c'
+            }
+          ]
+        }
+      ];
+
+      // Helper to read/write JSON in cookies (non-HTML5 storage)
+      function readCookieJSON(name) {
+        try {
+          var v = document.cookie.replace(new RegExp('(?:(?:^|.*;\\s*)' + name + '\\s*\\=\\s*([^;]*).*$)|^.*$'), '$1');
+          if (!v) return null;
+          return JSON.parse(decodeURIComponent(v));
+        } catch (e) { return null; }
+      }
+
+      function writeCookieJSON(name, obj, days) {
+        try {
+          var s = encodeURIComponent(JSON.stringify(obj));
+          var ex = '';
+          if (days) {
+            var d = new Date();
+            d.setDate(d.getDate() + days);
+            ex = '; expires=' + d.toUTCString();
+          }
+          document.cookie = name + '=' + s + ex + '; path=/';
+        } catch (e) {}
+      }
+
+      // Student progress storage (cookie-backed)
+      let studentProgress = readCookieJSON('studentProgress') || {
+        completedQuizzes: 7,
+        averageScore: 85,
+        totalPoints: 350,
+        quizResults: {}
+      };
+
+      // Current quiz state
+      let currentQuiz = null;
+      let currentQuestionIndex = 0;
+      let userAnswers = {};
+      let timerInterval = null;
+      let timeRemaining = 0;
+
+      // DOM Elements
+      const availableQuizzesContainer = document.getElementById('availableQuizzesContainer');
+      const quizTakingInterface = document.getElementById('quizTakingInterface');
+      const quizResults = document.getElementById('quizResults');
+      const quizTitle = document.getElementById('quizTitle');
+      const questionContainer = document.getElementById('questionContainer');
+      const currentQuestionEl = document.getElementById('currentQuestion');
+      const totalQuestionsEl = document.getElementById('totalQuestions');
+      const progressFill = document.getElementById('progressFill');
+      const prevQuestionBtn = document.getElementById('prevQuestionBtn');
+      const nextQuestionBtn = document.getElementById('nextQuestionBtn');
+      const submitQuizBtn = document.getElementById('submitQuizBtn');
+      const quizTimer = document.getElementById('quizTimer');
+      const scorePercentage = document.getElementById('scorePercentage');
+      const finalScore = document.getElementById('finalScore');
+      const totalScore = document.getElementById('totalScore');
+      const reviewQuizBtn = document.getElementById('reviewQuizBtn');
+      const backToQuizzesBtn = document.getElementById('backToQuizzesBtn');
+      const questionReview = document.getElementById('questionReview');
+      const reviewContainer = document.getElementById('reviewContainer');
+
+      // Initialize the app
+      displayAvailableQuizzes();
+      updateStats();
+
+      // Display available quizzes
+      function displayAvailableQuizzes() {
+        if (availableQuizzes.length === 0) {
+          availableQuizzesContainer.innerHTML = `
+            <div class="empty-state">
+              <i class="fas fa-search"></i>
+              <h4>No quizzes available</h4>
+              <p>Check back later for new quizzes from your teachers</p>
+            </div>
+          `;
+          return;
+        }
+
+        let html = '';
+        availableQuizzes.forEach(quiz => {
+          // Check if student has already taken this quiz
+          const hasTaken = studentProgress.quizResults && studentProgress.quizResults[quiz.id];
+          const buttonText = hasTaken ? 'Retake Quiz' : 'Start Quiz';
+          const buttonClass = hasTaken ? 'btn-outline-primary' : 'btn-primary';
+          
+          html += `
+            <div class="card quiz-card">
+              <span class="quiz-badge">${quiz.category}</span>
+              <h3 style="margin: 0 0 10px 0;">${quiz.title}</h3>
+              <p style="margin: 0 0 10px 0; color: #666;">${quiz.description}</p>
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted small">${quiz.questionCount} Questions</span>
+                <span class="text-muted small">Grade ${quiz.gradeLevel}</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="teacher-badge">${quiz.teacher}</span>
+                <button class="${buttonClass} start-quiz" id="start-quiz-${quiz.id}">
+                  ${buttonText}
+                </button>
+              </div>
+            </div>
+          `;
+        });
+
+        availableQuizzesContainer.innerHTML = html;
+
+        // Add event listeners to start quiz buttons
+        document.querySelectorAll('.start-quiz').forEach(button => {
+          button.addEventListener('click', function() {
+            const quizId = this.id.replace('start-quiz-', '');
+            startQuiz(quizId);
+          });
+        });
+      }
+
+      // Start a quiz
+      function startQuiz(quizId) {
+        currentQuiz = availableQuizzes.find(q => q.id === quizId);
+        if (!currentQuiz) return;
+
+        // Reset quiz state
+        currentQuestionIndex = 0;
+        userAnswers = {};
+        timeRemaining = currentQuiz.timeLimit * 60; // Convert to seconds
+
+        // Update UI
+        quizTitle.textContent = currentQuiz.title;
+        totalQuestionsEl.textContent = currentQuiz.questions.length;
+        
+        // Show quiz interface, hide others
+        document.querySelector('.card:not(#quizTakingInterface .card)').style.display = 'none';
+        quizTakingInterface.classList.remove('hidden');
+        quizResults.classList.add('hidden');
+        
+        // Start timer if there's a time limit
+        if (currentQuiz.timeLimit > 0) {
+          startTimer();
+        }
+        
+        // Display first question
+        displayQuestion();
+      }
+
+      // Display current question
+      function displayQuestion() {
+        const question = currentQuiz.questions[currentQuestionIndex];
+        
+        // Update progress
+        currentQuestionEl.textContent = currentQuestionIndex + 1;
+        const progressPercent = ((currentQuestionIndex + 1) / currentQuiz.questions.length) * 100;
+        progressFill.style.width = `${progressPercent}%`;
+        
+        // Build question HTML
+        let optionsHtml = '';
+        question.options.forEach(option => {
+          const isSelected = userAnswers[question.id] === option.id;
+          optionsHtml += `
+            <label class="option-label ${isSelected ? 'selected' : ''}">
+              <input type="radio" name="question-${question.id}" value="${option.id}" 
+                     ${isSelected ? 'checked' : ''} class="option-input">
+              ${option.id.toUpperCase()}. ${option.text}
+            </label>
+          `;
+        });
+        
+        questionContainer.innerHTML = `
+          <div class="question-card card">
+            <div class="question-number">Question ${currentQuestionIndex + 1}</div>
+            <div class="question-text">${question.text}</div>
+            <div class="question-options">
+              ${optionsHtml}
+            </div>
+            <div class="points-info text-muted mt-3">
+              <small>This question is worth 5 points</small>
+            </div>
+          </div>
+        `;
+        
+        // Update navigation buttons
+        prevQuestionBtn.disabled = currentQuestionIndex === 0;
+        
+        if (currentQuestionIndex === currentQuiz.questions.length - 1) {
+          nextQuestionBtn.classList.add('hidden');
+          submitQuizBtn.classList.remove('hidden');
+        } else {
+          nextQuestionBtn.classList.remove('hidden');
+          submitQuizBtn.classList.add('hidden');
+        }
+        
+        // Add event listeners to options
+        document.querySelectorAll('.option-input').forEach(input => {
+          input.addEventListener('change', function() {
+            // Update selected style
+            document.querySelectorAll('.option-label').forEach(label => {
+              label.classList.remove('selected');
+            });
+            this.closest('.option-label').classList.add('selected');
+            
+            // Save answer
+            userAnswers[question.id] = this.value;
+          });
+        });
+      }
+
+      // Start the quiz timer
+      function startTimer() {
+        updateTimerDisplay();
+        
+        timerInterval = setInterval(() => {
+          timeRemaining--;
+          updateTimerDisplay();
+          
+          if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            submitQuiz();
+          }
+        }, 1000);
+      }
+      
+      // Update timer display
+      function updateTimerDisplay() {
+        const minutes = Math.floor(timeRemaining / 60);
+        const seconds = timeRemaining % 60;
+        quizTimer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        // Change color when time is running out
+        if (timeRemaining < 60) {
+          quizTimer.style.color = '#e63946';
+        }
+      }
+
+      // Navigation functions
+      prevQuestionBtn.addEventListener('click', function() {
+        if (currentQuestionIndex > 0) {
+          currentQuestionIndex--;
+          displayQuestion();
+        }
+      });
+      
+      nextQuestionBtn.addEventListener('click', function() {
+        if (currentQuestionIndex < currentQuiz.questions.length - 1) {
+          currentQuestionIndex++;
+          displayQuestion();
+        }
+      });
+      
+      submitQuizBtn.addEventListener('click', submitQuiz);
+
+      // Submit the quiz
+      function submitQuiz() {
+        // Stop timer
+        if (timerInterval) {
+          clearInterval(timerInterval);
+        }
+        
+        // Calculate score (each question is worth 5 points)
+        let correctAnswers = 0;
+        currentQuiz.questions.forEach(question => {
+          if (userAnswers[question.id] === question.correctAnswer) {
+            correctAnswers++;
+          }
+        });
+        
+        const totalQuestions = currentQuiz.questions.length;
+        const score = correctAnswers * 5; // 5 points per question
+        const maxScore = totalQuestions * 5;
+        const percentage = Math.round((correctAnswers / totalQuestions) * 100);
+        
+        // Update student progress
+        studentProgress.completedQuizzes++;
+        studentProgress.totalPoints += score;
+        studentProgress.averageScore = Math.round(
+          (studentProgress.averageScore * (studentProgress.completedQuizzes - 1) + percentage) / 
+          studentProgress.completedQuizzes
+        );
+        
+        // Store quiz result
+        if (!studentProgress.quizResults) {
+          studentProgress.quizResults = {};
+        }
+        studentProgress.quizResults[currentQuiz.id] = {
+          score: score,
+          maxScore: maxScore,
+          percentage: percentage,
+          date: new Date().toLocaleDateString()
+        };
+        
+        // Save to cookie (non-HTML5 storage)
+        writeCookieJSON('studentProgress', studentProgress, 30);
+        
+        // Display results
+        showResults(score, maxScore, percentage);
+      }
+
+      // Show quiz results
+      function showResults(score, maxScore, percentage) {
+        scorePercentage.textContent = `${percentage}%`;
+        finalScore.textContent = score;
+        totalScore.textContent = maxScore;
+        
+        quizTakingInterface.classList.add('hidden');
+        quizResults.classList.remove('hidden');
+        questionReview.classList.add('hidden');
+      }
+
+      // Review quiz answers
+      reviewQuizBtn.addEventListener('click', function() {
+        let reviewHtml = '';
+        
+        currentQuiz.questions.forEach((question, index) => {
+          const userAnswer = userAnswers[question.id];
+          const isCorrect = userAnswer === question.correctAnswer;
+          const correctOption = question.options.find(opt => opt.id === question.correctAnswer);
+          
+          reviewHtml += `
+            <div class="card mb-3">
+              <div class="card-body">
+                <h5>Question ${index + 1}</h5>
+                <p>${question.text}</p>
+                <p><strong>Your answer:</strong> 
+                  <span class="${isCorrect ? 'correct-answer' : 'incorrect-answer'}">
+                    ${userAnswer ? userAnswer.toUpperCase() : 'Not answered'}
+                  </span>
+                </p>
+                <p><strong>Correct answer:</strong> 
+                  <span class="correct-answer">${question.correctAnswer.toUpperCase()}. ${correctOption.text}</span>
+                </p>
+                <p><strong>Points:</strong> ${isCorrect ? '5/5' : '0/5'}</p>
+              </div>
+            </div>
+          `;
+        });
+        
+        reviewContainer.innerHTML = reviewHtml;
+        questionReview.classList.remove('hidden');
+      });
+
+      // Back to quizzes
+      backToQuizzesBtn.addEventListener('click', function() {
+        quizResults.classList.add('hidden');
+        document.querySelector('.card:not(#quizTakingInterface .card)').style.display = 'block';
+        updateStats();
+        displayAvailableQuizzes();
+      });
+
+      // Update statistics
+      function updateStats() {
+        document.getElementById('availableQuizzes').textContent = availableQuizzes.length;
+        document.getElementById('completedQuizzes').textContent = studentProgress.completedQuizzes;
+        document.getElementById('averageScore').textContent = `${studentProgress.averageScore}%`;
+        document.getElementById('totalPoints').textContent = studentProgress.totalPoints;
+      }
+    });
+  </script>
+</body>
+</html>
