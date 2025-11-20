@@ -1,0 +1,52 @@
+/* Merged styles.css for front-office */
+/* Based on your group's front CSS: clean, minimal */
+
+body {
+  background-color: #f8fafc;
+}
+
+.navbar-brand {
+  font-weight: 700;
+}
+
+.card {
+  border-radius: .75rem;
+}
+
+.list-group-flush .list-group-item {
+  border-left: 0;
+  border-right: 0;
+}
+
+.badge-timer {
+  font-size: .9rem;
+}
+
+.quiz-correct {
+  background: #e6ffed;
+  border-left: 4px solid #22c55e;
+}
+
+.quiz-incorrect {
+  background: #fff1f2;
+  border-left: 4px solid #ef4444;
+}
+
+.table td, .table th {
+  vertical-align: middle;
+}
+
+.placeholder-text {
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Additional for consistency */
+.btn {
+  border-radius: .5rem;
+}
+
+.form-control, .form-select {
+  border-radius: .5rem;
+  border: 1px solid #d1d5db;
+}
