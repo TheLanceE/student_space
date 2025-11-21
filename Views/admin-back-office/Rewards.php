@@ -9,9 +9,11 @@ require_once __DIR__ . '/../../Models/Rewards.php';
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Rewards | Admin</title>
-  <link href="../shared-assets/vendor/bootstrap.min.css" rel="stylesheet">
-  <link href="../shared-assets/css/global.css" rel="stylesheet">
-  <link href="styles.css" rel="stylesheet"> <!-- Merged CSS link -->
+  <link rel="stylesheet" href="../shared-assets/vendor/bootstrap.min.css">
+  <link rel="stylesheet" href="../shared-assets/css/global.css">
+  <link rel="stylesheet" href="../shared-assets/css/styles.css">
+
+  <script src="../shared-assets/vendor/bootstrap.bundle.min.js"></script>
 </head>
 <body data-page="admin-rewards">
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -45,6 +47,8 @@ require_once __DIR__ . '/../../Models/Rewards.php';
                   ['id' => 2, 'title' => 'Diploma Certificate', 'type' => 'Certificate', 'pointsCost' => 300, 'availability' => 5],
                   ['id' => 3, 'title' => '20% Discount Code', 'type' => 'Discount', 'pointsCost' => 250, 'availability' => 20],
                   ['id' => 4, 'title' => 'Bonus Break Time', 'type' => 'Perk', 'pointsCost' => 100, 'availability' => 50],
+                  ['id' => 5, 'title' => 'Study Kit', 'type' => 'Perk', 'pointsCost' => 75, 'availability' => 30],
+                  ['id' => 6, 'title' => 'Extra Credit', 'type' => 'Perk', 'pointsCost' => 150, 'availability' => 15],
               ];
           }
           if ($rewards) {
