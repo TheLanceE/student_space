@@ -1,11 +1,7 @@
-// Shared localStorage helpers for challenges, rewards, and points
-// Integrates with DB when available, falls back to localStorage
-
 const challenges = JSON.parse(localStorage.getItem('challenges') || '[]');
 const rewards = JSON.parse(localStorage.getItem('rewards') || '[]');
 const points = JSON.parse(localStorage.getItem('points') || '[]');
 
-// Helper functions for localStorage CRUD (with DB sync)
 function saveChallenges(data) {
   localStorage.setItem('challenges', JSON.stringify(data));
   if (DB_AVAILABLE) {
@@ -27,7 +23,6 @@ function savePoints(data) {
   }
 }
 
-// Additional helpers for CRUD (call these from Views instead of direct localStorage)
 function getChallenges() {
   if (DB_AVAILABLE) {
     return fetch('../Controllers/ChallengesController.php?action=all').then(res => res.json()).then(data => data.challenges || challenges).catch(() => challenges);
