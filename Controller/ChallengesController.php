@@ -80,48 +80,24 @@ class ChallengesController {
     }
 
     public static function get($pdo, $id) {
-    try {
-        $data = Challenges::getByID($pdo, $id);
-        if (!$data) {
-            echo json_encode(['success' => false, 'message' => '⚠️ Challenge not found']);
-            return;
+        try {
+            $data = Challenges::getByID($pdo, $id);
+            if (!$data) {
+                echo json_encode(['success' => false, 'message' => '⚠️ Challenge not found']);
+                return;
+            }
+            echo json_encode(['success' => true, 'challenge' => $data]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => '⚠️ Error fetching challenge']);
         }
-        echo json_encode(['success' => true, 'challenge' => $data]);
-    } catch (Exception $e) {
-        echo json_encode([
-            'success' => false,
-            'message' => '⚠️ Error fetching challenge',
-            'error' => $e->getMessage() // shows the real error
-        ]);
     }
-}
-
-
 }
 
 $action = $_GET['action'] ?? null;
 $studentID = $_SESSION['userID'] ?? 1;
-// Check if config.php has made $pdo available. If not, try to get it.
-if (!isset($pdo) || is_null($pdo)) {
-    // This is a placeholder/example. You need to verify how your config.php
-    // handles the connection.
-    try {
-        require_once __DIR__ . '/../../config.php'; // Assuming config.php sets $pdo
-    } catch (\Throwable $th) {
-        // Fallback for if $pdo is still not set after requiring config
-        // You might need to call a function or instantiate a class from config.php
-        // to get the connection, depending on your setup.
-    }
-}
 
-// Keep the logic for studentID and action
-$action = $_GET['action'] ?? null;
-$studentID = $_SESSION['userID'] ?? 1;
-
-// Now, check if $pdo is actually an object before the switch
-if (!is_object($pdo) || get_class($pdo) !== 'PDO') {
-    // If $pdo is still not set or not a valid PDO object, exit with an error.
-    echo json_encode(['success' => false, 'message' => '⚠️ Database connection error: PDO is not initialized.']);
+if (!isset($pdo) || !is_object($pdo)) {
+    echo json_encode(['success' => false, 'message' => '⚠️ Database connection error']);
     exit;
 }
 
