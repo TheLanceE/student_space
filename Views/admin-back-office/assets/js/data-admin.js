@@ -41,7 +41,6 @@ function getChallenges() {
   }
 }
 
-// Similar for rewards (createReward, updateReward, deleteReward, getRewards)
 function createReward(data) {
   if (DB_AVAILABLE) {
     fetch('../Controllers/RewardsController.php?action=create', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }).then(() => location.reload()).catch(() => alert('Error creating reward.'));
