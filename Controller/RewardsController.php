@@ -77,11 +77,28 @@ class RewardsController {
             echo json_encode(['success' => false, 'message' => '⚠️ Error deleting reward']);
         }
     }
+
+    public static function get($pdo, $id) {
+        try {
+            $data = Rewards::getByID($pdo, $id);
+            if (!$data) {
+                echo json_encode(['success' => false, 'message' => '⚠️ Reward not found']);
+                return;
+            }
+            echo json_encode(['success' => true, 'reward' => $data]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => '⚠️ Error fetching reward']);
+        }
+    }
 }
 
 $action = $_GET['action'] ?? null;
 $studentID = $_SESSION['userID'] ?? 1;
-$pdo = $pdo ?? null;
+
+if (!isset($pdo) || !is_object($pdo)) {
+    echo json_encode(['success' => false, 'message' => '⚠️ Database connection error']);
+    exit;
+}
 
 switch ($action) {
     case 'redeem':
@@ -98,6 +115,9 @@ switch ($action) {
         break;
     case 'delete':
         RewardsController::delete($pdo, (int)$_GET['id']);
+        break;
+    case 'get':
+        RewardsController::get($pdo, (int)$_GET['id']);
         break;
     default:
         echo json_encode(['success' => false, 'message' => '⚠️ Invalid action']);
