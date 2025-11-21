@@ -11,9 +11,14 @@ $studentID = $_SESSION['userID'] ?? 1;
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Rewards | Student</title>
-  <link href="../shared-assets/vendor/bootstrap.min.css" rel="stylesheet">
-  <link href="../shared-assets/css/global.css" rel="stylesheet">
-  <link href="styles.css" rel="stylesheet"> <!-- Merged CSS link -->
+  
+
+  <link rel="stylesheet" href="../shared-assets/vendor/bootstrap.min.css">
+  <link rel="stylesheet" href="../shared-assets/css/global.css">
+  <link rel="stylesheet" href="../shared-assets/css/styles.css">
+
+  <script src="../shared-assets/vendor/bootstrap.bundle.min.js"></script>
+
   <style>
     #toast-container { position: fixed; top: 10px; right: 10px; z-index: 9999; }
     .toast { background: #4caf50; color: white; padding: 10px 15px; margin-bottom: 5px; border-radius: 5px; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
@@ -35,6 +40,8 @@ $studentID = $_SESSION['userID'] ?? 1;
               ['id' => 2, 'title' => 'Completion Certificate', 'pointsCost' => 150, 'type' => 'Certificate'],
               ['id' => 3, 'title' => '10% Discount Voucher', 'pointsCost' => 200, 'type' => 'Discount'],
               ['id' => 4, 'title' => 'Extra Break Time', 'pointsCost' => 50, 'type' => 'Perk'],
+              ['id' => 5, 'title' => 'Study Kit', 'pointsCost' => 75, 'type' => 'Perk'],
+              ['id' => 6, 'title' => 'Bonus Quiz Pass', 'pointsCost' => 120, 'type' => 'Perk'],
           ];
       }
       foreach ($rewards as $r) {
