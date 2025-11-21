@@ -11,9 +11,11 @@ $studentID = $_SESSION['userID'] ?? 1;
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Challenges | Student</title>
-<link href="../shared-assets/vendor/bootstrap.min.css" rel="stylesheet">
-<link href="../shared-assets/css/global.css" rel="stylesheet">
-<link href="styles.css" rel="stylesheet"> <!-- Merged CSS link -->
+  <link rel="stylesheet" href="../shared-assets/vendor/bootstrap.min.css">
+  <link rel="stylesheet" href="../shared-assets/css/global.css">
+  <link rel="stylesheet" href="../shared-assets/css/styles.css">
+
+  <script src="../shared-assets/vendor/bootstrap.bundle.min.js"></script>
 <style>
 #toast-container { position: fixed; top: 10px; right: 10px; z-index: 9999; }
 .toast { background: #4caf50; color: white; padding: 10px 15px; margin-bottom: 5px; border-radius: 5px; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
@@ -43,6 +45,8 @@ if (!$challenges) {
         ['id' => 2, 'title' => 'Finish Course Module', 'description' => 'Watch all videos and pass the test.', 'points' => 75],
         ['id' => 3, 'title' => 'Study for 2 Hours', 'description' => 'Dedicate time to focused learning.', 'points' => 30],
         ['id' => 4, 'title' => 'Share a Study Tip', 'description' => 'Post something helpful in the forum.', 'points' => 20],
+        ['id' => 5, 'title' => 'Group Discussion', 'description' => 'Participate in a study group.', 'points' => 25],
+        ['id' => 6, 'title' => 'Daily Reflection', 'description' => 'Write a daily learning journal.', 'points' => 15],
     ];
 }
 foreach ($challenges as $c) {
@@ -74,21 +78,53 @@ function showToast(message) {
 function showConfetti() {
   confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
 }
-document.querySelectorAll('.complete-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const challengeID = btn.dataset.id;
-    fetch('../../Controllers/ChallengesController.php?action=complete&id=' + challengeID)
-      .then(response => response.json())
-      .then(data => {
-        if(data.success) {
-          showToast(`🎉 ${data.points} points awarded!`);
-          showConfetti();
-          btn.closest('.card-body').querySelector('.progress-bar').style.width = '100%';
-        } else {
-          showToast('⚠️ ' + data.message);
-        }
-      })
-      .catch(() => showToast('⚠️ Error completing challenge.'));
+document.addEventListener('DOMContentLoaded', function() {
+  // Load dynamic leaderboard
+  fetch('../../Controllers/ChallengesController.php?action=leaderboard')
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        const leaderboard = document.getElementById('leaderboard');
+        leaderboard.innerHTML = '';
+        data.leaderboard.forEach(s => {
+          const li = document.createElement('li');
+          li.textContent = `${s.name} - ${s.points} pts`;
+          leaderboard.appendChild(li);
+        });
+      }
+    })
+    .catch(() => showToast('⚠️ Error loading leaderboard.'));
+  
+  document.querySelectorAll('.complete-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const challengeID = btn.dataset.id;
+      fetch('../../Controllers/ChallengesController.php?action=complete&id=' + challengeID)
+        .then(response => response.json())
+        .then(data => {
+          if(data.success) {
+            showToast(`🎉 ${data.points} points awarded!`);
+            showConfetti();
+            btn.closest('.card-body').querySelector('.progress-bar').style.width = '100%';
+            // Reload leaderboard
+            fetch('../../Controllers/ChallengesController.php?action=leaderboard')
+              .then(res => res.json())
+              .then(d => {
+                if (d.success) {
+                  const leaderboard = document.getElementById('leaderboard');
+                  leaderboard.innerHTML = '';
+                  d.leaderboard.forEach(s => {
+                    const li = document.createElement('li');
+                    li.textContent = `${s.name} - ${s.points} pts`;
+                    leaderboard.appendChild(li);
+                  });
+                }
+              });
+          } else {
+            showToast('⚠️ ' + data.message);
+          }
+        })
+        .catch(() => showToast('⚠️ Error completing challenge.'));
+    });
   });
 });
 </script>
