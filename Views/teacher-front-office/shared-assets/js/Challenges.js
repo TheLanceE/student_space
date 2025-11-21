@@ -4,21 +4,10 @@ function handleChallenges() {
     fetch('../../Controllers/ChallengesController.php?action=all').then(res => res.json()).then(data => {
       const challenges = data.challenges.filter(c => c.createdBy == teacherID);
       renderChallengesTable(challenges);
-    }).catch(() => renderChallengesTable([])); // Enhancement: Error handling
+    }).catch(() => renderChallengesTable([]));
   } else {
     let challenges = JSON.parse(localStorage.getItem('challenges') || '[]');
     renderChallengesTable(challenges);
-  }
-}
-
-function handleRewards() {
-  if (DB_AVAILABLE) {
-    fetch('../../Controllers/RewardsController.php?action=getAll').then(res => res.json()).then(data => {
-      renderRewardsTable(data.rewards);
-    }).catch(() => renderRewardsTable([])); // Enhancement: Error handling
-  } else {
-    let rewards = JSON.parse(localStorage.getItem('rewards') || '[]');
-    renderRewardsTable(rewards);
   }
 }
 
@@ -27,13 +16,6 @@ function renderChallengesTable(challenges) {
     challenges.map(c => `<tr><td>${c.title}</td><td><span class="badge badge-${c.type.toLowerCase()}">${c.type}</span></td><td>${c.points}</td><td>${c.status}</td><td><button class="btn btn-sm btn-warning edit-btn" data-id="${c.id}">✏️ Edit</button> <button class="btn btn-sm btn-danger delete-btn" data-id="${c.id}">🗑️ Delete</button></td></tr>`).join('') +
     '</tbody></table>';
   document.getElementById('challengeTable').innerHTML = table;
-}
-
-function renderRewardsTable(rewards) {
-  const table = '<table class="table"><thead><tr><th>Title</th><th>Type</th><th>Cost</th><th>Availability</th><th>Actions</th></tr></thead><tbody>' +
-    rewards.map(r => `<tr><td>${r.title}</td><td>${r.type}</td><td>${r.pointsCost}</td><td>${r.availability}</td><td><button class="btn btn-sm btn-warning edit-btn" data-id="${r.id}">✏️ Edit</button> <button class="btn btn-sm btn-danger delete-btn" data-id="${r.id}">🗑️ Delete</button></td></tr>`).join('') +
-    '</tbody></table>';
-  document.getElementById('rewardTable').innerHTML = table;
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -59,3 +41,4 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
+
