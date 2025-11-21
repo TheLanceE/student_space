@@ -9,9 +9,11 @@ require_once __DIR__ . '/../../Models/Challenges.php';
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Challenges | Admin</title>
-  <link href="../shared-assets/vendor/bootstrap.min.css" rel="stylesheet">
-  <link href="../shared-assets/css/global.css" rel="stylesheet">
-  <link href="styles.css" rel="stylesheet"> <!-- Merged CSS link -->
+  <link rel="stylesheet" href="../shared-assets/vendor/bootstrap.min.css">
+  <link rel="stylesheet" href="../shared-assets/css/global.css">
+  <link rel="stylesheet" href="../shared-assets/css/styles.css">
+
+  <script src="../shared-assets/vendor/bootstrap.bundle.min.js"></script>
 </head>
 <body data-page="admin-challenges">
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -45,6 +47,8 @@ require_once __DIR__ . '/../../Models/Challenges.php';
                   ['id' => 2, 'title' => 'Full Course', 'type' => 'Course', 'points' => 150, 'status' => 'Active'],
                   ['id' => 3, 'title' => 'Extended Study', 'type' => 'Time', 'points' => 60, 'status' => 'Active'],
                   ['id' => 4, 'title' => 'Community Post', 'type' => 'Social', 'points' => 40, 'status' => 'Active'],
+                  ['id' => 5, 'title' => 'Peer Review', 'type' => 'Social', 'points' => 35, 'status' => 'Active'],
+                  ['id' => 6, 'title' => 'Final Project', 'type' => 'Course', 'points' => 200, 'status' => 'Active'],
               ];
           }
           if ($challenges) {
