@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduMind - Manage Reports</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background-color: #0d6efd;
+            color: white;
+            padding: 0 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 600;
+            padding: 15px 0;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            padding: 20px 25px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .nav-links li.active {
+            background-color: #0b5ed7;
+            border-bottom: 3px solid #ffffff;
+        }
+        
+        .nav-links li:hover {
+            background-color: #0b5ed7;
+        }
+        
+        .nav-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: inherit;
+            cursor: pointer;
+            padding: 0;
+            text-decoration: none;
+        }
+        
+        .nav-button:hover {
+            text-decoration: none;
+        }
+        
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        .page-title {
+            margin-bottom: 25px;
+        }
+        
+        .page-title h1 {
+            font-size: 28px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        
+        .filter-tabs {
+            display: flex;
+            background-color: white;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .tab {
+            padding: 14px 24px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid #0d6efd;
+            color: #0d6efd;
+            background-color: #f8fafc;
+        }
+        
+        .tab:hover {
+            background-color: #f8fafc;
+        }
+        
+        .reports-table {
+            background-color: white;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            padding: 16px 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 1px solid #e9ecef;
+            color: #495057;
+        }
+        
+        td {
+            padding: 16px 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        tr:hover {
+            background-color: #f8fafc;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .btn-review {
+            background-color: #0d6efd;
+            color: white;
+        }
+        
+        .btn-review:hover {
+            background-color: #0b5ed7;
+        }
+        
+        .btn-keep {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        
+        .btn-keep:hover {
+            background-color: #ffca2c;
+        }
+        
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .btn-delete:hover {
+            background-color: #bb2d3b;
+        }
+        
+        .status-pending {
+            color: #dc3545;
+            font-weight: 600;
+            background-color: #ffeaea;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 13px;
+            display: inline-block;
+        }
+        
+        .content-cell {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .add-report-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .section-title {
+            font-size: 20px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #495057;
+        }
+        
+        .form-control {
+            padding: 10px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .btn-primary {
+            background-color: #0d6efd;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5c636a;
+        }
+        
+        .content-textarea {
+            grid-column: 1 / -1;
+        }
+        
+        textarea.form-control {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .status-reviewed {
+            color: #0d6efd;
+            font-weight: 600;
+            background-color: #e7f1ff;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 13px;
+            display: inline-block;
+        }
+        
+        .status-kept {
+            color: #198754;
+            font-weight: 600;
+            background-color: #d1e7dd;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 13px;
+            display: inline-block;
+        }
+        
+        .btn-edit {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-edit:hover {
+            background-color: #5c636a;
+        }
+        
+        .message {
+            padding: 12px 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .message.success {
+            background-color: #d1e7dd;
+            color: #0f5132;
+            border: 1px solid #badbcc;
+        }
+        
+        .message.error {
+            background-color: #f8d7da;
+            color: #842029;
+            border: 1px solid #f5c2c7;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <h1>EduMind</h1>
+            </div>
+            <ul class="nav-links">
+                <li>Dashboard</li>
+                <li class="active">Manage Reports</li>
+                <li>
+                    <a href="Front.html" class="nav-button">Reports</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="page-title">
+            <h1>Manage Reports</h1>
+        </div>
+        
+        <div id="message" class="message"></div>
+        
+        <div class="filter-tabs">
+            <div class="tab active" data-status="All Reports">All Reports</div>
+            <div class="tab" data-status="Pending">Pending</div>
+            <div class="tab" data-status="Reviewed">Reviewed</div>
+            <div class="tab" data-status="Kept">Kept</div>
+        </div>
+        
+        <div class="reports-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Report ID</th>
+                        <th>Student</th>
+                        <th>Quiz</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Created Date</th>
+                        <th>Content</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="reportsTableBody">
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 40px;">
+                            <div>Loading reports...</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="add-report-section">
+            <h2 class="section-title">Add New Report</h2>
+            <form id="reportForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="student">Student</label>
+                        <input type="text" id="student" class="form-control" placeholder="Enter student name">
+                    </div>
+                    <div class="form-group">
+                        <label for="quiz">Quiz</label>
+                        <input type="text" id="quiz" class="form-control" placeholder="Enter quiz name">
+                    </div>
+                    <div class="form-group">
+                        <label for="type">Type</label>
+                        <select id="type" class="form-control">
+                            <option value="">Select type</option>
+                            <option value="Performance">Performance</option>
+                            <option value="Behavioral">Behavioral</option>
+                            <option value="Attendance">Attendance</option>
+                            <option value="Progress">Progress</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select id="status" class="form-control">
+                            <option value="Pending">Pending</option>
+                            <option value="Reviewed">Reviewed</option>
+                            <option value="Kept">Kept</option>
+                        </select>
+                    </div>
+                    <input type="hidden" id="reportId" value="">
+                    <div class="form-group">
+                        <label for="createdDate">Created Date</label>
+                        <input type="datetime-local" id="createdDate" class="form-control">
+                    </div>
+                    <div class="form-group content-textarea">
+                        <label for="content">Content</label>
+                        <textarea id="content" class="form-control" placeholder="Enter report content..."></textarea>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">Clear</button>
+                    <button type="button" class="btn btn-secondary" id="cancelEditBtn" onclick="cancelEdit()" style="display: none;">Cancel Edit</button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">Add Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // API Base URL - Update this path according to your server setup
+        const API_BASE_URL = '../api/reports.php';
+        let currentFilter = 'All Reports';
+        let editingReportId = null;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadReports();
+            setupEventListeners();
+            document.getElementById('createdDate').value = new Date().toISOString().slice(0, 16);
+        });
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Tab filtering
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilter = this.getAttribute('data-status');
+                    loadReports();
+                });
+            });
+            
+            // Navigation
+            document.querySelectorAll('.nav-links li').forEach(navItem => {
+                navItem.addEventListener('click', function(e) {
+                    // Don't interfere with links/buttons
+                    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
+                        return;
+                    }
+                    document.querySelectorAll('.nav-links li').forEach(item => item.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Form submission
+            document.getElementById('reportForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (editingReportId) {
+                    updateReport();
+                } else {
+                    createReport();
+                }
+            });
+        }
+
+        // Load reports from API
+        function loadReports() {
+            const tbody = document.getElementById('reportsTableBody');
+            tbody.innerHTML = '<tr><td colspan="8" class="loading">Loading reports...</td></tr>';
+            
+            const url = currentFilter === 'All Reports' 
+                ? API_BASE_URL 
+                : `${API_BASE_URL}?status=${encodeURIComponent(currentFilter)}`;
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayReports(data.data);
+                    } else {
+                        showMessage('Error loading reports: ' + data.message, 'error');
+                        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px;">No reports found</td></tr>';
+                    }
+                })
+                .catch(error => {
+                    showMessage('Error: ' + error.message, 'error');
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px;">Error loading reports</td></tr>';
+                });
+        }
+
+        // Display reports in table
+        function displayReports(reports) {
+            const tbody = document.getElementById('reportsTableBody');
+            
+            if (reports.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px;">No reports found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = reports.map(report => {
+                const statusClass = getStatusClass(report.status);
+                const formattedDate = formatDateTime(report.created_date);
+                const truncatedContent = report.content.length > 50 
+                    ? report.content.substring(0, 50) + '...' 
+                    : report.content;
+                
+                return `
+                    <tr>
+                        <td>${report.id}</td>
+                        <td>${escapeHtml(report.student)}</td>
+                        <td>${report.quiz ? escapeHtml(report.quiz) : 'N/A'}</td>
+                        <td>${escapeHtml(report.type)}</td>
+                        <td><span class="${statusClass}">${escapeHtml(report.status)}</span></td>
+                        <td>${formattedDate}</td>
+                        <td class="content-cell" title="${escapeHtml(report.content)}">${escapeHtml(truncatedContent)}</td>
+                        <td class="actions">
+                            <button class="btn btn-edit" onclick="editReport(${report.id})">Edit</button>
+                            <button class="btn btn-review" onclick="updateStatus(${report.id}, 'Reviewed')">Review</button>
+                            <button class="btn btn-keep" onclick="updateStatus(${report.id}, 'Kept')">Keep</button>
+                            <button class="btn btn-delete" onclick="deleteReport(${report.id})">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Get status CSS class
+        function getStatusClass(status) {
+            switch(status) {
+                case 'Pending': return 'status-pending';
+                case 'Reviewed': return 'status-reviewed';
+                case 'Kept': return 'status-kept';
+                default: return 'status-pending';
+            }
+        }
+
+        // Format datetime
+        function formatDateTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            }).replace(',', '');
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Create new report
+        function createReport() {
+            const student = document.getElementById('student').value.trim();
+            const quiz = document.getElementById('quiz').value.trim();
+            const type = document.getElementById('type').value;
+            const status = document.getElementById('status').value;
+            const createdDate = document.getElementById('createdDate').value;
+            const content = document.getElementById('content').value.trim();
+            
+            if (!student || !type || !content) {
+                showMessage('Please fill in all required fields: Student, Type, and Content', 'error');
+                return;
+            }
+            
+            const reportData = {
+                student: student,
+                quiz: quiz || null,
+                type: type,
+                status: status,
+                content: content,
+                created_date: createdDate ? new Date(createdDate).toISOString().slice(0, 19).replace('T', ' ') : null
+            };
+            
+            fetch(API_BASE_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(reportData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('Report created successfully!', 'success');
+                    resetForm();
+                    loadReports();
+                } else {
+                    showMessage('Error: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showMessage('Error: ' + error.message, 'error');
+            });
+        }
+
+        // Update existing report
+        function updateReport() {
+            const student = document.getElementById('student').value.trim();
+            const quiz = document.getElementById('quiz').value.trim();
+            const type = document.getElementById('type').value;
+            const status = document.getElementById('status').value;
+            const content = document.getElementById('content').value.trim();
+            
+            if (!student || !type || !content) {
+                showMessage('Please fill in all required fields: Student, Type, and Content', 'error');
+                return;
+            }
+            
+            const reportData = {
+                id: editingReportId,
+                student: student,
+                quiz: quiz || null,
+                type: type,
+                status: status,
+                content: content
+            };
+            
+            fetch(API_BASE_URL, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(reportData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('Report updated successfully!', 'success');
+                    cancelEdit();
+                    loadReports();
+                } else {
+                    showMessage('Error: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showMessage('Error: ' + error.message, 'error');
+            });
+        }
+
+        // Edit report
+        function editReport(id) {
+            fetch(`${API_BASE_URL}?id=${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const report = data.data;
+                        document.getElementById('reportId').value = report.id;
+                        document.getElementById('student').value = report.student;
+                        document.getElementById('quiz').value = report.quiz || '';
+                        document.getElementById('type').value = report.type;
+                        document.getElementById('status').value = report.status;
+                        document.getElementById('content').value = report.content;
+                        
+                        const date = new Date(report.created_date);
+                        document.getElementById('createdDate').value = date.toISOString().slice(0, 16);
+                        
+                        editingReportId = report.id;
+                        document.getElementById('submitBtn').textContent = 'Update Report';
+                        document.getElementById('cancelEditBtn').style.display = 'inline-block';
+                        
+                        // Scroll to form
+                        document.querySelector('.add-report-section').scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                        showMessage('Error loading report: ' + data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    showMessage('Error: ' + error.message, 'error');
+                });
+        }
+
+        // Cancel edit mode
+        function cancelEdit() {
+            editingReportId = null;
+            resetForm();
+            document.getElementById('submitBtn').textContent = 'Add Report';
+            document.getElementById('cancelEditBtn').style.display = 'none';
+        }
+
+        // Update report status
+        function updateStatus(id, newStatus) {
+            const reportData = {
+                id: id,
+                status: newStatus
+            };
+            
+            fetch(API_BASE_URL, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(reportData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage(`Report status updated to ${newStatus}!`, 'success');
+                    loadReports();
+                } else {
+                    showMessage('Error: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showMessage('Error: ' + error.message, 'error');
+            });
+        }
+
+        // Delete report
+        function deleteReport(id) {
+            if (!confirm('Are you sure you want to delete this report? This action cannot be undone.')) {
+                return;
+            }
+            
+            fetch(`${API_BASE_URL}?id=${id}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('Report deleted successfully!', 'success');
+                    loadReports();
+                } else {
+                    showMessage('Error: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showMessage('Error: ' + error.message, 'error');
+            });
+        }
+
+        // Reset form
+        function resetForm() {
+            document.getElementById('reportForm').reset();
+            document.getElementById('createdDate').value = new Date().toISOString().slice(0, 16);
+            // Reset edit mode without calling cancelEdit to avoid circular call
+            editingReportId = null;
+            document.getElementById('submitBtn').textContent = 'Add Report';
+            document.getElementById('cancelEditBtn').style.display = 'none';
+        }
+
+        // Show message
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = message;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

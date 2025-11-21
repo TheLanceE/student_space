@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduMind - Report Details</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background-color: #0d6efd;
+            color: white;
+            padding: 0 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 600;
+            padding: 15px 0;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            padding: 20px 25px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .nav-links li.active {
+            background-color: #0b5ed7;
+            border-bottom: 3px solid #ffffff;
+        }
+        
+        .nav-links li:hover {
+            background-color: #0b5ed7;
+        }
+        
+        .nav-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: inherit;
+            cursor: pointer;
+            padding: 0;
+            text-decoration: none;
+        }
+        
+        .nav-button:hover {
+            text-decoration: none;
+        }
+        
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        .page-title {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .page-title h1 {
+            font-size: 28px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        
+        .back-button {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .back-button:hover {
+            background-color: #5c636a;
+        }
+        
+        .report-detail-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+        
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .report-id {
+            font-weight: 600;
+            color: #0d6efd;
+            font-size: 24px;
+        }
+        
+        .report-status {
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .status-pending {
+            background-color: #ffeaea;
+            color: #dc3545;
+        }
+        
+        .status-reviewed {
+            background-color: #e7f4e4;
+            color: #198754;
+        }
+        
+        .status-kept {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .error-message {
+            text-align: center;
+            padding: 40px;
+            color: #dc3545;
+            font-size: 18px;
+        }
+        
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 5px;
+        }
+        
+        .detail-value {
+            font-size: 16px;
+        }
+        
+        .content-section {
+            margin-top: 20px;
+        }
+        
+        .content-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .content-value {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        
+        .actions-section {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .btn-suggestion {
+            background-color: #198754;
+            color: white;
+        }
+        
+        .btn-suggestion:hover {
+            background-color: #157347;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <h1>EduMind</h1>
+            </div>
+            <ul class="nav-links">
+                <li>Dashboard</li>
+                <li>
+                    <a href="Back.html" class="nav-button">Manage Reports</a>
+                </li>
+                <li>
+                    <a href="Front.html" class="nav-button">Reports</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="page-title">
+            <h1>Report Details</h1>
+            <button class="back-button" onclick="window.location.href='Front.html'">← Back</button>
+        </div>
+        
+        <div class="report-detail-card" id="reportDetailCard">
+            <div style="text-align: center; padding: 40px;">
+                Loading report details...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API Base URL
+        const API_BASE_URL = '../api/reports.php';
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            loadReportDetails();
+        });
+
+        // Setup event listeners
+        function setupEventListeners() {
+            document.querySelectorAll('.nav-links li').forEach(navItem => {
+                navItem.addEventListener('click', function(e) {
+                    // Don't interfere with links/buttons
+                    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
+                        return;
+                    }
+                    document.querySelectorAll('.nav-links li').forEach(item => item.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        }
+
+        // Get report ID from URL
+        function getReportId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+
+        // Load report details from API
+        function loadReportDetails() {
+            const reportId = getReportId();
+            const card = document.getElementById('reportDetailCard');
+            
+            if (!reportId) {
+                card.innerHTML = '<div class="error-message">No report ID provided. Please select a report from the front office.</div>';
+                return;
+            }
+            
+            card.innerHTML = '<div style="text-align: center; padding: 40px;">Loading report details...</div>';
+            
+            fetch(`${API_BASE_URL}?id=${reportId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayReportDetails(data.data);
+                    } else {
+                        card.innerHTML = `<div class="error-message">Error loading report: ${data.message}</div>`;
+                    }
+                })
+                .catch(error => {
+                    card.innerHTML = `<div class="error-message">Error: ${error.message}</div>`;
+                });
+        }
+
+        // Display report details
+        function displayReportDetails(report) {
+            const statusClass = getStatusClass(report.status);
+            const createdDate = formatDateTime(report.created_date);
+            const updatedDate = report.updated_date ? formatDateTime(report.updated_date) : 'Not updated yet';
+            
+            const card = document.getElementById('reportDetailCard');
+            card.innerHTML = `
+                <div class="report-header">
+                    <div class="report-id">Report #${report.id} - Detailed View</div>
+                    <div class="report-status ${statusClass}">${escapeHtml(report.status)}</div>
+                </div>
+                
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Student</div>
+                        <div class="detail-value">${escapeHtml(report.student)}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Quiz</div>
+                        <div class="detail-value">${report.quiz ? escapeHtml(report.quiz) : 'N/A'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Type</div>
+                        <div class="detail-value">${escapeHtml(report.type)}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Status</div>
+                        <div class="detail-value">${escapeHtml(report.status)}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Created Date</div>
+                        <div class="detail-value">${createdDate}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Last Updated</div>
+                        <div class="detail-value">${updatedDate}</div>
+                    </div>
+                </div>
+                
+                <div class="content-section">
+                    <div class="content-label">Report Content</div>
+                    <div class="content-value">
+                        ${formatContent(report.content)}
+                    </div>
+                </div>
+                
+                <div class="actions-section">
+                    <button class="btn btn-suggestion" onclick="useSuggestionEngine(${report.id})">Use Suggestion Engine</button>
+                </div>
+            `;
+        }
+
+        // Get status CSS class
+        function getStatusClass(status) {
+            switch(status) {
+                case 'Pending': return 'status-pending';
+                case 'Reviewed': return 'status-reviewed';
+                case 'Kept': return 'status-kept';
+                default: return 'status-pending';
+            }
+        }
+
+        // Format datetime
+        function formatDateTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            }).replace(',', '');
+        }
+
+        // Format content (preserve line breaks)
+        function formatContent(content) {
+            return escapeHtml(content).replace(/\n/g, '<br>');
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Use suggestion engine
+        function useSuggestionEngine(reportId) {
+            alert('Suggestion Engine activated! Generating personalized recommendations for Report #' + reportId + '...');
+        }
+    </script>
+</body>
+</html>
