@@ -61,19 +61,15 @@ class Challenges {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    
-    
-public static function getByID($pdo, $id) {
-    try {
-        $stmt = $pdo->prepare("SELECT * FROM Challenges WHERE id = ?");
-        $stmt->execute([$id]);
-        $data = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $data ?: false;
-    } catch (Exception $e) {
-        return false;
+    public static function getByID($pdo, $id) {
+        try {
+            $stmt = $pdo->prepare("SELECT * FROM challenges WHERE id = ?");
+            $stmt->execute([$id]);
+            $data = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $data ?: false;
+        } catch (Exception $e) {
+            return false;
+        }
     }
-}
-
-
 }
 ?>
