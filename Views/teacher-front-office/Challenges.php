@@ -10,9 +10,11 @@ $teacherID = $_SESSION['userID'] ?? 1;
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Challenges | Teacher</title>
-  <link href="../../shared-assets/vendor/bootstrap.min.css" rel="stylesheet">
-  <link href="../../shared-assets/css/global.css" rel="stylesheet">
-  <link href="styles.css" rel="stylesheet"> <!-- Merged CSS link -->
+  <link rel="stylesheet" href="../shared-assets/vendor/bootstrap.min.css">
+  <link rel="stylesheet" href="../shared-assets/css/global.css">
+  <link rel="stylesheet" href="../shared-assets/css/styles.css">
+
+  <script src="../shared-assets/vendor/bootstrap.bundle.min.js"></script>
   <style>
     #toast-container { position: fixed; top: 10px; right: 10px; z-index: 9999; }
     .toast { background: #4caf50; color: white; padding: 10px 15px; margin-bottom: 5px; border-radius: 5px; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
@@ -48,6 +50,8 @@ $teacherID = $_SESSION['userID'] ?? 1;
               ['id' => 2, 'title' => 'Course Completion', 'type' => 'Course', 'points' => 75, 'status' => 'Active'],
               ['id' => 3, 'title' => 'Time Study', 'type' => 'Time', 'points' => 30, 'status' => 'Active'],
               ['id' => 4, 'title' => 'Social Share', 'type' => 'Social', 'points' => 20, 'status' => 'Active'],
+              ['id' => 5, 'title' => 'Group Project', 'type' => 'Social', 'points' => 40, 'status' => 'Active'],
+              ['id' => 6, 'title' => 'Reflection Journal', 'type' => 'Reading', 'points' => 25, 'status' => 'Active'],
           ];
       }
       if ($challenges) {
