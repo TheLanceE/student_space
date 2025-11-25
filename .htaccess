@@ -1,0 +1,18 @@
+# Restrict access to this folder to localhost only (private server)
+# Allows IPv4 and IPv6 localhost. For Apache 2.4+ the "Require" directive is used.
+<IfModule mod_authz_core.c>
+  Require ip 127.0.0.1 ::1
+</IfModule>
+# Fallback for Apache 2.2
+<IfModule !mod_authz_core.c>
+  Order deny,allow
+  Deny from all
+  Allow from 127.0.0.1
+</IfModule>
+
+# Optional: Uncomment and configure the following to require HTTP Basic Auth
+# (useful when you need remote access but want password protection)
+#AuthType Basic
+#AuthName "Private Area"
+#AuthUserFile "C:/path/to/.htpasswd"  # <--- change to absolute path of .htpasswd
+#Require valid-user
