@@ -32,7 +32,7 @@ class Event
 
     public function create($pdo)
     {
-        $teacherID = 1;
+        $teacherID = 0;
 
         $statement = $pdo->prepare("
             INSERT INTO events 
@@ -58,6 +58,30 @@ class Event
     {
         $statement = $pdo->prepare("DELETE FROM events WHERE eventID = ?");
         $statement->execute([$id]);
+    }
+
+    static public function incrementParticipant($pdo,$id)
+    {
+        $statement = $pdo->prepare("UPDATE events SET nbrParticipants = nbrParticipants + ? WHERE eventID = ?");
+        $statement->execute([1, $id]);
+    }
+
+    static public function getAll($pdo)
+    {
+        $statement = $pdo->prepare("SELECT * FROM events");
+        $statement->execute();
+        $events = $statement->fetchAll(PDO::FETCH_ASSOC);
+    
+        return $events;
+    }
+
+    static public function getAllTeacher($pdo, $teacherID)
+    {
+        $statement = $pdo->prepare("SELECT * FROM events WHERE teacherID = ?");
+        $statement->execute([$teacherID]);
+        $events = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+        return $events;
     }
 }
 ?>
