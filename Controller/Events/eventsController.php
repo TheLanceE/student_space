@@ -2,8 +2,6 @@
 
     function createEvent($pdo, $event)
     {
-        $teacherID = 0;
-
         $statement = $pdo->prepare("
             INSERT INTO events 
             (title, date, startTime, endTime, maxParticipants, nbrParticipants, course, type, location, description, teacherID) 
@@ -20,7 +18,7 @@
             $event->type,
             $event->location,
             $event->description,
-            $teacherID
+            $event->teacherID
         ]);
     }
 

@@ -42,7 +42,7 @@
 
       
 
-  <h2 class="mb-3">Your Events</h2>
+  <h2 class="mb-3">Events</h2>
 <style>
   details {
     cursor: pointer;

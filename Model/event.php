@@ -30,7 +30,51 @@ class Event
         $this->teacherID = $teacherID;
     }
 
-    public function create($pdo)
+    public function getEventID() { return $this->eventID;}
+    public function setEventID($eventID){ $this->eventID = $eventID; }
+
+    public function getTitle(){ return $this->title; }
+    public function setTitle($title){ $this->title = $title; }
+
+    public function getDate(){ return $this->date; }
+    public function setDate($date){ $this->date = $date; }
+
+    public function getStartTime(){ return $this->startTime; }
+    public function setStartTime($startTime){ $this->startTime = $startTime; }
+
+    public function getEndTime(){ return $this->endTime; }
+    public function setEndTime($endTime){ $this->endTime = $endTime; }
+
+    public function getMaxParticipants(){ return $this->maxParticipants; }
+    public function setMaxParticipants($maxParticipants){ $this->maxParticipants = $maxParticipants; }
+
+    public function getNbrParticipants(){ return $this->nbrParticipants; }
+    public function setNbrParticipants($nbrParticipants){ $this->nbrParticipants = $nbrParticipants; }
+
+    public function getCourse(){ return $this->course; }
+    public function setCourse($course){ $this->course = $course; }
+
+    public function getType(){ return $this->type; }
+    public function setType($type){ $this->type = $type; }
+
+    public function getLocation(){ return $this->location; }
+    public function setLocation($location){ $this->location = $location; }
+
+    public function getDescription(){ return $this->description; }
+    public function setDescription($description){ $this->description = $description; }
+
+    public function getTeacherID(){ return $this->teacherID; }
+    public function setTeacherID($teacherID){ $this->teacherID = $teacherID; }
+
+
+
+
+
+}
+?>
+
+<?php
+  /*  public function create($pdo)
     {
         $teacherID = 0;
 
@@ -82,6 +126,5 @@ class Event
         $events = $statement->fetchAll(PDO::FETCH_ASSOC);
 
         return $events;
-    }
-}
+    }*/
 ?>
