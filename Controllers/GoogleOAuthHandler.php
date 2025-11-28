@@ -7,8 +7,8 @@
 require_once __DIR__ . '/config.php';
 
 // Google OAuth Configuration
-define('GOOGLE_CLIENT_ID', ''); // TO BE CONFIGURED
-define('GOOGLE_CLIENT_SECRET', ''); // TO BE CONFIGURED
+define('392955002198-0k8r5d2kuo47kbhnrmh3c8f32umgkcvi.apps.googleusercontent.com', ''); // TO BE CONFIGURED
+define('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', ''); // TO BE CONFIGURED
 define('GOOGLE_REDIRECT_URI', 'http://localhost/edumind/Controllers/google_oauth_callback.php');
 
 class GoogleOAuthHandler {
