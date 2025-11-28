@@ -6,10 +6,17 @@
 
 require_once __DIR__ . '/config.php';
 
-// Google OAuth Configuration
-define('392955002198-0k8r5d2kuo47kbhnrmh3c8f32umgkcvi.apps.googleusercontent.com', ''); // TO BE CONFIGURED
-define('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', ''); // TO BE CONFIGURED
-define('GOOGLE_REDIRECT_URI', 'http://localhost/edumind/Controllers/google_oauth_callback.php');
+// Google OAuth Configuration (read from environment or config)
+// Do NOT hardcode secrets; use environment variables or a local, untracked config.
+if (!defined('GOOGLE_CLIENT_ID')) {
+    define('GOOGLE_CLIENT_ID', getenv('GOOGLE_CLIENT_ID') ?: '');
+}
+if (!defined('GOOGLE_CLIENT_SECRET')) {
+    define('GOOGLE_CLIENT_SECRET', getenv('GOOGLE_CLIENT_SECRET') ?: '');
+}
+if (!defined('GOOGLE_REDIRECT_URI')) {
+    define('GOOGLE_REDIRECT_URI', getenv('GOOGLE_REDIRECT_URI') ?: 'http://localhost/edumind/Controllers/google_oauth_callback.php');
+}
 
 class GoogleOAuthHandler {
     private $pdo;
