@@ -76,8 +76,6 @@
   </div>
 
   <script src="../../shared-assets/vendor/bootstrap.bundle.min.js"></script>
-  <script src="../../shared-assets/js/database.js"></script>
-  <script src="assets/js/storage.js"></script>
   <script src="assets/js/auth.js"></script>
   <script src="assets/js/pages.js"></script>
   <script>

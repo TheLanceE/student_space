@@ -1,105 +1,87 @@
 <?php
 /**
- * AuthController - Handles user authentication
+ * AuthController - Handles user authentication with secure session management
  */
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/../Models/User.php';
 
 class AuthController {
     private $db;
+    private $userModel;
 
     public function __construct() {
         global $db_connection;
         $this->db = $db_connection;
+        $this->userModel = new User($this->db);
     }
 
     /**
      * Register a new student
      */
     public function registerStudent($data) {
-        try {
-            $id = 'stu_' . uniqid();
-            $stmt = $this->db->prepare("
-                INSERT INTO students (id, username, password, fullName, email, mobile, address, gradeLevel, createdAt, lastLoginAt)
-                VALUES (:id, :username, :password, :fullName, :email, :mobile, :address, :gradeLevel, NOW(), NOW())
-            ");
-            
-            $stmt->execute([
-                ':id' => $id,
-                ':username' => $data['username'],
-                ':password' => password_hash($data['password'], PASSWORD_DEFAULT),
-                ':fullName' => $data['fullName'],
-                ':email' => $data['email'],
-                ':mobile' => $data['mobile'] ?? '',
-                ':address' => $data['address'] ?? '',
-                ':gradeLevel' => $data['gradeLevel'] ?? 'Unassigned'
-            ]);
-
-            return ['success' => true, 'id' => $id];
-        } catch (PDOException $e) {
-            return ['success' => false, 'error' => $e->getMessage()];
-        }
+        return $this->userModel->create($data, 'student');
     }
 
     /**
      * Register a new teacher
      */
     public function registerTeacher($data) {
-        try {
-            $id = 'teach_' . uniqid();
-            $stmt = $this->db->prepare("
-                INSERT INTO teachers (id, username, password, fullName, email, mobile, address, specialty, nationalId, createdAt, lastLoginAt)
-                VALUES (:id, :username, :password, :fullName, :email, :mobile, :address, :specialty, :nationalId, NOW(), NOW())
-            ");
-            
-            $stmt->execute([
-                ':id' => $id,
-                ':username' => $data['username'],
-                ':password' => password_hash($data['password'], PASSWORD_DEFAULT),
-                ':fullName' => $data['fullName'],
-                ':email' => $data['email'],
-                ':mobile' => $data['mobile'] ?? '',
-                ':address' => $data['address'] ?? '',
-                ':specialty' => $data['specialty'] ?? 'Unassigned',
-                ':nationalId' => $data['nationalId'] ?? ''
-            ]);
-
-            return ['success' => true, 'id' => $id];
-        } catch (PDOException $e) {
-            return ['success' => false, 'error' => $e->getMessage()];
-        }
+        return $this->userModel->create($data, 'teacher');
     }
 
     /**
-     * Login - check credentials and return user data
+     * Login - check credentials and create secure session
      */
     public function login($username, $password, $role = 'student') {
         try {
             $table = $role === 'teacher' ? 'teachers' : ($role === 'admin' ? 'admins' : 'students');
             
-            $stmt = $this->db->prepare("SELECT * FROM $table WHERE username = :username LIMIT 1");
+            $stmt = $this->db->prepare("
+                SELECT * FROM $table 
+                WHERE username = :username 
+                AND (deleted_at IS NULL OR deleted_at = '0000-00-00 00:00:00')
+                LIMIT 1
+            ");
             $stmt->execute([':username' => $username]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($user && password_verify($password, $user['password'])) {
-                // Update last login
+            // Check password - support both hashed (production) and plain text (legacy/testing)
+            $passwordValid = false;
+            if ($user) {
+                // Try hashed password first (production)
+                if (password_verify($password, $user['password'])) {
+                    $passwordValid = true;
+                }
+                // Fallback to plain text comparison (legacy/testing data)
+                elseif ($password === $user['password']) {
+                    $passwordValid = true;
+                }
+            }
+
+            if ($user && $passwordValid) {
+                // Update last login timestamp
                 $updateStmt = $this->db->prepare("UPDATE $table SET lastLoginAt = NOW() WHERE id = :id");
                 $updateStmt->execute([':id' => $user['id']]);
 
-                // Store in session
-                $_SESSION['user'] = [
-                    'id' => $user['id'],
-                    'username' => $user['username'],
-                    'role' => $role,
-                    'fullName' => $user['fullName'] ?? $user['name'] ?? $user['username']
-                ];
+                // Create secure session using SessionManager
+                $fullName = $user['fullName'] ?? $user['name'] ?? $user['username'];
+                SessionManager::createUserSession($user['id'], $user['username'], $role, $fullName);
 
-                unset($user['password']); // Don't send password to frontend
-                return ['success' => true, 'user' => $user];
+                // Return user data (without password)
+                unset($user['password']);
+                $user['role'] = $role;
+                
+                return [
+                    'success' => true,
+                    'user' => $user,
+                    'csrf_token' => SessionManager::getCSRFToken()
+                ];
             } else {
                 return ['success' => false, 'error' => 'Invalid credentials'];
             }
         } catch (PDOException $e) {
-            return ['success' => false, 'error' => $e->getMessage()];
+            error_log("Login error: " . $e->getMessage());
+            return ['success' => false, 'error' => 'Login failed. Please try again.'];
         }
     }
 
@@ -107,62 +89,103 @@ class AuthController {
      * Check if username exists
      */
     public function usernameExists($username, $role = 'student') {
-        try {
-            $table = $role === 'teacher' ? 'teachers' : ($role === 'admin' ? 'admins' : 'students');
-            
-            $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM $table WHERE username = :username");
-            $stmt->execute([':username' => $username]);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            return $result['count'] > 0;
-        } catch (PDOException $e) {
-            return false;
-        }
+        return $this->userModel->usernameExists($username, $role);
+    }
+    
+    /**
+     * Check if email exists
+     */
+    public function emailExists($email, $role = 'student') {
+        return $this->userModel->emailExists($email, $role);
     }
 
     /**
-     * Logout - destroy session
+     * Logout - destroy session securely
      */
     public function logout() {
-        session_destroy();
-        return ['success' => true];
+        SessionManager::destroy();
+        return ['success' => true, 'message' => 'Logged out successfully'];
     }
 
     /**
-     * Get current logged-in user
+     * Get current logged-in user from session
      */
     public function getCurrentUser() {
-        return $_SESSION['user'] ?? null;
+        $user = SessionManager::getCurrentUser();
+        
+        if ($user) {
+            return [
+                'success' => true,
+                'user' => $user,
+                'csrf_token' => SessionManager::getCSRFToken()
+            ];
+        }
+        
+        return [
+            'success' => false,
+            'error' => 'Not authenticated'
+        ];
+    }
+    
+    /**
+     * Check authentication status
+     */
+    public function checkAuth() {
+        return [
+            'authenticated' => SessionManager::isLoggedIn(),
+            'user' => SessionManager::getCurrentUser(),
+            'session_time_remaining' => SessionManager::getTimeRemaining()
+        ];
     }
 }
 
 // API endpoint handler
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    header('Content-Type: application/json');
-    
+if ($_SERVER['REQUEST_METHOD'] === 'POST' || $_SERVER['REQUEST_METHOD'] === 'GET') {
     $auth = new AuthController();
-    $input = json_decode(file_get_contents('php://input'), true);
-    $action = $input['action'] ?? $_POST['action'] ?? '';
+    
+    // Get JSON input for POST requests
+    $input = [];
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $rawInput = file_get_contents('php://input');
+        $input = json_decode($rawInput, true) ?? [];
+        // Fallback to $_POST if no JSON
+        if (empty($input)) {
+            $input = $_POST;
+        }
+    }
+    
+    $action = $input['action'] ?? $_GET['action'] ?? $_POST['action'] ?? '';
 
     switch ($action) {
         case 'register_student':
-            echo json_encode($auth->registerStudent($input['data']));
+            echo json_encode($auth->registerStudent($input['data'] ?? $input));
             break;
         
         case 'register_teacher':
-            echo json_encode($auth->registerTeacher($input['data']));
+            echo json_encode($auth->registerTeacher($input['data'] ?? $input));
             break;
         
         case 'login':
             echo json_encode($auth->login(
-                $input['username'],
-                $input['password'],
+                $input['username'] ?? '',
+                $input['password'] ?? '',
                 $input['role'] ?? 'student'
             ));
             break;
         
         case 'check_username':
-            $exists = $auth->usernameExists($input['username'], $input['role'] ?? 'student');
+            $exists = $auth->usernameExists(
+                $input['username'] ?? '',
+                $input['role'] ?? 'student'
+            );
+            echo json_encode(['exists' => $exists]);
+            break;
+            
+        case 'check_email':
+            $exists = $auth->emailExists(
+                $input['email'] ?? '',
+                $input['role'] ?? 'student'
+            );
             echo json_encode(['exists' => $exists]);
             break;
         
@@ -171,7 +194,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             break;
         
         case 'current_user':
-            echo json_encode(['user' => $auth->getCurrentUser()]);
+            echo json_encode($auth->getCurrentUser());
+            break;
+            
+        case 'check_auth':
+            echo json_encode($auth->checkAuth());
             break;
         
         default:
@@ -180,3 +207,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 ?>
+

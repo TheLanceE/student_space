@@ -1,15 +1,8 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>EduMind+ | Front Office</title>
-  <link href="../../shared-assets/vendor/bootstrap.min.css" rel="stylesheet">
-  <link href="../../shared-assets/css/global.css" rel="stylesheet">
-</head>
-<body data-page="front-index">
-  <script src="../../shared-assets/js/database.js"></script>
-  <script src="assets/js/storage.js"></script>
-  <script src="assets/js/pages.js"></script>
-</body>
-</html>
+<?php
+/**
+ * Front Office Entry Point
+ * Redirects to login page
+ */
+header('Location: login.php');
+exit;
+?>

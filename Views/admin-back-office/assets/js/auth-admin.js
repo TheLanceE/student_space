@@ -24,7 +24,7 @@
         const result = await response.json();
         
         if(result.success){
-          localStorage.setItem('ADMIN_currentUser', JSON.stringify(result.user));
+          // Session managed server-side, just redirect
           window.location.href = 'dashboard.php';
         } else {
           alert('Login failed: ' + (result.error || 'Invalid credentials'));
@@ -35,20 +35,48 @@
       }
     },
     
-    logout(){
-      localStorage.removeItem('ADMIN_currentUser');
-      fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'logout' })
-      }).finally(() => {
-        window.location.href = '../../index.php';
-      });
+    async logout(){
+      try {
+        await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'logout' })
+        });
+      } catch(error) {
+        console.error('Logout error:', error);
+      } finally {
+        window.location.href = 'login.php';
+      }
     },
     
-    current(){ 
-      const stored = localStorage.getItem('ADMIN_currentUser');
-      return stored ? JSON.parse(stored) : null;
+    async current(){ 
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'current_user' })
+        });
+        const result = await response.json();
+        return result.success ? result.user : null;
+      } catch(error) {
+        console.error('Get current user error:', error);
+        return null;
+      }
+    },
+    
+    async checkAuth(){
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'check_auth' })
+        });
+        const result = await response.json();
+        return result.authenticated;
+      } catch(error) {
+        console.error('Check auth error:', error);
+        return false;
+      }
     }
   };
 
