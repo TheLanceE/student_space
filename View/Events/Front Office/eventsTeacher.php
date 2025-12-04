@@ -175,9 +175,11 @@
             echo "<td class='text-center'>
                     <form method='post' action='../../../Controller/Events/eventsController.php'>
                       <input type='hidden' name='deleteID' value='{$event['eventID']}'>
-                      <button class='btn btn-danger btn-sm'>
-                        <i class='bi bi-trash'></i>
-                      </button>
+                        <button class='btn btn-danger btn-sm p-0' style='width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;'>
+                          X
+                        </button>
+
+
                     </form>
                   </td>";
 

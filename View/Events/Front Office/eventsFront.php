@@ -106,35 +106,79 @@
       <tbody>
         <?php
           $events = getAllEvents($pdo);
-
-          foreach($events as $event){
-            echo "<tr>";
-
-            echo "<td>{$event['title']}</td>";
-            echo "<td>{$event['date']}</td>";
-            echo "<td>{$event['startTime']}</td>";
-            echo "<td>{$event['endTime']}</td>";
-            echo "<td>{$event['maxParticipants']}</td>";
-            echo "<td>{$event['nbrParticipants']}</td>";
-            echo "<td>{$event['course']}</td>";
-            echo "<td>{$event['type']}</td>";
-
-            echo "<td><details><summary>Show</summary>" . htmlspecialchars($event['location']) . "</details></td>";
-            echo "<td><details><summary>Show</summary>" . htmlspecialchars($event['description']) . "</details></td>";
-
-            echo "<td class='text-center'>
-                    <form method='post' action='../../../Controller/Events/eventsController.php'>
-                      <input type='hidden' name='eventID' value='{$event['eventID']}'>
-                       <input type='hidden' name='studentID' value='10'>
-                    <button class='btn btn-success btn-sm'>
-                        <i class='bi bi-plus-circle'></i> Join
-                    </button>
-                    </form>
-                  </td>";
-
-            echo "</tr>";
-          }
+          $userID = 899;
+        
         ?>
+
+        <?php foreach($events as $event): ?>
+        <tr>
+            <td><?= $event['title'] ?></td>
+            <td><?= $event['date'] ?></td>
+            <td><?= $event['startTime'] ?></td>
+            <td><?= $event['endTime'] ?></td>
+            <td><?= $event['maxParticipants'] ?></td>
+            <td><?= $event['nbrParticipants'] ?></td>
+            <td><?= $event['course'] ?></td>
+            <td><?= $event['type'] ?></td>
+
+            <td>
+                <details>
+                    <summary>Show</summary>
+                    <?= htmlspecialchars($event['location']) ?>
+                </details>
+            </td>
+
+            <td>
+                <details>
+                    <summary>Show</summary>
+                    <?= htmlspecialchars($event['description']) ?>
+                </details>
+            </td>
+
+            <td class="text-center">
+                <form method="post" action="../../../Controller/Events/eventsController.php">
+                    <input type="hidden" name="eventID" value="<?= $event['eventID'] ?>">
+                    <input type="hidden" name="studentID" value="<?= $userID?>">
+              <?php 
+              if(isUserInEvent($pdo, $userID, $event['eventID']) )
+              {?>
+
+
+                <input type="hidden" name="leave" value='joemama'>
+                <button class="btn btn-danger btn-sm">
+                    <i class="bi bi-dash-circle"></i> Leave
+                </button>
+
+              <?php
+              }
+              else{?>
+
+                  <?php
+                  if($event['nbrParticipants'] >= $event['maxParticipants']) 
+                  {?>
+                    <button class="btn btn-secondary btn-sm" disabled>
+                        <i class="bi bi-check-circle"></i> Full
+                    </button>
+
+                  <?php 
+                  }
+                  else
+                  {?>
+                      <button class="btn btn-success btn-sm">
+                            <i class="bi bi-plus-circle"></i> Join
+                      </button>
+
+                  <?php 
+                  } ?>
+              <?php
+              }?>
+
+
+                </form>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+
       </tbody>
     </table>
   </div>

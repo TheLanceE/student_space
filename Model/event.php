@@ -71,6 +71,32 @@ class Event
 
 
 }
+
+class Participation
+{
+    private int $participationID;
+    private int $eventID;
+    private int $userID;
+
+    public function __construct($eventID, $userID)
+    {
+        $this->eventID = $eventID;
+        $this->userID = $userID;
+    }
+
+    public function getID() { return $this->participationID; }
+    public function setID(int $ID) { $this->particpationID = $iD; }
+
+    public function getEventID() { return $this->eventID; }
+    public function setEventID(int $eventID) {$this->eventID = $eventID; }
+    
+    public function getUseriD() { return $this->userID; }
+    public function setUserID(int $userID) { $this->userID = $userID; }
+}
+
+
+
+
 ?>
 
 <?php

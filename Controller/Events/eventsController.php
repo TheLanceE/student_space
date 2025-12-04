@@ -28,9 +28,15 @@
         $statement->execute([$id]);
     }
 
-    function incrementParticipantEvent($pdo,$id)
+    function incrementParticipantEvent($pdo, $id)
     {
         $statement = $pdo->prepare("UPDATE events SET nbrParticipants = nbrParticipants + ? WHERE eventID = ?");
+        $statement->execute([1, $id]);
+    }
+
+    function decrementParticipantEvent($pdo, $id)
+    {
+        $statement = $pdo->prepare("UPDATE events SET nbrParticipants = nbrParticipants - ? WHERE eventID = ?");
         $statement->execute([1, $id]);
     }
 
@@ -51,6 +57,41 @@
 
         return $events;
     }
+
+    function createParticipation($pdo, Participation $participation)
+    {
+        $statement = $pdo-> prepare("
+            INSERT INTO participation
+            (id_event, id_user, attachement, comment)
+            VALUES (?, ?, ?, ?)  ");
+
+        $statement->execute([
+            $participation->getEventID(),
+            $participation->getUserID() ,
+            "Hello",
+            "pppp"
+        ]);
+    }
+
+    function isUserInEvent($pdo, $userID, $eventID)
+    {
+        $statement = $pdo->prepare("SELECT * FROM participation WHERE id_event = ? AND id_user = ?");
+        $statement->execute([$eventID, $userID]);
+
+        return $statement->fetch() !== false;
+    }
+
+    function deleteParticipation($pdo, $userID, $eventID)
+    {
+        $statement = $pdo->prepare("DELETE FROM participation WHERE id_event = ? AND id_user = ?");
+        $statement->execute([$eventID, $userID]);
+    }
+    
+    function deleteAllEventParticipations($pdo, $eventID)
+    {
+        $statement = $pdo->prepare("DELETE FROM participation WHERE id_event = ?");
+        $statement->execute([$eventID]);
+    }
 ?>
 
 
@@ -66,6 +107,8 @@
         {
             $id = $_POST['deleteID'];
             deleteEvent($pdo, $id);
+            deleteAllEventParticipations($pdo, $id);
+
             if(isset($_POST['admin']))
                 header("Location: ../../View/Events/Back Office/eventsAdmin.php");
             else
@@ -74,8 +117,20 @@
         }
         else if(isset($_POST['studentID']))
         {
-            $id = $_POST['eventID'];
-            incrementParticipantEvent($pdo, $id);
+            $eventID = $_POST['eventID'];
+            $userID = $_POST['studentID'];
+            if($_POST['leave'])
+            {
+                deleteParticipation($pdo, $userID, $eventID);
+                decrementParticipantEvent($pdo, $eventID);
+            }
+            else
+            {
+                $participation = new Participation($eventID, $userID);
+                createParticipation($pdo, $participation);
+                incrementParticipantEvent($pdo, $eventID);
+            }
+
             header("Location: ../../View/Events/Front Office/eventsFront.php");
             exit();
         }
