@@ -20,7 +20,8 @@ class SessionManager {
         // Secure session configuration
         ini_set('session.cookie_httponly', 1);
         ini_set('session.use_only_cookies', 1);
-        ini_set('session.cookie_samesite', 'Strict');
+        // Lax allows session to persist across Google OAuth redirect back
+        ini_set('session.cookie_samesite', 'Lax');
         ini_set('session.use_strict_mode', 1);
         
         // Set session cookie parameters
@@ -30,7 +31,7 @@ class SessionManager {
             'domain' => '',
             'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
             'httponly' => true,
-            'samesite' => 'Strict'
+            'samesite' => 'Lax'
         ]);
         
         session_start();
