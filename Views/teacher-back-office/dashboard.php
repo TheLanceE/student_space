@@ -1,3 +1,43 @@
+<?php
+require_once '../../Controllers/config.php';
+// auth_check already included by config.php
+
+// Verify teacher role
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'teacher') {
+    header('Location: login.php?error=unauthorized');
+    exit;
+}
+
+// Fetch teacher data
+$user_id = $_SESSION['user_id'] ?? null;
+$teacher = null;
+$studentCount = 0;
+$courseCount = 0;
+
+if ($user_id) {
+    try {
+        // Get teacher info
+        $stmt = $db_connection->prepare("SELECT * FROM teachers WHERE id = ? AND (deleted_at IS NULL OR deleted_at = '0000-00-00 00:00:00')");
+        $stmt->execute([$user_id]);
+        $teacher = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Get student count
+        $stmt = $db_connection->prepare("SELECT COUNT(*) FROM students WHERE deleted_at IS NULL");
+        $stmt->execute();
+        $studentCount = $stmt->fetchColumn();
+        
+        // Get course count for this teacher
+        $stmt = $db_connection->prepare("SELECT COUNT(*) FROM courses WHERE teacherId = ? AND (deleted_at IS NULL OR deleted_at = '0000-00-00 00:00:00')");
+        $stmt->execute([$user_id]);
+        $courseCount = $stmt->fetchColumn();
+        
+    } catch (Exception $e) {
+        error_log('[Teacher Dashboard] Error loading data: ' . $e->getMessage());
+    }
+}
+
+$fullName = $teacher['fullName'] ?? $_SESSION['username'] ?? 'Teacher';
+?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -6,6 +46,7 @@
  <title>Teacher Dashboard | EduMind+</title>
  <link href="../../shared-assets/vendor/bootstrap.min.css" rel="stylesheet">
  <link href="../../shared-assets/css/global.css" rel="stylesheet">
+ <link href="../../shared-assets/css/navbar-styles.css" rel="stylesheet">
  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
  <style>
    body {
@@ -130,12 +171,9 @@
  </style>
 </head>
 <body data-page="teacher-dashboard">
- <nav class="navbar navbar-expand-lg navbar-dark">
+ <nav class="navbar navbar-expand-lg navbar-dark teacher-nav">
  <div class="container-fluid">
- <a class="navbar-brand" href="#">
-   <i class="bi bi-mortarboard-fill"></i>
-   EduMind+ Teacher
- </a>
+ <a class="navbar-brand" href="dashboard.php"><i class="bi bi-mortarboard-fill"></i> EduMind+ Teacher</a>
  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation">
  <span class="navbar-toggler-icon"></span>
  </button>
@@ -150,9 +188,9 @@
  <li class="nav-item"><a class="nav-link" href="quiz-reports.php"><i class="bi bi-graph-up me-1"></i>Quiz Reports</a></li>
  <li class="nav-item"><a class="nav-link" href="reports.php"><i class="bi bi-file-bar-graph me-1"></i>Reports</a></li>
  </ul>
- <button id="logoutBtn" class="btn btn-outline-light btn-sm">
+ <a href="../../Controllers/logout_handler.php" class="btn btn-outline-light btn-sm">
    <i class="bi bi-box-arrow-right me-1"></i>Logout
- </button>
+ </a>
  </div>
  </div>
  </nav>

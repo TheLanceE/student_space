@@ -40,8 +40,8 @@ class EventController
         }
 
         // Get teacher ID from session (fallback to 0 for now)
-        session_start();
-        $teacherID = $_SESSION['teacher_id'] ?? 0;
+        // Session already initialized by config.php
+        $teacherID = $_SESSION['teacher_id'] ?? $_SESSION['user_id'] ?? 0;
 
         $event = new Event(
             $title, 

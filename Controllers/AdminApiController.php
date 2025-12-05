@@ -16,13 +16,21 @@ if ($_SESSION['role'] !== 'admin') {
 
 // Get request method and endpoint
 $method = $_SERVER['REQUEST_METHOD'];
-$path = $_SERVER['PATH_INFO'] ?? '/';
+$path = $_SERVER['PATH_INFO'] ?? $_GET['path'] ?? '/';
+
+// Debug logging
+error_log("AdminApiController: method=$method, path=$path");
 
 // CSRF protection
 function validate_csrf() {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' || $_SERVER['REQUEST_METHOD'] === 'DELETE') {
         $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? $_POST['csrf_token'] ?? '';
-        if (!hash_equals($_SESSION['csrf_token'] ?? '', $token)) {
+        // Generate CSRF token if not exists
+        if (!isset($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        }
+        if ($token && !hash_equals($_SESSION['csrf_token'], $token)) {
+            error_log("CSRF validation failed: expected={$_SESSION['csrf_token']}, got=$token");
             http_response_code(403);
             echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
             exit;
@@ -63,8 +71,11 @@ if (preg_match('#^/users/bulk-delete/?$#', $path) && $method === 'POST') {
     $ids = $input['ids'] ?? [];
     $role = $input['role'] ?? '';
     
+    error_log("Bulk delete: role=$role, ids=" . json_encode($ids));
+    
     if (empty($ids) || !in_array($role, ['student', 'teacher', 'admin'])) {
         http_response_code(400);
+        error_log("Invalid input for bulk delete");
         echo json_encode(['success' => false, 'error' => 'Invalid input']);
         exit;
     }
@@ -81,6 +92,8 @@ if (preg_match('#^/users/bulk-delete/?$#', $path) && $method === 'POST') {
     $placeholders = implode(',', array_fill(0, count($ids), '?'));
     $stmt = $db_connection->prepare("UPDATE $table SET deleted_at = NOW() WHERE id IN ($placeholders)");
     $stmt->execute($ids);
+    
+    error_log("Deleted " . $stmt->rowCount() . " users from $table");
     
     echo json_encode([
         'success' => true,
@@ -230,6 +243,11 @@ if (preg_match('#^/quizzes/bulk-delete/?$#', $path) && $method === 'POST') {
 }
 
 // 404 for unknown endpoints
+error_log("AdminApiController: 404 - method=$method, path=$path, query_string=" . ($_SERVER['QUERY_STRING'] ?? ''));
 http_response_code(404);
-echo json_encode(['success' => false, 'error' => 'Endpoint not found']);
+echo json_encode([
+    'success' => false,
+    'error' => 'Endpoint not found',
+    'debug' => ['method' => $method, 'path' => $path, 'available_endpoints' => ['/users/bulk-delete', '/users', '/courses', '/events', '/quizzes']]
+]);
 ?>

@@ -1,3 +1,52 @@
+<?php
+require_once '../../Controllers/config.php';
+// auth_check already included by config.php
+
+// Fetch student data
+$user_id = $_SESSION['user_id'] ?? null;
+$student = null;
+$recentScores = [];
+$upcomingEvents = [];
+
+if ($user_id) {
+    try {
+        // Get student info
+        $stmt = $db_connection->prepare("SELECT * FROM students WHERE id = ? AND (deleted_at IS NULL OR deleted_at = '0000-00-00 00:00:00')");
+        $stmt->execute([$user_id]);
+        $student = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Get recent scores (last 5)
+        $stmt = $db_connection->prepare("
+            SELECT s.*, q.title as quiz_title, c.title as course_title, s.createdAt as attempt_date
+            FROM scores s
+            LEFT JOIN quizzes q ON s.quiz_id = q.id
+            LEFT JOIN courses c ON q.courseId = c.id
+            WHERE s.student_id = ?
+            ORDER BY s.createdAt DESC
+            LIMIT 5
+        ");
+        $stmt->execute([$user_id]);
+        $recentScores = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Get upcoming events (next 3)
+        $stmt = $db_connection->prepare("
+            SELECT * FROM events
+            WHERE date >= CURDATE()
+            AND (deleted_at IS NULL OR deleted_at = '0000-00-00 00:00:00')
+            ORDER BY date ASC, startTime ASC
+            LIMIT 3
+        ");
+        $stmt->execute();
+        $upcomingEvents = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+    } catch (Exception $e) {
+        error_log('[Dashboard] Error loading data: ' . $e->getMessage());
+    }
+}
+
+$fullName = $student['fullName'] ?? $_SESSION['username'] ?? 'Student';
+$gradeLevel = $student['gradeLevel'] ?? 'Not assigned';
+?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -10,10 +59,6 @@
  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 </head>
 <body>
-<?php 
-// Check authentication
-require_once '../../Controllers/auth_check.php';
-?>
  <nav class="navbar navbar-expand-lg navbar-dark student-nav">
  <div class="container-fluid">
  <a class="navbar-brand" href="dashboard.php">
@@ -57,13 +102,36 @@ require_once '../../Controllers/auth_check.php';
  <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#scoresModal">View Scores</button>
  </div>
  </div>
- <canvas id="progressChart" height="100"></canvas>
+ <div style="height: 200px; position: relative;">
+  <canvas id="progressChart"></canvas>
+ </div>
  </div>
  </div>
  <div class="card shadow-sm">
  <div class="card-body">
  <h2 class="h5 mb-3">📅 Upcoming Events</h2>
- <div id="upcomingEvents"></div>
+ <div id="upcomingEvents">
+ <?php if (empty($upcomingEvents)): ?>
+ <p class="text-muted">No upcoming events</p>
+ <?php else: ?>
+ <ul class="list-group list-group-flush">
+ <?php foreach ($upcomingEvents as $event): ?>
+ <li class="list-group-item">
+ <div class="d-flex justify-content-between align-items-start">
+ <div>
+ <h6 class="mb-1"><?php echo htmlspecialchars($event['title']); ?></h6>
+ <small class="text-muted">
+ <i class="bi bi-calendar"></i> <?php echo date('M d, Y', strtotime($event['date'])); ?>
+ <i class="bi bi-clock ms-2"></i> <?php echo htmlspecialchars($event['startTime']); ?>
+ </small>
+ </div>
+ <span class="badge bg-primary"><?php echo htmlspecialchars($event['type'] ?? 'Event'); ?></span>
+ </div>
+ </li>
+ <?php endforeach; ?>
+ </ul>
+ <?php endif; ?>
+ </div>
  </div>
  </div>
  </div>
@@ -71,15 +139,28 @@ require_once '../../Controllers/auth_check.php';
  <div class="card shadow-sm mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
  <div class="card-body text-center py-4">
  <img src="../../shared-assets/img/student-portal.jpg" alt="Student" class="rounded-circle mb-3" style="width: 80px; height: 80px; object-fit: cover; border: 3px solid white;">
- <h3 class="h5 mb-1" id="studentName">Loading...</h3>
- <p class="mb-0 small opacity-75" id="studentGrade">Grade N/A</p>
+ <h3 class="h5 mb-1"><?php echo htmlspecialchars($fullName); ?></h3>
+ <p class="mb-0 small opacity-75"><?php echo htmlspecialchars($gradeLevel); ?></p>
  </div>
  </div>
  <div class="card shadow-sm">
  <div class="card-body">
  <h2 class="h5 mb-3">💡 Continue Learning</h2>
  <p class="text-muted small">Personalized suggestions</p>
- <ul id="suggestionsList" class="list-group list-group-flush"></ul>
+ <ul class="list-group list-group-flush">
+  <li class="list-group-item d-flex justify-content-between align-items-center">
+   <a href="courses.php" class="text-decoration-none">Browse All Courses</a>
+   <i class="bi bi-arrow-right"></i>
+  </li>
+  <li class="list-group-item d-flex justify-content-between align-items-center">
+   <a href="quiz.php" class="text-decoration-none">Take a Quiz</a>
+   <i class="bi bi-arrow-right"></i>
+  </li>
+  <li class="list-group-item d-flex justify-content-between align-items-center">
+   <a href="projects.php" class="text-decoration-none">View Projects</a>
+   <i class="bi bi-arrow-right"></i>
+  </li>
+ </ul>
  </div>
  </div>
  </div>
@@ -93,7 +174,36 @@ require_once '../../Controllers/auth_check.php';
  <h2 class="h5 mb-0">Recent Results</h2>
  <a href="courses.php" class="btn btn-sm btn-outline-secondary">Take a Quiz</a>
  </div>
- <div id="recentResults" class="table-responsive"></div>
+ <div id="recentResults" class="table-responsive">
+ <?php if (empty($recentScores)): ?>
+ <p class="text-muted">No quiz attempts yet. <a href="courses.php">Start learning!</a></p>
+ <?php else: ?>
+ <table class="table table-hover">
+ <thead>
+ <tr>
+ <th>Quiz</th>
+ <th>Course</th>
+ <th>Score</th>
+ <th>Date</th>
+ </tr>
+ </thead>
+ <tbody>
+ <?php foreach ($recentScores as $score): ?>
+ <tr>
+ <td><?php echo htmlspecialchars($score['quiz_title'] ?? 'Unknown Quiz'); ?></td>
+ <td><?php echo htmlspecialchars($score['course_title'] ?? 'N/A'); ?></td>
+ <td>
+ <span class="badge <?php echo ($score['score'] >= 70) ? 'bg-success' : (($score['score'] >= 50) ? 'bg-warning' : 'bg-danger'); ?>">
+ <?php echo number_format($score['score'], 1); ?>%
+ </span>
+ </td>
+ <td><?php echo date('M d, Y', strtotime($score['attempt_date'])); ?></td>
+ </tr>
+ <?php endforeach; ?>
+ </tbody>
+ </table>
+ <?php endif; ?>
+ </div>
  </div>
  </div>
  </div>
@@ -109,7 +219,30 @@ require_once '../../Controllers/auth_check.php';
  </div>
  <div class="modal-body">
  <p class="text-muted small">Average scores based on your quiz performance.</p>
- <ul class="list-group" id="scoresList"></ul>
+ <ul class="list-group" id="scoresList">
+  <?php if (empty($recentScores)): ?>
+   <li class="list-group-item text-muted">No scores yet</li>
+  <?php else: ?>
+   <?php 
+   $totalScore = 0;
+   $count = count($recentScores);
+   foreach ($recentScores as $score) {
+    $totalScore += $score['score'];
+   }
+   $avgScore = $count > 0 ? $totalScore / $count : 0;
+   ?>
+   <li class="list-group-item d-flex justify-content-between align-items-center">
+    <span>Average Score</span>
+    <span class="badge <?php echo ($avgScore >= 70) ? 'bg-success' : (($avgScore >= 50) ? 'bg-warning' : 'bg-danger'); ?> rounded-pill">
+     <?php echo number_format($avgScore, 1); ?>%
+    </span>
+   </li>
+   <li class="list-group-item d-flex justify-content-between align-items-center">
+    <span>Total Quizzes Taken</span>
+    <span class="badge bg-primary rounded-pill"><?php echo $count; ?></span>
+   </li>
+  <?php endif; ?>
+ </ul>
  </div>
  <div class="modal-footer">
  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -120,12 +253,42 @@ require_once '../../Controllers/auth_check.php';
 
  <script src="../../shared-assets/vendor/bootstrap.bundle.min.js"></script>
  <script src="../../shared-assets/vendor/chart.umd.min.js"></script>
- <script src="assets/js/auth.js"></script>
- <script src="assets/js/data.js"></script>
- <script src="assets/js/suggestionEngine.js"></script>
- <script src="assets/js/charts.js"></script>
- <script src="assets/js/ui.js"></script>
- <script src="assets/js/pages.js"></script>
+ <script>
+ // Simple chart for progress (if canvas exists)
+ document.addEventListener('DOMContentLoaded', function() {
+ const canvas = document.getElementById('progressChart');
+ if (canvas && typeof Chart !== 'undefined') {
+ const ctx = canvas.getContext('2d');
+ new Chart(ctx, {
+ type: 'line',
+ data: {
+ labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+ datasets: [{
+ label: 'Progress',
+ data: [65, 70, 75, 80],
+ borderColor: '#667eea',
+ backgroundColor: 'rgba(102, 126, 234, 0.1)',
+ tension: 0.4,
+ fill: true
+ }]
+ },
+ options: {
+ responsive: true,
+ maintainAspectRatio: false,
+ plugins: {
+ legend: { display: false }
+ },
+ scales: {
+ y: {
+ beginAtZero: true,
+ max: 100
+ }
+ }
+ }
+ });
+ }
+ });
+ </script>
 </body>
 </html>
 

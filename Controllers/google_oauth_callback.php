@@ -5,11 +5,13 @@
  */
 
 require_once __DIR__ . '/GoogleOAuthHandler.php';
+require_once __DIR__ . '/config.php';
 
-session_start();
+// Session already started by config.php via SessionManager
 
 // Validate state to prevent CSRF
 if (!isset($_GET['code'])) {
+    error_log('[OAuth Callback] Missing code. Query: ' . json_encode($_GET));
     header('Location: ../Views/front-office/login.php?error=oauth_failed');
     exit;
 }
@@ -18,7 +20,7 @@ $code = $_GET['code'];
 $role = $_SESSION['oauth_role'] ?? 'student'; // Default to student
 
 try {
-    // Initialize OAuth handler
+    // Initialize OAuth handler with DB connection from config.php
     $oauth = new GoogleOAuthHandler(
         $db_connection,
         GOOGLE_CLIENT_ID,
@@ -30,6 +32,7 @@ try {
     $token_data = $oauth->getAccessToken($code);
     
     if (!$token_data || !isset($token_data['access_token'])) {
+        error_log('[OAuth Callback] Token exchange failed. Response: ' . json_encode($token_data));
         throw new Exception('Failed to get access token');
     }
     
@@ -37,11 +40,14 @@ try {
     $google_user = $oauth->getUserInfo($token_data['access_token']);
     
     if (!$google_user) {
+        error_log('[OAuth Callback] Failed to fetch user info with access_token');
         throw new Exception('Failed to get user info');
     }
     
-    // Find or create user
-    $user = $oauth->findOrCreateUser($google_user, $role);
+    // Find or create user, detect onboarding
+    $result = $oauth->findOrCreateUser($google_user, $role);
+    $user = $result['user'];
+    $created = $result['created'];
     
     // Set session
     $_SESSION['user_id'] = $user['id'];
@@ -50,23 +56,38 @@ try {
     $_SESSION['logged_in'] = true;
     $_SESSION['auth_method'] = 'google';
     $_SESSION['last_activity'] = time();
+    $_SESSION['email'] = $user['email'] ?? $google_user['email'] ?? '';
+    $_SESSION['google_name'] = $google_user['name'] ?? '';
+    
+    error_log('[OAuth Callback] Session set. user_id=' . $user['id'] . ', role=' . $role . ', created=' . ($created ? 'yes' : 'no'));
     
     // Update last login
     $stmt = $db_connection->prepare("UPDATE {$role}s SET lastLoginAt = NOW() WHERE id = ?");
     $stmt->execute([$user['id']]);
     
-    // Redirect based on role
-    if ($role === 'student') {
-        header('Location: ../Views/front-office/dashboard.php');
-    } elseif ($role === 'teacher') {
-        header('Location: ../Views/teacher-back-office/dashboard.php');
+    // Redirect: onboarding for newly created, else dashboard
+    if ($created) {
+        if ($role === 'student') {
+            header('Location: ../Views/front-office/onboard.php');
+        } elseif ($role === 'teacher') {
+            header('Location: ../Views/teacher-back-office/onboard.php');
+        } else {
+            // Admins not using Google; fallback to admin login
+            header('Location: ../Views/admin-back-office/login.php?error=oauth_admin_disabled');
+        }
     } else {
-        header('Location: ../Views/admin-back-office/dashboard.php');
+        if ($role === 'student') {
+            header('Location: ../Views/front-office/dashboard.php');
+        } elseif ($role === 'teacher') {
+            header('Location: ../Views/teacher-back-office/dashboard.php');
+        } else {
+            header('Location: ../Views/admin-back-office/dashboard.php');
+        }
     }
     exit;
     
 } catch (Exception $e) {
-    error_log('OAuth error: ' . $e->getMessage());
+    error_log('[OAuth Callback] Error: ' . $e->getMessage());
     
     if ($role === 'student') {
         header('Location: ../Views/front-office/login.php?error=oauth_failed');

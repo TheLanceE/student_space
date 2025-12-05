@@ -1,43 +1,88 @@
 <?php
-require_once '../../Controllers/auth_check.php';
+require_once '../../Controllers/config.php';
+// auth_check already included by config.php
 
-// Database connection
-$host = 'localhost';
-$dbname = 'edumind';
-$username = 'root';
-$password = '';
-
+// Database connection already available as $db_connection from config.php
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    
     // Get user details
     $user_id = $_SESSION['user_id'];
-    $sql = "SELECT * FROM students WHERE id = ? LIMIT 1";
-    $stmt = $pdo->prepare($sql);
+    error_log('[Profile] Looking up user_id: ' . $user_id);
+    error_log('[Profile] Session data: ' . json_encode([
+        'user_id' => $_SESSION['user_id'] ?? 'NOT SET',
+        'username' => $_SESSION['username'] ?? 'NOT SET',
+        'role' => $_SESSION['role'] ?? 'NOT SET',
+        'email' => $_SESSION['email'] ?? 'NOT SET'
+    ]));
+    
+    $sql = "SELECT * FROM students WHERE id = ? AND (deleted_at IS NULL OR deleted_at = '0000-00-00 00:00:00') LIMIT 1";
+    $stmt = $db_connection->prepare($sql);
     $stmt->execute([$user_id]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    // Get quiz stats
-    $stats_sql = "SELECT COUNT(*) as total_quizzes, 
-                  COALESCE(AVG(score), 0) as avg_score,
-                  COALESCE(MAX(score), 0) as best_score,
-                  COALESCE(MIN(score), 0) as lowest_score
-                  FROM scores WHERE student_id = ?";
-    $stats_stmt = $pdo->prepare($stats_sql);
-    $stats_stmt->execute([$user_id]);
-    $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
+    error_log('[Profile] User found: ' . ($user ? 'YES' : 'NO'));
+    if ($user) {
+        error_log('[Profile] User data: ' . json_encode($user));
+    }
+    
+    // Get quiz stats (try different column names for student ID)
+    $stats = ['total_quizzes' => 0, 'avg_score' => 0, 'best_score' => 0, 'lowest_score' => 0];
+    try {
+        $stats_sql = "SELECT COUNT(*) as total_quizzes, 
+                      COALESCE(AVG(score), 0) as avg_score,
+                      COALESCE(MAX(score), 0) as best_score,
+                      COALESCE(MIN(score), 0) as lowest_score
+                      FROM scores WHERE userId = ?";
+        $stats_stmt = $db_connection->prepare($stats_sql);
+        $stats_stmt->execute([$user_id]);
+        $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        // Try alternate column name
+        try {
+            $stats_sql = "SELECT COUNT(*) as total_quizzes, 
+                          COALESCE(AVG(score), 0) as avg_score,
+                          COALESCE(MAX(score), 0) as best_score,
+                          COALESCE(MIN(score), 0) as lowest_score
+                          FROM scores WHERE student_id = ?";
+            $stats_stmt = $db_connection->prepare($stats_sql);
+            $stats_stmt->execute([$user_id]);
+            $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e2) {
+            error_log('[Profile] Stats query error: ' . $e2->getMessage());
+        }
+    }
+    
+    
+    // If no user found, use session data as fallback
+    if (!$user) {
+        error_log('[Profile] No user found in database for ID: ' . $user_id);
+        $user = [
+            'id' => $user_id,
+            'username' => $_SESSION['username'] ?? 'Unknown',
+            'email' => $_SESSION['email'] ?? '',
+            'mobile' => '',
+            'address' => '',
+            'gradeLevel' => 'Not assigned',
+            'createdAt' => date('Y-m-d H:i:s'),
+            'lastLoginAt' => date('Y-m-d H:i:s'),
+            'fullName' => $_SESSION['full_name'] ?? $_SESSION['google_name'] ?? $_SESSION['username'] ?? 'Student'
+        ];
+    } else {
+        // User found - ensure all fields have values
+        error_log('[Profile] Displaying user: ' . $user['fullName'] . ' (email: ' . ($user['email'] ?? 'EMPTY') . ')');
+    }
     
 } catch(PDOException $e) {
+    error_log('[Profile] Database error: ' . $e->getMessage());
     $user = [
-        'username' => $_SESSION['username'] ?? 'N/A',
-        'email' => 'N/A',
+        'id' => $_SESSION['user_id'] ?? '',
+        'username' => $_SESSION['username'] ?? 'Unknown',
+        'email' => $_SESSION['email'] ?? '',
         'mobile' => '',
         'address' => '',
         'gradeLevel' => 'Not assigned',
         'createdAt' => date('Y-m-d H:i:s'),
         'lastLoginAt' => null,
-        'fullName' => $_SESSION['full_name'] ?? $_SESSION['username'] ?? 'N/A'
+        'fullName' => $_SESSION['full_name'] ?? $_SESSION['google_name'] ?? $_SESSION['username'] ?? 'Student'
     ];
     $stats = ['total_quizzes' => 0, 'avg_score' => 0, 'best_score' => 0, 'lowest_score' => 0];
 }

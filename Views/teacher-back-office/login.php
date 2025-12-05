@@ -220,6 +220,9 @@
         <button type="submit" class="btn btn-login text-white">
           <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
         </button>
+        <button type="button" class="btn btn-outline-success" onclick="loginWithGoogle()">
+          <i class="bi bi-google"></i> Sign in with Google
+        </button>
         <a class="btn btn-register" href="register.php">
           <i class="bi bi-person-plus me-2"></i>Create Teacher Account
         </a>
@@ -233,6 +236,22 @@
   <script src="../../shared-assets/vendor/bootstrap.bundle.min.js"></script>
   
   <script>
+    function loginWithGoogle() {
+      // Set OAuth role for teacher
+      fetch('../../Controllers/set_oauth_role.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role: 'teacher' })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          window.location.href = '../../Controllers/google_oauth_start.php';
+        }
+      })
+      .catch(err => console.error('Error setting OAuth role:', err));
+    }
+    
     // Button ripple effect
     document.querySelectorAll('.btn').forEach(button => {
       button.addEventListener('click', function(e) {

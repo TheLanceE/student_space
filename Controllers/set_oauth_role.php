@@ -4,7 +4,8 @@
  * Called by Google Sign-In button
  */
 
-session_start();
+require_once __DIR__ . '/SessionManager.php';
+SessionManager::init();
 
 header('Content-Type: application/json');
 

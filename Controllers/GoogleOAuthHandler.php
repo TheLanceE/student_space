@@ -6,8 +6,13 @@
 
 require_once __DIR__ . '/config.php';
 
-// Google OAuth Configuration (read from environment or config)
-// Do NOT hardcode secrets; use environment variables or a local, untracked config.
+// Load local OAuth config if it exists
+$local_config = __DIR__ . '/oauth_config.local.php';
+if (file_exists($local_config)) {
+    require_once $local_config;
+}
+
+// Google OAuth Configuration (read from environment or local config)
 if (!defined('GOOGLE_CLIENT_ID')) {
     define('GOOGLE_CLIENT_ID', getenv('GOOGLE_CLIENT_ID') ?: '');
 }
@@ -44,7 +49,9 @@ class GoogleOAuthHandler {
             'prompt' => 'select_account'
         ];
         
-        return 'https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query($params);
+        $url = 'https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query($params);
+        error_log('[OAuth Handler] Auth URL generated. Redirect URI=' . $this->redirect_uri);
+        return $url;
     }
     
     /**
@@ -71,10 +78,15 @@ class GoogleOAuthHandler {
         curl_close($ch);
         
         if ($http_code !== 200) {
+            error_log('[OAuth Handler] Token exchange HTTP ' . $http_code . ' Response: ' . $response);
             return false;
         }
         
-        return json_decode($response, true);
+        $decoded = json_decode($response, true);
+        if (!$decoded) {
+            error_log('[OAuth Handler] Token exchange JSON parse failed: ' . $response);
+        }
+        return $decoded;
     }
     
     /**
@@ -91,10 +103,15 @@ class GoogleOAuthHandler {
         curl_close($ch);
         
         if ($http_code !== 200) {
+            error_log('[OAuth Handler] User info HTTP ' . $http_code . ' Response: ' . $response);
             return false;
         }
         
-        return json_decode($response, true);
+        $decoded = json_decode($response, true);
+        if (!$decoded) {
+            error_log('[OAuth Handler] User info JSON parse failed: ' . $response);
+        }
+        return $decoded;
     }
     
     /**
@@ -116,7 +133,7 @@ class GoogleOAuthHandler {
                 $update_stmt = $this->pdo->prepare("UPDATE {$role}s SET google_id = ? WHERE id = ?");
                 $update_stmt->execute([$google_id, $existing_user['id']]);
             }
-            return $existing_user;
+            return ['user' => $existing_user, 'created' => false];
         }
         
         // Create new user
@@ -154,7 +171,8 @@ class GoogleOAuthHandler {
         // Fetch newly created user
         $stmt = $this->pdo->prepare("SELECT * FROM {$role}s WHERE id = ?");
         $stmt->execute([$user_id]);
-        return $stmt->fetch();
+        $new_user = $stmt->fetch();
+        return ['user' => $new_user, 'created' => true];
     }
 }
 

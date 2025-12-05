@@ -1,2 +1,5 @@
 
 project_debug/
+
+# Google OAuth local config (contains secrets)
+Controllers/oauth_config.local.php

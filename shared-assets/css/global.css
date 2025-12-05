@@ -1,6 +1,7 @@
 /* EduMind+ Global Styles - Enhanced with Animations */
 :root {
   --hero-gradient: linear-gradient(135deg, rgba(33,37,41,.92), rgba(13,110,253,.85));
+  --hero-overlay: radial-gradient(1200px 600px at 10% 10%, rgba(255,255,255,.08), transparent 40%), radial-gradient(800px 400px at 90% 20%, rgba(255,255,255,.06), transparent 45%);
   --primary-color: #0d6efd;
   --success-color: #22c55e;
   --danger-color: #ef4444;
@@ -319,7 +320,7 @@ html {
 
 /* Landing page hero section */
 .hero {
-  background: var(--hero-gradient), url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1600&q=80') center/cover;
+  background: var(--hero-gradient), var(--hero-overlay), url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1600&q=80') center/cover;
   color: #fff;
   padding: 5rem 1rem;
   animation: fadeIn 1s ease-out;

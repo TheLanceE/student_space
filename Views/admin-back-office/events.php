@@ -29,7 +29,7 @@
  <li class="nav-item"><a class="nav-link" href="reports.php">Reports</a></li>
  <li class="nav-item"><a class="nav-link" href="settings.php">Settings</a></li>
  </ul>
- <button id="logoutBtn" class="btn btn-outline-light btn-sm"><i class="bi bi-box-arrow-right me-1"></i>Logout</button>
+ <a href="../../Controllers/logout_handler.php" class="btn btn-outline-light btn-sm"><i class="bi bi-box-arrow-right me-1"></i>Logout</a>
  </div>
  </div>
  </nav>
@@ -46,10 +46,6 @@
  </div>
 
  <script src="../../shared-assets/vendor/bootstrap.min.js"></script>
- <script src="../../shared-assets/js/database.js"></script>
- <script src="assets/js/storage.js"></script>
- <script src="assets/js/auth-admin.js"></script>
- <script src="assets/js/data-admin.js"></script>
- <script src="assets/js/pages.js"></script>
+ <!-- Deprecated client-side admin data scripts removed for consistency -->
 </body>
 </html>

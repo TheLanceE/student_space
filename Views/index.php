@@ -64,6 +64,32 @@
 
   <main class="container my-5 flex-grow-1">
     <section class="mb-5">
+      <div class="row g-4 align-items-center">
+        <div class="col-lg-8">
+          <div class="p-4 rounded-4 shadow-sm bg-white">
+            <h3 class="h4 mb-2">Get started in minutes</h3>
+            <p class="text-muted mb-3">Spin up your campus on EduMind+: unified roles, offline-first data, and export-ready insights.</p>
+            <div class="d-flex flex-wrap gap-2">
+              <a class="btn btn-primary" href="front-office/register.php">Create Student Account</a>
+              <a class="btn btn-outline-primary" href="teacher-back-office/register.php">Invite a Teacher</a>
+              <a class="btn btn-outline-dark" href="admin-back-office/login.php">Admin Login</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="p-4 rounded-4 shadow-sm bg-white h-100">
+            <p class="text-uppercase small text-muted mb-2">Trusted by</p>
+            <div class="d-flex flex-wrap align-items-center gap-3">
+              <span style="font-weight:600;">Districts</span>
+              <span class="badge bg-light text-dark">K-12</span>
+              <span class="badge bg-light text-dark">STEM</span>
+              <span class="badge bg-light text-dark">Adult Ed</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="mb-5">
       <div class="text-center mb-4">
         <p class="text-uppercase text-primary fw-semibold small">Trending learning journeys</p>
         <h2 class="fw-bold">Pick a workspace to get started</h2>
@@ -197,7 +223,7 @@
       </div>
       <div class="text-center text-lg-end">
         <div>Contact the team: <a href="mailto:contact@weblinx.studio">contact@weblinx.studio</a></div>
-        <div class="small">GitHub: <a href="https://github.com/Fatmazha/student_space" target="_blank" rel="noopener">github.com/Fatmazha/student_space</a></div>
+        <div class="small">GitHub: <a href="https://github.com/TheLanceE/student_space" target="_blank" rel="noopener">github.com/TheLanceE/student_space</a></div>
       </div>
     </div>
   </footer>

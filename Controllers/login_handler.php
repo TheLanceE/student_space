@@ -3,21 +3,9 @@
  * Simple Login Handler - Traditional PHP Form Processing
  */
 
-// Start session
-session_start();
+require_once __DIR__ . '/config.php';
 
-// Database connection
-$host = 'localhost';
-$dbname = 'edumind';
-$username = 'root';
-$password = '';
-
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    die("Database connection failed");
-}
+// Database connection already available as $db_connection from config.php
 
 // Handle login form
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -45,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // Query user
     $sql = "SELECT * FROM $table WHERE username = ? AND (deleted_at IS NULL OR deleted_at = '0000-00-00 00:00:00') LIMIT 1";
-    $stmt = $pdo->prepare($sql);
+    $stmt = $db_connection->prepare($sql);
     $stmt->execute([$user]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
     
@@ -61,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($valid) {
             // Update last login
             $update = "UPDATE $table SET lastLoginAt = NOW() WHERE id = ?";
-            $stmt2 = $pdo->prepare($update);
+            $stmt2 = $db_connection->prepare($update);
             $stmt2->execute([$result['id']]);
             
             // Set session
@@ -69,6 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['username'] = $result['username'];
             $_SESSION['role'] = $role;
             $_SESSION['full_name'] = $result['fullName'] ?? $result['name'] ?? $result['username'];
+            $_SESSION['email'] = $result['email'] ?? '';
             $_SESSION['logged_in'] = true;
             $_SESSION['login_time'] = time();
             

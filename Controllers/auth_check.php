@@ -3,7 +3,8 @@
  * Authentication Check - Include this at top of protected pages
  */
 
-session_start();
+require_once __DIR__ . '/config.php';
+// Session already initialized by config.php via SessionManager
 
 // Check if user is logged in
 if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
@@ -20,4 +21,9 @@ if (isset($_SESSION['login_time']) && (time() - $_SESSION['login_time'] > 1800))
 
 // Refresh login time
 $_SESSION['login_time'] = time();
+
+// Initialize CSRF token if not exists
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 ?>

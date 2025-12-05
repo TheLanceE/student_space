@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/config.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ../Views/teacher-back-office/login.php');
@@ -14,13 +14,10 @@ if (empty($username) || empty($password)) {
     exit;
 }
 
-// Database connection
+// Database connection already available as $db_connection from config.php
 try {
-    $pdo = new PDO('mysql:host=localhost;dbname=edumind;charset=utf8mb4', 'root', '');
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    
     // Query teacher
-    $stmt = $pdo->prepare("SELECT * FROM teachers WHERE username = ?");
+    $stmt = $db_connection->prepare("SELECT * FROM teachers WHERE username = ? AND (deleted_at IS NULL OR deleted_at = '0000-00-00 00:00:00')");
     $stmt->execute([$username]);
     $teacher = $stmt->fetch(PDO::FETCH_ASSOC);
     
@@ -30,13 +27,14 @@ try {
         
         if ($passwordValid) {
             // Update last login
-            $updateStmt = $pdo->prepare("UPDATE teachers SET lastLoginAt = NOW() WHERE id = ?");
+            $updateStmt = $db_connection->prepare("UPDATE teachers SET lastLoginAt = NOW() WHERE id = ?");
             $updateStmt->execute([$teacher['id']]);
             
             // Set session
             $_SESSION['user_id'] = $teacher['id'];
             $_SESSION['username'] = $teacher['username'];
             $_SESSION['role'] = 'teacher';
+            $_SESSION['email'] = $teacher['email'] ?? '';
             $_SESSION['logged_in'] = true;
             $_SESSION['last_activity'] = time();
             

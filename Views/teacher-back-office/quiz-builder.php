@@ -27,7 +27,7 @@
  <li class="nav-item"><a class="nav-link" href="quiz-reports.php"><i class="bi bi-graph-up me-1"></i>Quiz Reports</a></li>
  <li class="nav-item"><a class="nav-link" href="reports.php"><i class="bi bi-file-bar-graph me-1"></i>Reports</a></li>
  </ul>
- <button id="logoutBtn" class="btn btn-outline-light btn-sm"><i class="bi bi-box-arrow-right me-1"></i>Logout</button>
+ <a href="../../Controllers/logout_handler.php" class="btn btn-outline-light btn-sm"><i class="bi bi-box-arrow-right me-1"></i>Logout</a>
  </div>
  </div>
  </nav>
@@ -62,11 +62,6 @@
  </main>
 
  <script src="../../shared-assets/vendor/bootstrap.bundle.min.js"></script>
- <script src="../../shared-assets/js/database.js"></script>
- <script src="assets/js/storage.js"></script>
- <script src="assets/js/auth-teacher.js"></script>
- <script src="assets/js/data-teacher.js"></script>
- <script src="assets/js/pages.js"></script>
 </body>
 </html>
 

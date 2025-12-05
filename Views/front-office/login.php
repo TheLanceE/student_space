@@ -1,5 +1,5 @@
 <?php
-session_start();
+// No session_start needed - handled by authentication flow
 ?>
 <!doctype html>
 <html lang="en">
@@ -276,8 +276,11 @@ session_start();
             <button type="submit" class="btn btn-login text-white">
               <span style="position: relative; z-index: 1;">Sign In</span>
             </button>
+            <button type="button" class="btn btn-outline-light" onclick="loginWithGoogle()" style="color: #333; border-color: #ddd; background: rgba(255,255,255,0.9);">
+              <i class="bi bi-google"></i> Sign in with Google
+            </button>
             <a class="btn btn-register" href="register.php">Create New Account</a>
-            <a class="btn btn-outline-secondary" href="../../Views/index.php" style="border: 2px solid rgba(255,255,255,0.5); color: white; background: transparent;">
+            <a class="btn btn-outline-secondary" href="../../Views/index.php" style="border: 2px solid rgba(255,255,255,0.8); color: rgba(255,255,255,0.95); background: rgba(0,0,0,0.2); font-weight: 500;">
               <i class="bi bi-house-door"></i> Back to Home
             </a>
           </div>
@@ -292,6 +295,22 @@ session_start();
 
   <script src="../../shared-assets/vendor/bootstrap.bundle.min.js"></script>
   <script>
+    function loginWithGoogle() {
+      // Set OAuth role for student
+      fetch('../../Controllers/set_oauth_role.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role: 'student' })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          window.location.href = '../../Controllers/google_oauth_start.php';
+        }
+      })
+      .catch(err => console.error('Error setting OAuth role:', err));
+    }
+    
     // Add input focus effects
     document.querySelectorAll('.form-control').forEach(input => {
       input.addEventListener('focus', function() {
