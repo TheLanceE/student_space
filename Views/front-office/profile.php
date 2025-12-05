@@ -4,8 +4,16 @@ require_once '../../Controllers/config.php';
 
 // Database connection already available as $db_connection from config.php
 try {
-    // Get user details
-    $user_id = $_SESSION['user_id'];
+  // Get user details
+  $user_id = $_SESSION['user_id'] ?? null;
+
+  if (!$user_id) {
+    header('Location: login.php?error=not_logged_in');
+    exit;
+  }
+
+  $sessionUsername = $_SESSION['username'] ?? ($_SESSION['google_name'] ?? 'Student');
+  $sessionFullName = $_SESSION['full_name'] ?? $_SESSION['google_name'] ?? $sessionUsername;
     error_log('[Profile] Looking up user_id: ' . $user_id);
     error_log('[Profile] Session data: ' . json_encode([
         'user_id' => $_SESSION['user_id'] ?? 'NOT SET',
@@ -56,15 +64,15 @@ try {
     if (!$user) {
         error_log('[Profile] No user found in database for ID: ' . $user_id);
         $user = [
-            'id' => $user_id,
-            'username' => $_SESSION['username'] ?? 'Unknown',
-            'email' => $_SESSION['email'] ?? '',
-            'mobile' => '',
-            'address' => '',
-            'gradeLevel' => 'Not assigned',
-            'createdAt' => date('Y-m-d H:i:s'),
-            'lastLoginAt' => date('Y-m-d H:i:s'),
-            'fullName' => $_SESSION['full_name'] ?? $_SESSION['google_name'] ?? $_SESSION['username'] ?? 'Student'
+          'id' => $user_id,
+          'username' => $sessionUsername,
+          'email' => $_SESSION['email'] ?? '',
+          'mobile' => '',
+          'address' => '',
+          'gradeLevel' => 'Not assigned',
+          'createdAt' => date('Y-m-d H:i:s'),
+          'lastLoginAt' => date('Y-m-d H:i:s'),
+          'fullName' => $sessionFullName
         ];
     } else {
         // User found - ensure all fields have values
@@ -73,17 +81,17 @@ try {
     
 } catch(PDOException $e) {
     error_log('[Profile] Database error: ' . $e->getMessage());
-    $user = [
-        'id' => $_SESSION['user_id'] ?? '',
-        'username' => $_SESSION['username'] ?? 'Unknown',
+      $user = [
+        'id' => $user_id ?? '',
+        'username' => $sessionUsername,
         'email' => $_SESSION['email'] ?? '',
         'mobile' => '',
         'address' => '',
         'gradeLevel' => 'Not assigned',
         'createdAt' => date('Y-m-d H:i:s'),
         'lastLoginAt' => null,
-        'fullName' => $_SESSION['full_name'] ?? $_SESSION['google_name'] ?? $_SESSION['username'] ?? 'Student'
-    ];
+        'fullName' => $sessionFullName
+      ];
     $stats = ['total_quizzes' => 0, 'avg_score' => 0, 'best_score' => 0, 'lowest_score' => 0];
 }
 ?>
@@ -286,7 +294,7 @@ try {
        <div class="d-flex align-items-center gap-3">
          <span class="text-white welcome-text">
            <i class="bi bi-person-badge"></i>
-           <?php echo htmlspecialchars($_SESSION['username']); ?>
+          <?php echo htmlspecialchars($sessionUsername); ?>
          </span>
          <a href="../../Controllers/logout_handler.php" class="btn btn-outline-light btn-sm">
            <i class="bi bi-box-arrow-right me-1"></i>Logout
@@ -299,11 +307,11 @@ try {
  <div class="profile-header">
    <div class="container text-center" style="position: relative; z-index: 1;">
      <div class="profile-avatar">
-       <?php echo strtoupper(substr($_SESSION['username'], 0, 2)); ?>
+       <?php echo strtoupper(substr($sessionUsername, 0, 2)); ?>
      </div>
-     <h1 class="h3 mb-2"><?php echo htmlspecialchars($user['fullName'] ?? $_SESSION['username']); ?></h1>
+     <h1 class="h3 mb-2"><?php echo htmlspecialchars($user['fullName'] ?? $sessionUsername); ?></h1>
      <p class="mb-0 opacity-75">
-       <i class="bi bi-person-badge"></i> Student ID: <?php echo htmlspecialchars($_SESSION['user_id']); ?>
+       <i class="bi bi-person-badge"></i> Student ID: <?php echo htmlspecialchars($user_id); ?>
      </p>
    </div>
  </div>

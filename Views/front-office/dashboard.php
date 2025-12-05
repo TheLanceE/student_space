@@ -2,6 +2,11 @@
 require_once '../../Controllers/config.php';
 // auth_check already included by config.php
 
+if (empty($_SESSION['user_id'])) {
+    header('Location: login.php?error=not_logged_in');
+    exit;
+}
+
 // Fetch student data
 $user_id = $_SESSION['user_id'] ?? null;
 $student = null;
@@ -44,7 +49,8 @@ if ($user_id) {
     }
 }
 
-$fullName = $student['fullName'] ?? $_SESSION['username'] ?? 'Student';
+$sessionUsername = $_SESSION['username'] ?? ($_SESSION['google_name'] ?? 'Student');
+$fullName = $student['fullName'] ?? ($_SESSION['full_name'] ?? $sessionUsername);
 $gradeLevel = $student['gradeLevel'] ?? 'Not assigned';
 ?>
 <!doctype html>
@@ -80,7 +86,7 @@ $gradeLevel = $student['gradeLevel'] ?? 'Not assigned';
  <div class="d-flex align-items-center gap-3">
  <span class="text-white welcome-text">
 	 <i class="bi bi-person-badge"></i>
-	 <?php echo htmlspecialchars($_SESSION['username']); ?>
+     <?php echo htmlspecialchars($sessionUsername); ?>
  </span>
  <a href="../../Controllers/logout_handler.php" class="btn btn-outline-light btn-sm">
 	 <i class="bi bi-box-arrow-right me-1"></i>Logout

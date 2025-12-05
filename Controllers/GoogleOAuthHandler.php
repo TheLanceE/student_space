@@ -118,12 +118,18 @@ class GoogleOAuthHandler {
      * Find or create user from Google data
      */
     public function findOrCreateUser($google_user, $role = 'student') {
-        $email = $google_user['email'];
-        $google_id = $google_user['id'];
-        $name = $google_user['name'];
+        $email = $google_user['email'] ?? null;
+        $google_id = $google_user['id'] ?? null;
+        $name = $google_user['name'] ?? null;
+
+        if (!$email) {
+            throw new Exception('Google user missing email');
+        }
+
+        $generatedUsername = $this->buildUsername($name, $email, $google_id, $role);
         
         // Check if user exists by email
-        $stmt = $this->pdo->prepare("SELECT * FROM {$role}s WHERE email = ?");
+        $stmt = $this->pdo->prepare("SELECT * FROM {$role}s WHERE email = ? LIMIT 1");
         $stmt->execute([$email]);
         $existing_user = $stmt->fetch();
         
@@ -133,39 +139,68 @@ class GoogleOAuthHandler {
                 $update_stmt = $this->pdo->prepare("UPDATE {$role}s SET google_id = ? WHERE id = ?");
                 $update_stmt->execute([$google_id, $existing_user['id']]);
             }
+            // Backfill username/fullName if missing
+            $needsUpdate = false;
+            $newUsername = $existing_user['username'] ?: $generatedUsername;
+            $newFullName = $existing_user['fullName'] ?: ($name ?: $generatedUsername);
+            if (empty($existing_user['username'])) {
+                $needsUpdate = true;
+            }
+            if (empty($existing_user['fullName'])) {
+                $needsUpdate = true;
+            }
+            if ($needsUpdate) {
+                $update_stmt = $this->pdo->prepare("UPDATE {$role}s SET username = ?, fullName = ? WHERE id = ?");
+                $update_stmt->execute([$newUsername, $newFullName, $existing_user['id']]);
+                $existing_user['username'] = $newUsername;
+                $existing_user['fullName'] = $newFullName;
+            }
             return ['user' => $existing_user, 'created' => false];
         }
         
         // Create new user
         $user_id = uniqid($role[0] . '_');
-        $username = strtolower(str_replace(' ', '', $name)) . '_' . substr($google_id, -4);
+        $username = $generatedUsername;
         
-        if ($role === 'student') {
-            $insert_stmt = $this->pdo->prepare("
-                INSERT INTO students (id, username, password, fullName, email, google_id, createdAt)
-                VALUES (?, ?, ?, ?, ?, ?, NOW())
-            ");
-            $insert_stmt->execute([
-                $user_id,
-                $username,
-                password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT), // Random password
-                $name,
-                $email,
-                $google_id
-            ]);
-        } elseif ($role === 'teacher') {
-            $insert_stmt = $this->pdo->prepare("
-                INSERT INTO teachers (id, username, password, fullName, email, google_id, createdAt)
-                VALUES (?, ?, ?, ?, ?, ?, NOW())
-            ");
-            $insert_stmt->execute([
-                $user_id,
-                $username,
-                password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT),
-                $name,
-                $email,
-                $google_id
-            ]);
+        try {
+            if ($role === 'student') {
+                $insert_stmt = $this->pdo->prepare("
+                    INSERT INTO students (id, username, password, fullName, email, google_id, createdAt)
+                    VALUES (?, ?, ?, ?, ?, ?, NOW())
+                ");
+                $insert_stmt->execute([
+                    $user_id,
+                    $username,
+                    password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT), // Random password
+                    $name ?: $generatedUsername,
+                    $email,
+                    $google_id
+                ]);
+            } elseif ($role === 'teacher') {
+                $insert_stmt = $this->pdo->prepare("
+                    INSERT INTO teachers (id, username, password, fullName, email, google_id, createdAt)
+                    VALUES (?, ?, ?, ?, ?, ?, NOW())
+                ");
+                $insert_stmt->execute([
+                    $user_id,
+                    $username,
+                    password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT),
+                    $name ?: $generatedUsername,
+                    $email,
+                    $google_id
+                ]);
+            }
+        } catch (PDOException $e) {
+            // Handle duplicate email by returning the existing user instead of failing the flow
+            if ($e->getCode() === '23000') {
+                $stmt = $this->pdo->prepare("SELECT * FROM {$role}s WHERE email = ? LIMIT 1");
+                $stmt->execute([$email]);
+                $existing_user = $stmt->fetch();
+                if ($existing_user) {
+                    return ['user' => $existing_user, 'created' => false];
+                }
+            }
+            throw $e;
         }
         
         // Fetch newly created user
@@ -173,6 +208,16 @@ class GoogleOAuthHandler {
         $stmt->execute([$user_id]);
         $new_user = $stmt->fetch();
         return ['user' => $new_user, 'created' => true];
+    }
+
+    private function buildUsername($name, $email, $google_id, $role) {
+        $base = $name ?: ($email ? strtok($email, '@') : $role);
+        $base = strtolower(preg_replace('/[^a-z0-9]+/', '', $base));
+        $suffix = $google_id ? substr($google_id, -4) : substr(uniqid(), -4);
+        if (!$base) {
+            $base = $role;
+        }
+        return $base . '_' . $suffix;
     }
 }
 

@@ -48,16 +48,20 @@ try {
     $result = $oauth->findOrCreateUser($google_user, $role);
     $user = $result['user'];
     $created = $result['created'];
+
+    $sessionUsername = $user['username'] ?? ($google_user['email'] ? strtok($google_user['email'], '@') : 'user');
+    $sessionFullName = $user['fullName'] ?? ($google_user['name'] ?? $sessionUsername);
     
     // Set session
     $_SESSION['user_id'] = $user['id'];
-    $_SESSION['username'] = $user['username'];
+    $_SESSION['username'] = $sessionUsername;
     $_SESSION['role'] = $role;
     $_SESSION['logged_in'] = true;
     $_SESSION['auth_method'] = 'google';
     $_SESSION['last_activity'] = time();
     $_SESSION['email'] = $user['email'] ?? $google_user['email'] ?? '';
-    $_SESSION['google_name'] = $google_user['name'] ?? '';
+    $_SESSION['google_name'] = $sessionFullName;
+    $_SESSION['full_name'] = $sessionFullName;
     
     error_log('[OAuth Callback] Session set. user_id=' . $user['id'] . ', role=' . $role . ', created=' . ($created ? 'yes' : 'no'));
     
