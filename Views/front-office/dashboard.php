@@ -12,6 +12,8 @@ $user_id = $_SESSION['user_id'] ?? null;
 $student = null;
 $recentScores = [];
 $upcomingEvents = [];
+$isAccountBirthday = false;
+$createdAt = null;
 
 if ($user_id) {
     try {
@@ -19,6 +21,7 @@ if ($user_id) {
         $stmt = $db_connection->prepare("SELECT * FROM students WHERE id = ? AND (deleted_at IS NULL OR deleted_at = '0000-00-00 00:00:00')");
         $stmt->execute([$user_id]);
         $student = $stmt->fetch(PDO::FETCH_ASSOC);
+        $createdAt = $student['createdAt'] ?? null;
         
         // Get recent scores (last 5)
         $stmt = $db_connection->prepare("
@@ -52,6 +55,10 @@ if ($user_id) {
 $sessionUsername = $_SESSION['username'] ?? ($_SESSION['google_name'] ?? 'Student');
 $fullName = $student['fullName'] ?? ($_SESSION['full_name'] ?? $sessionUsername);
 $gradeLevel = $student['gradeLevel'] ?? 'Not assigned';
+
+if ($createdAt) {
+    $isAccountBirthday = (date('md', strtotime($createdAt)) === date('md'));
+}
 ?>
 <!doctype html>
 <html lang="en">
@@ -97,6 +104,16 @@ $gradeLevel = $student['gradeLevel'] ?? 'Not assigned';
  </nav>
 
  <main class="container py-4">
+<?php if ($isAccountBirthday): ?>
+ <div class="alert alert-success shadow-sm d-flex align-items-center gap-2 birthday-alert" role="alert">
+     <span style="font-size: 1.4rem;">🎉</span>
+     <div>
+         <strong>Happy account birthday, <?php echo htmlspecialchars($fullName); ?>!</strong>
+         <div class="small text-muted">Thanks for learning with us.</div>
+     </div>
+ </div>
+<?php endif; ?>
+
  <div class="row g-4">
  <div class="col-12 col-lg-8">
  <div class="card shadow-sm mb-4">
@@ -257,9 +274,44 @@ $gradeLevel = $student['gradeLevel'] ?? 'Not assigned';
  </div>
  </div>
 
+ <style>
+ .birthday-alert {
+     border-left: 4px solid #28a745;
+ }
+ .confetti-dot {
+     position: fixed;
+     width: 8px;
+     height: 8px;
+     border-radius: 50%;
+     opacity: 0.9;
+     animation: confetti-fall 1.8s ease-out forwards;
+ }
+ @keyframes confetti-fall {
+     0% { transform: translateY(-20px) rotate(0deg); }
+     100% { transform: translateY(120px) rotate(360deg); opacity: 0; }
+ }
+ </style>
+
  <script src="../../shared-assets/vendor/bootstrap.bundle.min.js"></script>
  <script src="../../shared-assets/vendor/chart.umd.min.js"></script>
  <script>
+ <?php if ($isAccountBirthday): ?>
+ (function(){
+     const colors = ['#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#a26bfa'];
+     for (let i = 0; i < 24; i++) {
+         const dot = document.createElement('div');
+         dot.className = 'confetti-dot';
+         dot.style.background = colors[i % colors.length];
+         dot.style.left = (10 + Math.random() * 80) + 'vw';
+         dot.style.top = '-10px';
+         dot.style.animationDelay = (Math.random() * 0.6) + 's';
+         dot.style.transform = `translateY(-20px) rotate(${Math.random()*90}deg)`;
+         document.body.appendChild(dot);
+         setTimeout(() => dot.remove(), 2000);
+     }
+ })();
+ <?php endif; ?>
+
  // Simple chart for progress (if canvas exists)
  document.addEventListener('DOMContentLoaded', function() {
  const canvas = document.getElementById('progressChart');
