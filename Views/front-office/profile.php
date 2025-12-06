@@ -72,7 +72,8 @@ try {
           'gradeLevel' => 'Not assigned',
           'createdAt' => date('Y-m-d H:i:s'),
           'lastLoginAt' => date('Y-m-d H:i:s'),
-          'fullName' => $sessionFullName
+          'fullName' => $sessionFullName,
+          'avatarPath' => $_SESSION['avatar_path'] ?? null
         ];
     } else {
         // User found - ensure all fields have values
@@ -90,10 +91,28 @@ try {
         'gradeLevel' => 'Not assigned',
         'createdAt' => date('Y-m-d H:i:s'),
         'lastLoginAt' => null,
-        'fullName' => $sessionFullName
+        'fullName' => $sessionFullName,
+        'avatarPath' => $_SESSION['avatar_path'] ?? null
       ];
     $stats = ['total_quizzes' => 0, 'avg_score' => 0, 'best_score' => 0, 'lowest_score' => 0];
 }
+
+    $avatarPath = $user['avatarPath'] ?? ($_SESSION['avatar_path'] ?? null);
+    $avatarUrl = null;
+    if ($avatarPath) {
+      $candidate = __DIR__ . '/../../' . $avatarPath;
+      if (file_exists($candidate)) {
+        $avatarUrl = '../../' . $avatarPath;
+      }
+    }
+    if (!$avatarUrl) {
+      // Try to discover by user id
+      $glob = glob(__DIR__ . '/../../uploads/avatars/' . $user_id . '.*');
+      if (!empty($glob)) {
+        $fileName = basename($glob[0]);
+        $avatarUrl = '../../uploads/avatars/' . $fileName;
+      }
+    }
 ?>
 <!doctype html>
 <html lang="en">
@@ -307,7 +326,11 @@ try {
  <div class="profile-header">
    <div class="container text-center" style="position: relative; z-index: 1;">
      <div class="profile-avatar">
-       <?php echo strtoupper(substr($sessionUsername, 0, 2)); ?>
+      <?php if ($avatarUrl): ?>
+        <img src="<?php echo htmlspecialchars($avatarUrl); ?>" alt="Avatar" style="width: 120px; height: 120px; object-fit: cover; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.25);" />
+      <?php else: ?>
+        <?php echo strtoupper(substr($sessionUsername, 0, 2)); ?>
+      <?php endif; ?>
      </div>
      <h1 class="h3 mb-2"><?php echo htmlspecialchars($user['fullName'] ?? $sessionUsername); ?></h1>
      <p class="mb-0 opacity-75">
@@ -317,6 +340,16 @@ try {
  </div>
 
  <main class="container pb-5">
+  <div class="card shadow-sm mb-4">
+    <div class="card-body d-flex flex-wrap align-items-center gap-2">
+      <form action="../../Controllers/upload_avatar.php" method="POST" enctype="multipart/form-data" class="d-flex flex-wrap align-items-center gap-2">
+        <input type="file" name="avatar" accept="image/png, image/jpeg, image/webp" class="form-control form-control-sm" required>
+        <button type="submit" class="btn btn-primary btn-sm">Upload photo</button>
+      </form>
+      <small class="text-muted">JPG/PNG/WEBP, max 2MB.</small>
+    </div>
+  </div>
+
    <!-- Stats Row -->
    <div class="row g-4 mb-4">
      <div class="col-6 col-md-3">
