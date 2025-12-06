@@ -14,18 +14,18 @@
         <div class="card shadow-sm">
           <div class="card-body p-4">
             <h1 class="h4 mb-3 text-center">Create Teacher Account</h1>
-            <form id="registerForm" class="needs-validation" novalidate>
+            <form id="registerForm" class="needs-validation" novalidate method="POST" action="../../Controllers/register_handler.php">
+              <input type="hidden" name="role" value="teacher">
               <div class="row">
                 <div class="col-md-6 mb-3">
                   <label for="regLogin" class="form-label">Login ID</label>
-                  <input type="text" id="regLogin" class="form-control" pattern="^[a-zA-Z0-9_]{3,20}$" required>
+                  <input type="text" id="regLogin" name="username" class="form-control" pattern="^[a-zA-Z0-9_]{3,20}$" required>
                   <div class="invalid-feedback">Login must be 3-20 characters (letters, numbers, underscore).</div>
                   <div class="valid-feedback">Looks good!</div>
                 </div>
                 <div class="mb-3">
                   <label for="regPassword" class="form-label">Password</label>
-                  <input type="text" id="regPassword" class="form-control" minlength="6" required>
-                  <input type="hidden" id="regPasswordHidden" name="password">
+                  <input type="password" id="regPassword" name="password" class="form-control" minlength="6" required>
                   <div class="invalid-feedback">Password must be at least 6 characters.</div>
                   <div class="valid-feedback">Looks good!</div>
                 </div>
@@ -33,33 +33,33 @@
               <div class="row">
                 <div class="col-md-6 mb-3">
                   <label for="regFullName" class="form-label">Full Name</label>
-                  <input type="text" id="regFullName" class="form-control" pattern="^[a-zA-Z\s]{2,50}$" required>
+                  <input type="text" id="regFullName" name="fullName" class="form-control" pattern="^[a-zA-Z\s]{2,50}$" required>
                   <div class="invalid-feedback">Full name must be 2-50 characters (letters only).</div>
                   <div class="valid-feedback">Looks good!</div>
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="regEmail" class="form-label">Email</label>
-                  <input type="email" id="regEmail" class="form-control" pattern="^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$" required>
+                  <input type="email" id="regEmail" name="email" class="form-control" pattern="^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$" required>
                   <div class="invalid-feedback">Please enter a valid email address.</div>
                   <div class="valid-feedback">Looks good!</div>
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="regMobile" class="form-label">Mobile Number</label>
-                  <input type="tel" id="regMobile" class="form-control" pattern="^[+]?[0-9]{10,15}$" required>
+                  <input type="tel" id="regMobile" name="mobile" class="form-control" pattern="^[+]?[0-9]{10,15}$" required>
                   <div class="invalid-feedback">Phone must be 10-15 digits.</div>
                   <div class="valid-feedback">Looks good!</div>
                 </div>
               </div>
               <div class="mb-3">
                 <label for="regAddress" class="form-label">Address</label>
-                <textarea id="regAddress" class="form-control" rows="2" minlength="10" maxlength="200" required></textarea>
+                <textarea id="regAddress" name="address" class="form-control" rows="2" minlength="10" maxlength="200" required></textarea>
                 <div class="invalid-feedback">Address must be 10-200 characters.</div>
                 <div class="valid-feedback">Looks good!</div>
               </div>
               <div class="row">
                 <div class="col-md-6 mb-3">
                   <label for="regSubject" class="form-label">Subject Specialty</label>
-                  <select id="regSubject" class="form-select" required>
+                  <select id="regSubject" name="subject" class="form-select" required>
                     <option value="">Choose...</option>
                     <option>Mathematics</option>
                     <option>Science</option>
@@ -76,7 +76,7 @@
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="regNationalId" class="form-label">National ID</label>
-                  <input type="text" id="regNationalId" class="form-control" pattern="^[A-Z0-9-]{5,20}$" required>
+                  <input type="text" id="regNationalId" name="nationalId" class="form-control" pattern="^[A-Z0-9-]{5,20}$" required>
                   <div class="invalid-feedback">National ID must be 5-20 characters (uppercase, numbers, dashes).</div>
                   <div class="valid-feedback">Looks good!</div>
                 </div>

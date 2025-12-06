@@ -12,7 +12,15 @@ function redirect_with_error($msg) {
     exit;
 }
 
-$required = ['username','password','fullName','email','mobile','address','gradeLevel'];
+$role = $_POST['role'] ?? 'student';
+
+if ($role === 'teacher') {
+    $required = ['username','password','fullName','email','mobile','address','subject','nationalId'];
+} else {
+    $role = 'student';
+    $required = ['username','password','fullName','email','mobile','address','gradeLevel'];
+}
+
 foreach ($required as $key) {
     if (!isset($_POST[$key]) || trim($_POST[$key]) === '') {
         redirect_with_error('Missing required field: ' . htmlspecialchars($key));
@@ -25,26 +33,46 @@ $fullName = trim($_POST['fullName']);
 $email = trim($_POST['email']);
 $mobile = trim($_POST['mobile']);
 $address = trim($_POST['address']);
-$gradeLevel = trim($_POST['gradeLevel']);
+$gradeLevel = $_POST['gradeLevel'] ?? null;
+$subject = $_POST['subject'] ?? null;
+$nationalId = $_POST['nationalId'] ?? null;
 
 try {
     // Database connection already available as $db_connection from config.php
 
-    // Check if username or email exists
-    $stmt = $db_connection->prepare('SELECT COUNT(*) FROM students WHERE username = ? OR email = ?');
-    $stmt->execute([$username, $email]);
-    if ($stmt->fetchColumn() > 0) {
-        redirect_with_error('Username or email already exists.');
+    if ($role === 'teacher') {
+        // Check username/email in teachers
+        $stmt = $db_connection->prepare('SELECT COUNT(*) FROM teachers WHERE username = ? OR email = ?');
+        $stmt->execute([$username, $email]);
+        if ($stmt->fetchColumn() > 0) {
+            redirect_with_error('Username or email already exists.');
+        }
+
+        $id = uniqid('teach_');
+        $hash = password_hash($password, PASSWORD_DEFAULT);
+
+        $insert = $db_connection->prepare('INSERT INTO teachers (id, username, password, fullName, email, mobile, address, specialty, nationalId, createdAt) VALUES (?,?,?,?,?,?,?,?,?,NOW())');
+        $insert->execute([$id, $username, $hash, $fullName, $email, $mobile, $address, $subject, $nationalId]);
+
+        header('Location: ../Views/teacher-back-office/login.php?registered=1');
+        exit;
+    } else {
+        // Student path
+        $stmt = $db_connection->prepare('SELECT COUNT(*) FROM students WHERE username = ? OR email = ?');
+        $stmt->execute([$username, $email]);
+        if ($stmt->fetchColumn() > 0) {
+            redirect_with_error('Username or email already exists.');
+        }
+
+        $id = uniqid('s_');
+        $hash = password_hash($password, PASSWORD_DEFAULT);
+
+        $insert = $db_connection->prepare('INSERT INTO students (id, username, password, fullName, email, mobile, address, gradeLevel, createdAt) VALUES (?,?,?,?,?,?,?,?,NOW())');
+        $insert->execute([$id, $username, $hash, $fullName, $email, $mobile, $address, $gradeLevel]);
+
+        header('Location: ../Views/front-office/login.php?registered=1');
+        exit;
     }
-
-    $id = uniqid('s_');
-    $hash = password_hash($password, PASSWORD_DEFAULT);
-
-    $insert = $db_connection->prepare('INSERT INTO students (id, username, password, fullName, email, mobile, address, gradeLevel, createdAt) VALUES (?,?,?,?,?,?,?,?,NOW())');
-    $insert->execute([$id, $username, $hash, $fullName, $email, $mobile, $address, $gradeLevel]);
-
-    header('Location: ../Views/front-office/login.php?registered=1');
-    exit;
 } catch (Exception $e) {
     redirect_with_error('Registration error.');
 }
