@@ -17,7 +17,19 @@ if (!isset($_GET['code'])) {
 }
 
 $code = $_GET['code'];
-$role = $_SESSION['oauth_role'] ?? 'student'; // Default to student
+$statePayload = null;
+if (!empty($_GET['state'])) {
+    $decoded = json_decode(base64_decode($_GET['state']), true);
+    if (is_array($decoded)) {
+        $statePayload = $decoded;
+    }
+}
+
+$role = $_SESSION['oauth_role'] ?? ($statePayload['role'] ?? 'student'); // Default to student
+$stateNonce = $_SESSION['oauth_state_nonce'] ?? null;
+if ($statePayload && isset($statePayload['nonce']) && $stateNonce && !hash_equals($stateNonce, $statePayload['nonce'])) {
+    error_log('[OAuth Callback] State nonce mismatch');
+}
 
 try {
     // Initialize OAuth handler with DB connection from config.php

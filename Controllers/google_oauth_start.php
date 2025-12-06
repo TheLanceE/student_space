@@ -14,13 +14,28 @@ if (empty(GOOGLE_CLIENT_ID) || empty(GOOGLE_CLIENT_SECRET) || empty(GOOGLE_REDIR
     exit;
 }
 
-// Get OAuth URL
-$auth_url = get_google_oauth_url();
-error_log('[OAuth Start] Redirecting to Google. Redirect URI=' . GOOGLE_REDIRECT_URI . ' | URL=' . $auth_url);
+$role = $_SESSION['oauth_role'] ?? ($_GET['role'] ?? 'student');
+$_SESSION['oauth_role'] = $role;
+$stateNonce = bin2hex(random_bytes(8));
+$_SESSION['oauth_state_nonce'] = $stateNonce;
 
-if (!$auth_url) {
-    die('Failed to generate OAuth URL');
-}
+$state = base64_encode(json_encode([
+    'nonce' => $stateNonce,
+    'role' => $role
+]));
+
+$params = [
+    'client_id' => GOOGLE_CLIENT_ID,
+    'redirect_uri' => GOOGLE_REDIRECT_URI,
+    'response_type' => 'code',
+    'scope' => 'email profile',
+    'access_type' => 'online',
+    'prompt' => 'select_account',
+    'state' => $state
+];
+
+$auth_url = 'https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query($params);
+error_log('[OAuth Start] Redirecting to Google. role=' . $role . ' stateNonce=' . $stateNonce . ' Redirect URI=' . GOOGLE_REDIRECT_URI);
 
 // Redirect to Google
 header('Location: ' . $auth_url);
