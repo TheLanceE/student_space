@@ -7,6 +7,10 @@
   <link href="../../shared-assets/vendor/bootstrap.min.css" rel="stylesheet">
   <link href="../../shared-assets/css/global.css" rel="stylesheet">
 </head>
+<?php
+$prefillEmail = $_GET['prefill_email'] ?? '';
+$prefillRole = $_GET['role'] ?? 'student';
+?>
 <body data-page="front-register" class="bg-light d-flex align-items-center" style="min-height: 100vh;">
   <div class="container">
     <div class="row justify-content-center">
@@ -15,6 +19,7 @@
           <div class="card-body p-4">
             <h1 class="h4 mb-3 text-center">Create Student Account</h1>
             <form id="registerForm" class="needs-validation" novalidate method="POST" action="../../Controllers/register_handler.php">
+              <input type="hidden" name="role" value="<?php echo htmlspecialchars($prefillRole); ?>">
               <div class="mb-3">
                 <label for="regLogin" class="form-label">Login ID</label>
                 <input type="text" id="regLogin" name="username" class="form-control" pattern="^[a-zA-Z0-9_]{3,20}$" required>
@@ -35,7 +40,7 @@
               </div>
               <div class="mb-3">
                 <label for="regEmail" class="form-label">Email</label>
-                <input type="email" id="regEmail" name="email" class="form-control" pattern="^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$" required>
+                <input type="email" id="regEmail" name="email" class="form-control" pattern="^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$" value="<?php echo htmlspecialchars($prefillEmail); ?>" required>
                 <div class="invalid-feedback">Please enter a valid email address.</div>
                 <div class="valid-feedback">Looks good!</div>
               </div>

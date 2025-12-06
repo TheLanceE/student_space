@@ -1,3 +1,4 @@
+<?php require_once '../../Controllers/config.php'; ?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -52,6 +53,22 @@
  </div>
  <button class="btn btn-primary btn-sm" type="submit">Add</button>
  </form>
+
+ <hr>
+ <h2 class="h6">Send Invite</h2>
+ <div class="d-flex flex-column gap-2">
+	 <input id="inviteEmail" type="email" class="form-control form-control-sm" placeholder="email@example.com">
+	 <select id="inviteRole" class="form-select form-select-sm">
+		 <option value="student" selected>student</option>
+		 <option value="teacher">teacher</option>
+	 </select>
+	 <div class="d-flex gap-2">
+		 <button id="sendInvite" type="button" class="btn btn-outline-primary btn-sm">Send invite link</button>
+		 <button id="copyInvite" type="button" class="btn btn-outline-secondary btn-sm">Copy link</button>
+	 </div>
+	 <small class="text-muted">Creates a link to registration with email prefilled.</small>
+	 <div id="inviteStatus" class="text-success small" style="display:none;"></div>
+ </div>
  <script>
  function toggleTeacherFields(role){
  const fields = document.getElementById('teacherFields');
@@ -74,15 +91,18 @@
 	 </div>
  </div>
  <?php
+ // Ensure CSRF exists
+ if (!isset($_SESSION['csrf_token'])) {
+     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+ }
+
  try {
-		 $pdo = new PDO('mysql:host=localhost;dbname=edumind;charset=utf8mb4', 'root', '');
-		 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		 $admins = $pdo->query("SELECT id, username, name, createdAt, lastLoginAt FROM admins ORDER BY username")->fetchAll(PDO::FETCH_ASSOC);
-		 $teachers = $pdo->query("SELECT id, username, fullName, specialty, email, createdAt, lastLoginAt FROM teachers ORDER BY username")->fetchAll(PDO::FETCH_ASSOC);
-		 $students = $pdo->query("SELECT id, username, fullName, email, gradeLevel, createdAt, lastLoginAt FROM students ORDER BY username")->fetchAll(PDO::FETCH_ASSOC);
+	 $admins = $db_connection->query("SELECT id, username, name, createdAt, lastLoginAt FROM admins WHERE deleted_at IS NULL OR deleted_at IS NULL ORDER BY username")->fetchAll(PDO::FETCH_ASSOC);
+	 $teachers = $db_connection->query("SELECT id, username, fullName, specialty, email, createdAt, lastLoginAt FROM teachers WHERE deleted_at IS NULL ORDER BY username")->fetchAll(PDO::FETCH_ASSOC);
+	 $students = $db_connection->query("SELECT id, username, fullName, email, gradeLevel, createdAt, lastLoginAt FROM students WHERE deleted_at IS NULL ORDER BY username")->fetchAll(PDO::FETCH_ASSOC);
  } catch (Exception $e) {
-		 $admins = $teachers = $students = [];
-		 echo '<div class="alert alert-danger">Database error loading users.</div>';
+	 $admins = $teachers = $students = [];
+	 echo '<div class="alert alert-danger">Database error loading users.</div>';
  }
  ?>
  <div class="mb-3">
@@ -91,9 +111,17 @@
 	 <span class="badge bg-warning text-dark">Students: <?php echo count($students); ?></span>
  </div>
  <div class="table-responsive">
-	 <table class="table table-sm table-striped align-middle">
+	 <table class="table table-sm table-striped align-middle" id="usersTable">
 		 <thead>
-			 <tr><th style="width:32px;"></th><th>Role</th><th>Username</th><th>Name</th><th>Extra</th><th>Created</th><th>Last Login</th></tr>
+			 <tr>
+			 	<th style="width:32px;"></th>
+			 	<th data-sort="text">Role</th>
+			 	<th data-sort="text">Username</th>
+			 	<th data-sort="text">Name</th>
+			 	<th data-sort="text">Extra</th>
+			 	<th data-sort="date">Created</th>
+			 	<th data-sort="date">Last Login</th>
+			 </tr>
 		 </thead>
 		 <tbody>
 			 <?php foreach ($admins as $a): ?>
@@ -141,6 +169,8 @@
  <script src="../../shared-assets/vendor/bootstrap.bundle.min.js"></script>
  <script src="../../shared-assets/js/admin-modern.js"></script>
  <script>
+	const csrfToken = '<?php echo $_SESSION['csrf_token']; ?>';
+
 	 // Bulk selection and deletion
 	 document.getElementById('selectAll').addEventListener('click', function(){
 		 document.querySelectorAll('.user-select').forEach(cb => cb.checked = true);
@@ -163,7 +193,7 @@
 			 for (const [role, ids] of Object.entries(byRole)) {
 				 const res = await fetch('../../Controllers/AdminApiController.php?path=/users/bulk-delete', {
 					 method: 'POST',
-					 headers: { 'Content-Type': 'application/json' },
+					 headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
 					 body: JSON.stringify({ role, ids })
 				 });
 				 const data = await res.json();
@@ -182,6 +212,71 @@
 			 alert('Network error during delete');
 		 }
 	 });
+
+	// Invite links
+	const inviteEmail = document.getElementById('inviteEmail');
+	const inviteRole = document.getElementById('inviteRole');
+	const inviteStatus = document.getElementById('inviteStatus');
+	function buildInviteLink() {
+	 	 const email = inviteEmail.value.trim();
+	 	 const role = inviteRole.value;
+	 	 if (!email) return null;
+	 	 const base = `${window.location.origin}/edumind/Views/front-office/register.php`;
+	 	 const params = new URLSearchParams({ prefill_email: email, role });
+	 	 return `${base}?${params.toString()}`;
+	}
+
+	async function copyInvite() {
+	 	 const link = buildInviteLink();
+	 	 if (!link) return;
+	 	 await navigator.clipboard.writeText(link);
+	 	 inviteStatus.style.display = 'block';
+	 	 inviteStatus.textContent = 'Link copied to clipboard';
+	 	 setTimeout(() => inviteStatus.style.display = 'none', 2000);
+	}
+
+	document.getElementById('copyInvite').addEventListener('click', copyInvite);
+	document.getElementById('sendInvite').addEventListener('click', () => {
+	 	 const link = buildInviteLink();
+	 	 if (!link) return;
+	 	 const email = inviteEmail.value.trim();
+	 	 const subject = encodeURIComponent('You are invited to join EduMind+');
+	 	 const body = encodeURIComponent(`Hi,\n\nClick the link to finish your account setup:\n${link}\n\nThis will prefill your email.`);
+	 	 const mailto = `mailto:${encodeURIComponent(email)}?subject=${subject}&body=${body}`;
+	 	 window.location.href = mailto;
+	 	 inviteStatus.style.display = 'block';
+	 	 inviteStatus.textContent = 'Invite link opened in mail client';
+	 	 setTimeout(() => inviteStatus.style.display = 'none', 2000);
+	});
+
+	// Table sorting
+	(function(){
+	 const table = document.getElementById('usersTable');
+	 const headers = table.querySelectorAll('th[data-sort]');
+	 let sortState = {};
+	 headers.forEach((th, idx) => {
+	 	 th.style.cursor = 'pointer';
+	 	 th.addEventListener('click', () => {
+	 	 	 const type = th.dataset.sort;
+	 	 	 const asc = !(sortState.idx === idx && sortState.asc);
+	 	 	 sortState = { idx, asc };
+	 	 	 const rows = Array.from(table.querySelectorAll('tbody tr'));
+	 	 	 rows.sort((a,b) => {
+	 	 	 	 const av = a.children[idx].innerText.trim();
+	 	 	 	 const bv = b.children[idx].innerText.trim();
+	 	 	 	 if (type === 'date') {
+	 	 	 	 	 const ad = av ? Date.parse(av) : 0;
+	 	 	 	 	 const bd = bv ? Date.parse(bv) : 0;
+	 	 	 	 	 return asc ? ad - bd : bd - ad;
+	 	 	 	 }
+	 	 	 	 return asc ? av.localeCompare(bv) : bv.localeCompare(av);
+	 	 	 });
+	 	 	 const tbody = table.querySelector('tbody');
+	 	 	 tbody.innerHTML = '';
+	 	 	 rows.forEach(r => tbody.appendChild(r));
+	 	 });
+	 });
+	})();
  </script>
  <!-- Removed old JS data layer; server-side rendering used above -->
 </body>
