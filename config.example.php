@@ -1,14 +1,9 @@
 <?php
 /**
- * IMPORTANT: This file contains sensitive configuration data
- * It should NOT be committed to version control
- * See .gitignore to ensure this file is excluded from git
+ * Database Configuration Template
  * 
- * Setup Instructions:
- * 1. Copy config.example.php to config.php
- * 2. Update the database credentials below for your local environment
- * 3. Never commit config.php to git
- * 4. Each developer should have their own local copy of config.php
+ * IMPORTANT: Copy this file to config.php and update the values for your environment
+ * Never commit config.php to version control!
  */
 
 class config {  
@@ -16,17 +11,22 @@ class config {
    
     public static function getConnexion() {
         if (!isset(self::$pdo)) {
-            // ============= ENVIRONMENT-SPECIFIC SETTINGS =============
-            // Update these values according to your local environment
-            $servername = "localhost";
-            $username = "root";
-            $password = "";
-            $dbname = "edumind";  // Make sure this matches your database name
-            $port = 3307;
-            // ============================================================
+            // ============================================
+            // UPDATE THESE VALUES FOR YOUR ENVIRONMENT
+            // ============================================
+            $servername = "localhost";      // Your database server
+            $username = "root";             // Your database username
+            $password = "";                 // Your database password
+            $dbname = "edumind";            // Your database name
+            $port = 3307;                   // Your MySQL port (default: 3307)
+            // ============================================
             
             try {
-                self::$pdo = new PDO("mysql:host=$servername;port=$port;dbname=$dbname", $username, $password);
+                self::$pdo = new PDO(
+                    "mysql:host=$servername;port=$port;dbname=$dbname", 
+                    $username, 
+                    $password
+                );
                 self::$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                 self::$pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
                 
@@ -41,6 +41,7 @@ class config {
                          <li>XAMPP MySQL service is running</li>
                          <li>Database "edumind" exists</li>
                          <li>Check: <a href="http://localhost/phpmyadmin">phpMyAdmin</a></li>
+                         <li>Update config.php with correct credentials</li>
                      </ul>
                      </div>');
             }

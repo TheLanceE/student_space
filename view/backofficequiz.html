@@ -1,7 +1,7 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <title>EduMind+ | Admin Panel</title>
+  <title>EduMind | Admin Panel</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -291,9 +291,8 @@
       <h3 style="margin: 0; color: white;"><i class="fas fa-tachometer-alt"></i> Admin Panel</h3>
     </div>
     <ul class="sidebar-nav">
-      <li><a href="#" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
-      <li><a href="#"><i class="fas fa-users"></i> Users</a></li>
       <li><a href="#"><i class="fas fa-question-circle"></i> Quizzes</a></li>
+      <li><a href="#"><i class="fas fa-users"></i> Users</a></li>
       <li><a href="#"><i class="fas fa-chart-bar"></i> Analytics</a></li>
       <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
     </ul>
@@ -305,7 +304,7 @@
     <div class="navbar">
       <div class="container-fluid">
         <div class="d-flex justify-content-between align-items-center">
-          <a href="#" class="navbar-brand">EduMind+ Admin</a>
+          <a href="#" class="navbar-brand">EduMind Admin</a>
           <div>
             <a href="front-office.html" class="btn-outline-primary" style="color: white; border-color: white; margin-right: 10px;">
               <i class="fas fa-eye"></i> View Site
@@ -325,28 +324,14 @@
     
     <!-- Stats Cards -->
     <div class="row mb-4">
-      <div class="col-md-3">
-        <div class="card stats-card">
-          <i class="fas fa-users"></i>
-          <div class="number" id="totalUsers">1,284</div>
-          <div class="text-muted">Total Users</div>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="card stats-card">
-          <i class="fas fa-user-check"></i>
-          <div class="number" id="activeUsers">892</div>
-          <div class="text-muted">Active Users</div>
-        </div>
-      </div>
-      <div class="col-md-3">
+      <div class="col-md-6">
         <div class="card stats-card">
           <i class="fas fa-question-circle"></i>
           <div class="number" id="totalQuizzes">45</div>
           <div class="text-muted">Total Quizzes</div>
         </div>
       </div>
-      <div class="col-md-3">
+      <div class="col-md-6">
         <div class="card stats-card">
           <i class="fas fa-chart-line"></i>
           <div class="number" id="avgScore">78%</div>
@@ -359,7 +344,7 @@
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
         <span>All Quizzes</span>
-        <small class="text-muted">Admin can delete quizzes but cannot create new ones</small>
+        
       </div>
       <div class="card-body">
         <div id="quizzesContainer">
@@ -368,275 +353,67 @@
       </div>
     </div>
 
-    <div class="row mt-4">
-      <div class="col-md-6">
-        <div class="card">
-          <div class="card-header">Recent User Activity</div>
-          <div class="card-body">
-            <div style="overflow-x: auto;">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>User</th>
-                    <th>Role</th>
-                    <th>Activity</th>
-                    <th>Time</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>john.doe@example.com</td>
-                    <td><span class="badge bg-warning">Student</span></td>
-                    <td>Completed Math Quiz</td>
-                    <td>2 mins ago</td>
-                  </tr>
-                  <tr>
-                    <td>sarah.smith@example.com</td>
-                    <td><span class="badge bg-success">Teacher</span></td>
-                    <td>Created New Quiz</td>
-                    <td>15 mins ago</td>
-                  </tr>
-                  <tr>
-                    <td>mike.johnson@example.com</td>
-                    <td><span class="badge bg-warning">Student</span></td>
-                    <td>Started Science Quiz</td>
-                    <td>1 hour ago</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+    <!-- PREVIEW MODAL (Admin) -->
+    <div id="adminPreviewModal" style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index:1000;">
+      <div style="position: relative; width: 800px; margin: 5% auto; background: white; border-radius: 10px; overflow: auto; max-height: 90vh;">
+        <div style="padding: 15px; border-bottom: 1px solid #e0e0e0;">
+          <strong id="adminPreviewTitle">Quiz Preview</strong>
+          <button id="adminPreviewClose" style="float:right; background:none; border:none; font-size:20px; cursor:pointer;">&times;</button>
         </div>
-      </div>
-      
-      <div class="col-md-6">
-        <div class="card">
-          <div class="card-header">Platform Analytics</div>
-          <div class="card-body">
-            <p><strong>Total Quizzes Created:</strong> <span id="analyticsTotalQuizzes">45</span></p>
-            <p><strong>Total Quiz Attempts:</strong> 1,284</p>
-            <p><strong>Average Score:</strong> 78%</p>
-            <p><strong>Active Teachers:</strong> <span id="analyticsActiveTeachers">12</span></p>
-            <p><strong>Active Students:</strong> 880</p>
-            <p><strong>User Satisfaction:</strong> 4.5/5</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card mt-4">
-      <div class="card-header">System Information</div>
-      <div class="card-body">
-        <p><strong>Platform Status:</strong> <span class="badge bg-success">Operational</span></p>
-        <p><strong>Last Backup:</strong> Oct 15, 2023 02:00 AM</p>
-        <p><strong>Active Sessions:</strong> 234</p>
-        <p><strong>Server Load:</strong> 42%</p>
-        <p class="text-muted"><em>Administrative functions: View and delete quizzes only. Teachers manage quiz creation in the front office.</em></p>
+        <div id="adminPreviewBody" style="padding: 15px;"></div>
       </div>
     </div>
   </div>
 
   <script>
-    // Quiz data storage and management
-    document.addEventListener('DOMContentLoaded', function() {
-      // Helper to read/write JSON in cookies (non-HTML5 storage)
-      function readCookieJSON(name) {
-        try {
-          var v = document.cookie.replace(new RegExp('(?:(?:^|.*;\\s*)' + name + '\\s*\\=\\s*([^;]*).*$)|^.*$'), '$1');
-          if (!v) return null;
-          return JSON.parse(decodeURIComponent(v));
-        } catch (e) { return null; }
+    document.addEventListener('DOMContentLoaded', function(){
+      var container = document.getElementById('quizzesContainer');
+      function loadAll(){
+        fetch('../controller/quizcontroller.php?action=getAllQuizzes')
+          .then(function(res){ return res.text(); })
+          .then(function(rows){
+            var html = ''+
+              '<div style="overflow-x:auto;">'+
+              '<table class="table">'+
+              '<thead><tr><th>Title</th><th>Teacher</th><th>Category</th><th>Grade</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>'+
+              '<tbody id="allQuizRows"></tbody></table></div>';
+            container.innerHTML = html;
+            var tbody = document.getElementById('allQuizRows');
+            tbody.innerHTML = rows;
+            document.getElementById('totalQuizzes').textContent = tbody.querySelectorAll('tr').length;
+          });
       }
-
-      function writeCookieJSON(name, obj, days) {
-        try {
-          var s = encodeURIComponent(JSON.stringify(obj));
-          var ex = '';
-          if (days) {
-            var d = new Date();
-            d.setDate(d.getDate() + days);
-            ex = '; expires=' + d.toUTCString();
-          }
-          document.cookie = name + '=' + s + ex + '; path=/';
-        } catch (e) {}
-      }
-
-      // Initialize quiz storage or load from cookie
-      let allQuizzes = readCookieJSON('allQuizzes') || [
-        {
-          id: 'math-basics',
-          title: 'Math Basics',
-          category: 'math',
-          grade: '5',
-          description: 'Numbers, operations, and simple algebra.',
-          questionCount: 15,
-          status: 'active',
-          createdBy: 'system',
-          createdByName: 'System',
-          createdDate: 'Sep 15, 2023',
-          attempts: 142
-        },
-        {
-          id: 'science-basics',
-          title: 'Science Basics',
-          category: 'science',
-          grade: '6',
-          description: 'Introduction to scientific concepts.',
-          questionCount: 20,
-          status: 'active',
-          createdBy: 'teacher',
-          createdByName: 'Dr. Smith',
-          createdDate: 'Sep 18, 2023',
-          attempts: 128
-        },
-        {
-          id: 'world-history',
-          title: 'World History',
-          category: 'history',
-          grade: '9',
-          description: 'Major events in world history.',
-          questionCount: 25,
-          status: 'active',
-          createdBy: 'teacher',
-          createdByName: 'Prof. Davis',
-          createdDate: 'Oct 1, 2023',
-          attempts: 98
-        },
-        {
-          id: 'algebra-basics',
-          title: 'Algebra Basics',
-          category: 'math',
-          grade: '8',
-          description: 'Introduction to algebraic concepts.',
-          questionCount: 10,
-          status: 'active',
-          createdBy: 'teacher',
-          createdByName: 'Ms. Wilson',
-          createdDate: 'Oct 10, 2023',
-          attempts: 76
-        }
-      ];
-
-      // Save to cookie if not already there
-      if (!readCookieJSON('allQuizzes')) {
-        writeCookieJSON('allQuizzes', allQuizzes, 30);
-      }
-
-      // Display all quizzes
-      displayAllQuizzes();
-      updateStats();
-
-      function displayAllQuizzes() {
-        const container = document.getElementById('quizzesContainer');
-        
-        if (allQuizzes.length === 0) {
-          container.innerHTML = `
-            <div class="empty-state">
-              <i class="fas fa-file-alt"></i>
-              <h4>No quizzes available</h4>
-              <p>Teachers haven't created any quizzes yet</p>
-            </div>
-          `;
-          return;
-        }
-
-        let html = `
-          <div style="overflow-x: auto;">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Quiz Name</th>
-                  <th>Created By</th>
-                  <th>Category</th>
-                  <th>Questions</th>
-                  <th>Grade Level</th>
-                  <th>Status</th>
-                  <th>Created Date</th>
-                  <th>Attempts</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-        `;
-
-        allQuizzes.forEach(quiz => {
-          const statusBadge = quiz.status === 'active' ? 
-            '<span class="badge bg-success">Active</span>' : 
-            '<span class="badge bg-warning">Draft</span>';
-          
-          const categoryBadge = getCategoryBadge(quiz.category);
-          
-          // Only show delete button for teacher-created quizzes, not system ones
-          const deleteButton = quiz.createdBy === 'system' ? 
-            '<span class="text-muted">System Quiz</span>' :
-            `<button class="btn-danger" onclick="deleteQuiz('${quiz.id}')">
-               <i class="fas fa-trash"></i> Delete
-             </button>`;
-          
-          html += `
-            <tr>
-              <td>${quiz.title}</td>
-              <td>${quiz.createdByName}</td>
-              <td>${categoryBadge}</td>
-              <td>${quiz.questionCount}</td>
-              <td>Grade ${quiz.gradeLevel}</td>
-              <td>${statusBadge}</td>
-              <td>${quiz.createdDate}</td>
-              <td>${quiz.attempts}</td>
-              <td>${deleteButton}</td>
-            </tr>
-          `;
-        });
-
-        html += `
-              </tbody>
-            </table>
-          </div>
-        `;
-
-        container.innerHTML = html;
-      }
-
-      function getCategoryBadge(category) {
-        const categories = {
-          'math': { name: 'Mathematics', class: 'bg-primary' },
-          'science': { name: 'Science', class: 'bg-warning' },
-          'history': { name: 'History', class: 'bg-danger' },
-          'english': { name: 'English', class: 'bg-success' },
-          'geography': { name: 'Geography', class: 'bg-primary' },
-          'art': { name: 'Art', class: 'bg-warning' },
-          'music': { name: 'Music', class: 'bg-danger' }
-        };
-        
-        const cat = categories[category] || { name: category, class: 'bg-success' };
-        return `<span class="badge ${cat.class}">${cat.name}</span>`;
-      }
-
-      function updateStats() {
-        // Update stats based on actual data
-        const teacherQuizzes = allQuizzes.filter(quiz => quiz.createdBy === 'teacher');
-        const uniqueTeachers = [...new Set(teacherQuizzes.map(quiz => quiz.createdByName))].length;
-        
-        document.getElementById('totalQuizzes').textContent = allQuizzes.length;
-        document.getElementById('analyticsTotalQuizzes').textContent = allQuizzes.length;
-        document.getElementById('analyticsActiveTeachers').textContent = uniqueTeachers;
-      }
-
-      // Global function for deleting quizzes
-      window.deleteQuiz = function(quizId) {
-        if (confirm('Are you sure you want to delete this quiz? This action cannot be undone.')) {
-          // Remove from all quizzes
-          allQuizzes = allQuizzes.filter(quiz => quiz.id !== quizId);
-          writeCookieJSON('allQuizzes', allQuizzes, 30);
-          
-          // Update display
-          displayAllQuizzes();
-          updateStats();
-          
-          // Show success message (you could add a toast notification here)
-          alert('Quiz deleted successfully!');
-        }
+      window.deleteQuiz = function(id){
+        if(!confirm('Delete this quiz?')) return;
+        fetch('../controller/quizcontroller.php?action=delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: 'quiz_id=' + encodeURIComponent(id)
+        }).then(function(){ loadAll(); });
       };
+      
+      window.previewQuiz = function(id){
+        fetch('../controller/quizcontroller.php?action=preview&id=' + id)
+          .then(function(res){ return res.text(); })
+          .then(function(html){
+            var modal = document.getElementById('adminPreviewModal');
+            var content = document.getElementById('adminPreviewBody');
+            content.innerHTML = html;
+            modal.style.display = 'block';
+          });
+      };
+      
+      window.closeAdminPreview = function(){
+        document.getElementById('adminPreviewModal').style.display = 'none';
+      };
+      
+      // Close modal when clicking close button or outside
+      document.getElementById('adminPreviewClose').addEventListener('click', closeAdminPreview);
+      document.getElementById('adminPreviewModal').addEventListener('click', function(e){
+        if(e.target === this) closeAdminPreview();
+      });
+      
+      loadAll();
     });
   </script>
 </body>

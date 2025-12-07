@@ -1,0 +1,58 @@
+# Configuration files with sensitive data
+config.php
+.env
+.env.local
+.env.*.php
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# OS files
+*.log
+*.pid
+
+# PHP temporary files
+*.tmp
+*.temp
+
+# Composer
+composer.lock
+
+# Node (if using npm)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Cache
+*.cache
+__pycache__/
+.cache/
+
+# Database files (if SQLite or similar)
+*.db
+*.sqlite
+*.sqlite3
+
+# Backup files
+*.bak
+*.backup
+*.swp
+*~
+
+# Session files
+session/
+sessions/
+tmp/
+temp/
+
+# Vendor directory (if using composer)
+vendor/
+
+# Test files
+test_*.php
