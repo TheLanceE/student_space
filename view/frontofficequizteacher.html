@@ -622,6 +622,26 @@
             }
             index++;
           }
+          
+          // Add remove buttons to all questions in edit mode
+          var allQuestions = document.querySelectorAll('.question-item');
+          allQuestions.forEach(function(qEl, idx) {
+            var questionId = idx + 1;
+            var header = qEl.querySelector('.question-header');
+            if (header && !qEl.querySelector('.remove-question')) {
+              var removeBtn = document.createElement('button');
+              removeBtn.type = 'button';
+              removeBtn.className = 'btn-danger btn-sm remove-question';
+              removeBtn.id = 'remove-question-' + questionId;
+              removeBtn.style.cssFloat = 'right';
+              removeBtn.innerHTML = '<i class="fas fa-trash"></i> Remove';
+              removeBtn.onclick = function() {
+                removeQuestion(questionId);
+              };
+              header.appendChild(removeBtn);
+            }
+          });
+          
           document.querySelector('a[href="#create-quiz"]').click();
           document.getElementById('quizForm').action = 'http://localhost/quizzes2/quizzes2/quiz/controller/quizcontroller.php?action=edit';
         }
