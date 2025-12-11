@@ -392,6 +392,8 @@
       // Fetch quizzes from server
       fetchAllQuizzes();
       displayMyQuizzes();
+      // Fetch teacher statistics (e.g., Average Score)
+      fetchTeacherStats();
       setupTabSwitching();
       setupRoleSwitching();
       
@@ -401,6 +403,39 @@
       // Show initial validation errors
       showInitialValidationErrors();
     };
+
+    // Fetch teacher stats and update cards (Average Score)
+    function fetchTeacherStats() {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', '../controller/quizcontroller.php?action=getStats', true);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            try {
+              var temp = document.createElement('div');
+              temp.innerHTML = xhr.responseText;
+              var stats = temp.querySelectorAll('.stat');
+              for (var i = 0; i < stats.length; i++) {
+                var labelEl = stats[i].querySelector('.text-muted');
+                var valueEl = stats[i].querySelector('.h4');
+                if (!labelEl || !valueEl) continue;
+                var label = labelEl.textContent || '';
+                var value = (valueEl.textContent || '').trim();
+                if (label.indexOf('Average Score') !== -1) {
+                  var as = document.getElementById('averageScore');
+                  if (as) as.textContent = value.match(/%$/) ? value : (value + '%');
+                }
+              }
+            } catch (e) {
+              console.warn('Failed to parse teacher stats:', e);
+            }
+          } else {
+            console.warn('Could not fetch teacher stats. Status:', xhr.status);
+          }
+        }
+      };
+      xhr.send();
+    }
     
     function fetchAllQuizzes() {
       var xhr = new XMLHttpRequest();
