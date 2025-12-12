@@ -49,6 +49,15 @@
         return $events;
     }
 
+    function searchEvents($pdo, $search)
+    {
+        $statement = $pdo->prepare("SELECT * FROM events where title LIKE ?");
+        $statement->execute(["%" . $search . "%"]);
+        $events = $statement->fetchAll(PDO::FETCH_ASSOC);
+    
+        return $events;
+    }
+
     function getAllTeacherEvents($pdo, $teacherID)
     {
         $statement = $pdo->prepare("SELECT * FROM events WHERE teacherID = ?");
@@ -68,8 +77,8 @@
         $statement->execute([
             $participation->getEventID(),
             $participation->getUserID() ,
-            "Hello",
-            "pppp"
+            '',
+            $participation->getComment()
         ]);
     }
 
@@ -119,20 +128,26 @@
         {
             $eventID = $_POST['eventID'];
             $userID = $_POST['studentID'];
-            if($_POST['leave'])
+            
+            if(isset($_POST['leave']))
             {
                 deleteParticipation($pdo, $userID, $eventID);
                 decrementParticipantEvent($pdo, $eventID);
             }
             else
             {
-                $participation = new Participation($eventID, $userID);
+                $comment = $_POST['participationComment'];
+                $participation = new Participation($eventID, $userID, $comment);
                 createParticipation($pdo, $participation);
                 incrementParticipantEvent($pdo, $eventID);
             }
 
             header("Location: ../../View/Events/Front Office/eventsFront.php");
             exit();
+        }
+        else if(isset($_POST['eventSearchBox']))
+        {
+        //    searchEvents($pdo, $_POST['eventSearchBox']);
         }
 
 

@@ -81,7 +81,6 @@
             <label for="type" class="form-label">Event Type</label>
             <select class="form-select" id="type" name="type">
               <option value="Lecture">Lecture</option>
-              <option value="Quiz">Quiz</option>
               <option value="Webinar">Webinar</option>
               <option value="Other">Other</option>
             </select>
@@ -168,20 +167,34 @@
             echo "<td>{$event['nbrParticipants']}</td>";
             echo "<td>{$event['course']}</td>";
             echo "<td>{$event['type']}</td>";
-
-            echo "<td><details><summary>Show</summary>" . htmlspecialchars($event['location']) . "</details></td>";
+            if(!empty($event['location']))
+            {            
+              echo "<td><details><summary>Show</summary>" . htmlspecialchars($event['location']) . "</details></td>";
+            }
+            else
+            {
+              echo "<td>No Location</td>";
+            }
             echo "<td><details><summary>Show</summary>" . htmlspecialchars($event['description']) . "</details></td>";
 
-            echo "<td class='text-center'>
-                    <form method='post' action='../../../Controller/Events/eventsController.php'>
-                      <input type='hidden' name='deleteID' value='{$event['eventID']}'>
-                        <button class='btn btn-danger btn-sm p-0' style='width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;'>
-                          X
+            echo "<td class='text-center d-flex gap-1 justify-content-center'>
+                    <!-- Edit button -->
+                    <form method='get' action=='../../../Controller/Events/eventsController.php>
+                        <input type='hidden' name='eventEditID' value='{$event['eventID']}'>
+                        <button class='btn btn-warning btn-sm p-0' style='width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;'>
+                            ✎
                         </button>
+                    </form>
 
-
+                    <!-- Delete button -->
+                    <form method='post' action='../../../Controller/Events/eventsController.php'>
+                        <input type='hidden' name='deleteID' value='{$event['eventID']}'>
+                        <button class='btn btn-danger btn-sm p-0' style='width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;'>
+                            X
+                        </button>
                     </form>
                   </td>";
+
 
             echo "</tr>";
           }

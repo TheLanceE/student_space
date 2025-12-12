@@ -118,3 +118,6 @@ const form = document.getElementById("addEventForm");
 form.addEventListener("submit", checkInputs);
 const type = document.getElementById("type");
 type.addEventListener("input", addLocation);
+
+
+

@@ -77,11 +77,13 @@ class Participation
     private int $participationID;
     private int $eventID;
     private int $userID;
+    private string $comment;
 
-    public function __construct($eventID, $userID)
+    public function __construct($eventID, $userID, $comment)
     {
         $this->eventID = $eventID;
         $this->userID = $userID;
+        $this->comment = $comment;
     }
 
     public function getID() { return $this->participationID; }
@@ -92,6 +94,9 @@ class Participation
     
     public function getUseriD() { return $this->userID; }
     public function setUserID(int $userID) { $this->userID = $userID; }
+
+    public function getComment() { return $this->comment; }
+    public function setComment(string $comment) { $this->commenmt = $comment; }
 }
 
 
