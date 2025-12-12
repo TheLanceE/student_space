@@ -1,0 +1,6 @@
+﻿scripts/http_*.html
+scripts/last_*.html
+*.tmp
+*.log
+.DS_Store
+Thumbs.db

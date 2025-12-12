@@ -1,0 +1,162 @@
+/* Project Debug CSS */
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+}
+
+.card {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.badge {
+  font-size: 0.75rem;
+  padding: 0.35em 0.65em;
+  font-weight: 600;
+}
+
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Status badge colors */
+.bg-not-started {
+  background-color: #6c757d !important;
+}
+
+.bg-in-progress {
+  background-color: #0d6efd !important;
+}
+
+.bg-completed {
+  background-color: #198754 !important;
+}
+
+.bg-on-hold {
+  background-color: #ffc107 !important;
+  color: #000 !important;
+}
+
+/* Priority colors */
+.priority-low {
+  color: #6c757d;
+}
+
+.priority-medium {
+  color: #ffc107;
+}
+
+.priority-high {
+  color: #dc3545;
+}
+
+/* Card footer */
+.card-footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.125);
+  padding: 0.75rem 1rem;
+}
+
+.card-footer .btn {
+  margin-right: 0.5rem;
+}
+
+.card-footer .btn:last-child {
+  margin-right: 0;
+}
+
+/* Task list */
+.task-item {
+  padding: 0.75rem;
+  border-bottom: 1px solid #dee2e6;
+  transition: background-color 0.2s;
+}
+
+.task-item:hover {
+  background-color: #f8f9fa;
+}
+
+.task-item:last-child {
+  border-bottom: none;
+}
+
+.task-completed {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+/* Modal custom styles */
+.modal-header {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #0d6efd;
+}
+
+.modal-title {
+  color: #0d6efd;
+  font-weight: 600;
+}
+
+/* Form styles */
+.form-label {
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 0.5rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Debug badge */
+.debug-badge {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1050;
+  background-color: #dc3545;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6c757d;
+}
+
+.empty-state i {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .card-footer .btn {
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+  }
+  
+  .modal-dialog {
+    margin: 0.5rem;
+  }
+}
