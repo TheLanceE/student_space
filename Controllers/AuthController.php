@@ -45,18 +45,8 @@ class AuthController {
             $stmt->execute([':username' => $username]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            // Check password - support both hashed (production) and plain text (legacy/testing)
-            $passwordValid = false;
-            if ($user) {
-                // Try hashed password first (production)
-                if (password_verify($password, $user['password'])) {
-                    $passwordValid = true;
-                }
-                // Fallback to plain text comparison (legacy/testing data)
-                elseif ($password === $user['password']) {
-                    $passwordValid = true;
-                }
-            }
+            // Check password using secure hash only
+            $passwordValid = $user && password_verify($password, $user['password']);
 
             if ($user && $passwordValid) {
                 // Update last login timestamp

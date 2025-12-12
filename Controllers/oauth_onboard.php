@@ -27,7 +27,7 @@ $email = $_POST['email'] ?? '';
 $mobile = $_POST['mobile'] ?? null;
 $address = $_POST['address'] ?? null;
 $gradeLevel = $_POST['gradeLevel'] ?? null;
-$department = $_POST['department'] ?? null;
+$specialty = $_POST['specialty'] ?? ($_POST['department'] ?? null); // support legacy department field
 
 try {
   if ($role === 'student') {
@@ -35,8 +35,8 @@ try {
     $stmt->execute([$fullName, $email, $mobile, $address, $gradeLevel, $userId]);
     header('Location: ../Views/front-office/dashboard.php?onboard=1');
   } elseif ($role === 'teacher') {
-    $stmt = $db_connection->prepare("UPDATE teachers SET fullName = ?, email = ?, mobile = ?, department = ? WHERE id = ?");
-    $stmt->execute([$fullName, $email, $mobile, $department, $userId]);
+    $stmt = $db_connection->prepare("UPDATE teachers SET fullName = ?, email = ?, mobile = ?, address = ?, specialty = ? WHERE id = ?");
+    $stmt->execute([$fullName, $email, $mobile, $address, $specialty, $userId]);
     header('Location: ../Views/teacher-back-office/dashboard.php?onboard=1');
   } else {
     header('Location: ../Views/admin-back-office/login.php?error=oauth_admin_disabled');

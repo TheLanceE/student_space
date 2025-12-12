@@ -1,5 +1,6 @@
 /* EduMind+ Global Styles - Enhanced with Animations */
 :root {
+  color-scheme: light;
   --hero-gradient: linear-gradient(135deg, rgba(33,37,41,.92), rgba(13,110,253,.85));
   --hero-overlay: radial-gradient(1200px 600px at 10% 10%, rgba(255,255,255,.08), transparent 40%), radial-gradient(800px 400px at 90% 20%, rgba(255,255,255,.06), transparent 45%);
   --primary-color: #0d6efd;
@@ -7,15 +8,46 @@
   --danger-color: #ef4444;
   --warning-color: #f59e0b;
   --dark-color: #212529;
-  --light-bg: #f8fafc;
+  --surface-1: #f8fafc;
+  --surface-2: #ffffff;
+  --surface-3: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --border-color: #e2e8f0;
+  --shadow-soft: 0 8px 24px rgba(15,23,42,0.08);
+  --navbar-bg: rgba(255,255,255,0.9);
+  --navbar-text: #0f172a;
+  --backdrop-strong: rgba(15,23,42,0.4);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --hero-gradient: linear-gradient(135deg, rgba(16,24,40,.9), rgba(37,99,235,.8));
+  --hero-overlay: radial-gradient(1200px 600px at 10% 10%, rgba(255,255,255,.05), transparent 35%), radial-gradient(800px 400px at 90% 20%, rgba(255,255,255,.04), transparent 40%);
+  --primary-color: #7cb7ff;
+  --success-color: #4ade80;
+  --danger-color: #fca5a5;
+  --warning-color: #fbbf24;
+  --dark-color: #0b1221;
+  --surface-1: #0b1221;
+  --surface-2: #111827;
+  --surface-3: #1f2937;
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --border-color: #1f2937;
+  --shadow-soft: 0 12px 32px rgba(0,0,0,0.4);
+  --navbar-bg: rgba(17,24,39,0.85);
+  --navbar-text: #e2e8f0;
+  --backdrop-strong: rgba(0,0,0,0.55);
 }
 
 * {
-  transition: all 0.3s ease;
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 body {
-  background-color: var(--light-bg);
+  background-color: var(--surface-1);
+  color: var(--text-primary);
   min-height: 100vh;
 }
 
@@ -26,6 +58,8 @@ html {
 
 /* Navbar Animations */
 .navbar {
+  background: var(--navbar-bg);
+  color: var(--navbar-text);
   backdrop-filter: blur(10px);
   box-shadow: 0 2px 20px rgba(0,0,0,0.1);
   animation: slideDown 0.5s ease-out;
@@ -81,8 +115,10 @@ html {
 /* Card Animations */
 .card {
   border-radius: .75rem;
-  border: none;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+  border: 1px solid var(--border-color);
+  background: var(--surface-2);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-soft);
   transition: all 0.3s ease;
   animation: fadeInUp 0.6s ease-out;
 }
@@ -151,7 +187,9 @@ html {
 .form-control,
 .form-select {
   transition: all 0.3s ease;
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--border-color);
+  background: var(--surface-2);
+  color: var(--text-primary);
 }
 
 .form-control:focus,
@@ -185,7 +223,7 @@ html {
 }
 
 .list-group-item:hover {
-  background-color: #f1f5f9;
+  background-color: var(--surface-3);
   transform: translateX(5px);
   border-left: 4px solid var(--primary-color);
 }
@@ -276,7 +314,7 @@ html {
 }
 
 .table tbody tr:hover {
-  background-color: #f8fafc;
+  background-color: var(--surface-3);
   transform: scale(1.01);
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
@@ -294,7 +332,7 @@ html {
 
 /* Stat Cards */
 .stat {
-  background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
+  background: linear-gradient(135deg, var(--surface-2) 0%, var(--surface-3) 100%);
   border-radius: .75rem;
   padding: 1.5rem;
   box-shadow: 0 4px 6px rgba(0,0,0,.05);
@@ -366,7 +404,7 @@ html {
 /* Ad Tile */
 .ad-tile {
   border: 1px dashed rgba(0,0,0,.1);
-  background: #fff;
+  background: var(--surface-2);
   transition: all 0.3s ease;
 }
 
@@ -472,6 +510,107 @@ footer a:hover::after {
   from {
     width: 0;
   }
+}
+
+/* Theme Toggle Utility */
+.theme-toggle {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 1080;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  background: var(--surface-2);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-soft);
+  font-weight: 600;
+}
+
+.theme-toggle__icon {
+  width: 1rem;
+  height: 1rem;
+  display: inline-block;
+}
+
+.theme-toggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+}
+
+/* Dark theme overrides */
+:root[data-theme="dark"] body {
+  background-color: var(--surface-1) !important;
+  color: var(--text-primary);
+}
+
+:root[data-theme="dark"] .navbar,
+body[data-theme="dark"] .navbar {
+  background: var(--navbar-bg) !important;
+  color: var(--navbar-text);
+  box-shadow: 0 2px 20px rgba(0,0,0,0.4);
+}
+
+:root[data-theme="dark"] .navbar .navbar-brand,
+:root[data-theme="dark"] .navbar .nav-link,
+body[data-theme="dark"] .navbar .navbar-brand,
+body[data-theme="dark"] .navbar .nav-link {
+  color: var(--navbar-text) !important;
+}
+
+:root[data-theme="dark"] .btn-outline-light,
+body[data-theme="dark"] .btn-outline-light {
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+:root[data-theme="dark"] .card,
+body[data-theme="dark"] .card {
+  border-color: var(--border-color);
+  box-shadow: var(--shadow-soft);
+}
+
+:root[data-theme="dark"] .list-group-item,
+body[data-theme="dark"] .list-group-item {
+  background: var(--surface-2);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] .table,
+body[data-theme="dark"] .table {
+  color: var(--text-primary);
+}
+
+:root[data-theme="dark"] .table td,
+:root[data-theme="dark"] .table th,
+body[data-theme="dark"] .table td,
+body[data-theme="dark"] .table th {
+  border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] .table tbody tr:hover,
+body[data-theme="dark"] .table tbody tr:hover {
+  box-shadow: 0 2px 10px rgba(0,0,0,0.45);
+}
+
+:root[data-theme="dark"] .modal-backdrop,
+body[data-theme="dark"] .modal-backdrop {
+  background-color: var(--backdrop-strong);
+}
+
+:root[data-theme="dark"] .badge-soft,
+body[data-theme="dark"] .badge-soft {
+  background: rgba(124,183,255,0.15);
+  color: #e0e7ff;
+}
+
+:root[data-theme="dark"] .ad-tile,
+body[data-theme="dark"] .ad-tile {
+  border-color: rgba(255,255,255,0.12);
 }
 
 /* Modal Animations */

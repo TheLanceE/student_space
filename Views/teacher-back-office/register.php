@@ -1,3 +1,7 @@
+<?php
+require_once '../../Controllers/config.php';
+$csrfToken = SessionManager::getCSRFToken();
+?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -15,6 +19,7 @@
           <div class="card-body p-4">
             <h1 class="h4 mb-3 text-center">Create Teacher Account</h1>
             <form id="registerForm" class="needs-validation" novalidate method="POST" action="../../Controllers/register_handler.php">
+              <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
               <input type="hidden" name="role" value="teacher">
               <div class="row">
                 <div class="col-md-6 mb-3">

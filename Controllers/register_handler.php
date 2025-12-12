@@ -12,6 +12,12 @@ function redirect_with_error($msg) {
     exit;
 }
 
+// CSRF validation
+$csrf = $_POST['csrf_token'] ?? '';
+if (!SessionManager::validateCSRFToken($csrf)) {
+    redirect_with_error('Invalid session token. Please try again.');
+}
+
 $role = $_POST['role'] ?? 'student';
 
 if ($role === 'teacher') {

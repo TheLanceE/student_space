@@ -71,7 +71,7 @@ if ($createdAt) {
  <link href="../../shared-assets/css/navbar-styles.css" rel="stylesheet">
  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 </head>
-<body>
+<body class="student-portal">
  <nav class="navbar navbar-expand-lg navbar-dark student-nav">
  <div class="container-fluid">
  <a class="navbar-brand" href="dashboard.php">
@@ -114,9 +114,9 @@ if ($createdAt) {
  </div>
 <?php endif; ?>
 
- <div class="row g-4">
+ <div class="row g-4 stagger">
  <div class="col-12 col-lg-8">
- <div class="card shadow-sm mb-4">
+ <div class="card shadow-sm mb-4 glass-panel">
  <div class="card-body">
  <div class="d-flex justify-content-between align-items-center mb-3">
  <h2 class="h5 mb-0">📊 My Performance</h2>
@@ -130,7 +130,7 @@ if ($createdAt) {
  </div>
  </div>
  </div>
- <div class="card shadow-sm">
+ <div class="card shadow-sm glass-panel">
  <div class="card-body">
  <h2 class="h5 mb-3">📅 Upcoming Events</h2>
  <div id="upcomingEvents">
@@ -159,31 +159,22 @@ if ($createdAt) {
  </div>
  </div>
  <div class="col-12 col-lg-4">
- <div class="card shadow-sm mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+ <div class="card shadow-sm profile-card mb-4">
  <div class="card-body text-center py-4">
  <img src="../../shared-assets/img/student-portal.jpg" alt="Student" class="rounded-circle mb-3" style="width: 80px; height: 80px; object-fit: cover; border: 3px solid white;">
  <h3 class="h5 mb-1"><?php echo htmlspecialchars($fullName); ?></h3>
  <p class="mb-0 small opacity-75"><?php echo htmlspecialchars($gradeLevel); ?></p>
  </div>
  </div>
- <div class="card shadow-sm">
+ <div class="card shadow-sm glass-panel">
  <div class="card-body">
  <h2 class="h5 mb-3">💡 Continue Learning</h2>
  <p class="text-muted small">Personalized suggestions</p>
- <ul class="list-group list-group-flush">
-  <li class="list-group-item d-flex justify-content-between align-items-center">
-   <a href="courses.php" class="text-decoration-none">Browse All Courses</a>
-   <i class="bi bi-arrow-right"></i>
-  </li>
-  <li class="list-group-item d-flex justify-content-between align-items-center">
-   <a href="quiz.php" class="text-decoration-none">Take a Quiz</a>
-   <i class="bi bi-arrow-right"></i>
-  </li>
-  <li class="list-group-item d-flex justify-content-between align-items-center">
-   <a href="projects.php" class="text-decoration-none">View Projects</a>
-   <i class="bi bi-arrow-right"></i>
-  </li>
- </ul>
+ <div class="d-flex flex-column gap-2">
+  <a href="courses.php" class="pill-link">Browse All Courses <i class="bi bi-arrow-right"></i></a>
+  <a href="quiz.php" class="pill-link">Take a Quiz <i class="bi bi-arrow-right"></i></a>
+  <a href="projects.php" class="pill-link">View Projects <i class="bi bi-arrow-right"></i></a>
+ </div>
  </div>
  </div>
  </div>

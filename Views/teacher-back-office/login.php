@@ -1,3 +1,7 @@
+<?php
+require_once '../../Controllers/config.php';
+$csrfToken = SessionManager::getCSRFToken();
+?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -204,6 +208,7 @@
     </div>
     
     <form method="POST" action="../../Controllers/teacher_login_handler.php" class="needs-validation" novalidate>
+      <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
       <div class="form-floating mb-3">
       <input type="text" name="username" id="username" class="form-control" placeholder="Username" required>
         <label for="username"><i class="bi bi-person me-2"></i>Username</label>

@@ -5,10 +5,25 @@
 
 require_once __DIR__ . '/SessionManager.php';
 
-// Use SessionManager to properly destroy session
+// Initialize session to read role before destroying
+SessionManager::init();
+$user = SessionManager::getCurrentUser();
+$role = $user['role'] ?? null;
+
+// Destroy session
 SessionManager::destroy();
 
-// Redirect to login
-header('Location: ../Views/front-office/login.php');
+// Redirect to the correct login based on role
+switch ($role) {
+	case 'teacher':
+		header('Location: ../Views/teacher-back-office/login.php');
+		break;
+	case 'admin':
+		header('Location: ../Views/admin-back-office/login.php');
+		break;
+	default:
+		header('Location: ../Views/front-office/login.php');
+		break;
+}
 exit;
 ?>

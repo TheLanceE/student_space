@@ -1,4 +1,4 @@
-body { background-color: #f8fafc; }
+body { background-color: var(--surface-1); color: var(--text-primary); }
 .navbar-brand { font-weight: 700; }
 .card { border-radius: .75rem; }
 .table td, .table th { vertical-align: middle; }

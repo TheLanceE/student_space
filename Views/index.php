@@ -6,10 +6,131 @@
   <title>EduMind+ | Launchpad</title>
   <link href="../shared-assets/vendor/bootstrap.min.css" rel="stylesheet">
   <link href="../shared-assets/css/global.css" rel="stylesheet">
+  <link href="../shared-assets/css/navbar-styles.css" rel="stylesheet">
+  <style>
+    body.launchpad {
+      background: radial-gradient(circle at 10% 20%, rgba(13,110,253,0.08), transparent 30%),
+                  radial-gradient(circle at 80% 0%, rgba(17,153,142,0.1), transparent 28%),
+                  radial-gradient(circle at 50% 80%, rgba(117,81,255,0.08), transparent 32%),
+                  var(--surface-1);
+      color: var(--text-primary);
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 4rem 0 3rem;
+      background: var(--hero-gradient);
+      color: #fff;
+      isolation: isolate;
+    }
+
+    .hero::before,
+    .hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--hero-overlay);
+      opacity: 0.85;
+      z-index: 0;
+    }
+
+    .hero .shape {
+      position: absolute;
+      width: 240px;
+      height: 240px;
+      border-radius: 30%;
+      filter: blur(40px);
+      opacity: 0.45;
+      animation: floaty 18s ease-in-out infinite;
+      z-index: 0;
+    }
+
+    .hero .shape.one { background: rgba(255,255,255,0.25); top: -60px; left: -40px; animation-delay: 0s; }
+    .hero .shape.two { background: rgba(17,153,142,0.28); bottom: -80px; right: -40px; animation-delay: 4s; }
+    .hero .shape.three { background: rgba(255,255,255,0.18); top: 20%; right: 18%; animation-delay: 2s; }
+
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-20px) scale(1.03); }
+    }
+
+    .hero-content { position: relative; z-index: 1; }
+
+    .accent-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.9rem;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+      color: #e2e8f0;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+      font-size: 0.75rem;
+      backdrop-filter: blur(6px);
+    }
+
+    .glow-card {
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    }
+
+    .btn-ghost-light {
+      border: 2px solid rgba(255,255,255,0.7);
+      color: #fff;
+      backdrop-filter: blur(4px);
+    }
+
+    .btn-ghost-light:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+    .cta-stack .btn { min-width: 220px; }
+
+    .showcase-img { height: 200px; object-fit: cover; }
+
+    .card.tile {
+      border: 1px solid var(--border-color);
+      box-shadow: 0 20px 48px rgba(15,23,42,0.08);
+      transition: transform 0.45s ease, box-shadow 0.45s ease;
+    }
+
+    .card.tile:hover { transform: translateY(-10px) scale(1.01); box-shadow: 0 26px 60px rgba(15,23,42,0.15); }
+
+    .stagger > * { opacity: 0; animation: fadeUp 0.7s ease forwards; }
+    .stagger > *:nth-child(1) { animation-delay: 0.05s; }
+    .stagger > *:nth-child(2) { animation-delay: 0.15s; }
+    .stagger > *:nth-child(3) { animation-delay: 0.25s; }
+    .stagger > *:nth-child(4) { animation-delay: 0.35s; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-heading small { letter-spacing: 0.12em; text-transform: uppercase; }
+
+    footer { background: var(--surface-2); border-top: 1px solid var(--border-color); }
+
+    /* Dark-mode friendly overrides */
+    .launchpad .text-muted { color: var(--text-secondary) !important; }
+    .launchpad .card { background: var(--surface-2); color: var(--text-primary); }
+    .launchpad .card.border-0 { border: 1px solid var(--border-color); }
+    .launchpad .ad-tile { background: var(--surface-2); color: var(--text-primary); }
+    .launchpad .badge.text-bg-warning { color: #1f2937; }
+    .launchpad .btn-link { color: var(--primary-color); }
+
+    @media (max-width: 991px) {
+      .hero { padding: 3rem 0 2.5rem; }
+      .cta-stack .btn { width: 100%; }
+    }
+  </style>
   
 </head>
-<body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+<body class="launchpad">
+  <nav class="navbar navbar-expand-lg navbar-dark admin-nav shadow-sm">
     <div class="container">
       <a class="navbar-brand fw-bold" href="#">
         <img src="../logo.jpg" alt="EduMind+ Logo" height="45" class="d-inline-block align-middle me-2">
@@ -25,33 +146,36 @@
   </nav>
 
   <header class="hero text-center text-lg-start">
-    <div class="container">
-      <span class="badge bg-light text-dark mb-3">New · AI-ready Learning OS</span>
+    <div class="shape one"></div>
+    <div class="shape two"></div>
+    <div class="shape three"></div>
+    <div class="container hero-content">
+      <span class="accent-pill mb-3"><span>✨</span> New · AI-ready Learning OS</span>
       <div class="row align-items-center g-4">
         <div class="col-lg-7">
-          <h1 class="display-4 fw-bold">Launch immersive learning journeys for students, teachers, and admins in one click.</h1>
-          <p class="lead mb-4">EduMind+ centralizes quizzes, insights, and governance so every campus can personalize education—even offline.</p>
-          <div class="d-flex flex-wrap gap-3">
-            <a class="btn btn-primary btn-lg" href="front-office/index.php">Explore Student Space</a>
-            <a class="btn btn-outline-light btn-lg" href="teacher-back-office/index.php">Teacher Workspace</a>
-            <a class="btn btn-outline-light btn-lg" href="admin-back-office/index.php">Admin Console</a>
+          <h1 class="display-4 fw-bold mb-3">Launch immersive learning journeys for students, teachers, and admins in one click.</h1>
+          <p class="lead mb-4 text-light">EduMind+ centralizes quizzes, insights, and governance so every campus can personalize education—even offline.</p>
+          <div class="d-flex flex-wrap gap-3 cta-stack">
+            <a class="btn btn-warning btn-lg shadow-sm" href="front-office/index.php">Explore Student Space</a>
+            <a class="btn btn-ghost-light btn-lg" href="teacher-back-office/index.php">Teacher Workspace</a>
+            <a class="btn btn-ghost-light btn-lg" href="admin-back-office/index.php">Admin Console</a>
           </div>
         </div>
         <div class="col-lg-5">
-          <div class="card shadow-lg border-0">
+          <div class="card glow-card border-0">
             <div class="card-body">
-              <p class="fw-semibold text-muted text-uppercase small mb-1">Live Performance Snapshot</p>
+              <p class="fw-semibold text-uppercase small mb-1 text-white-50">Live Performance Snapshot</p>
               <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
                   <h2 class="h1 mb-0">92%</h2>
                   <small class="text-success">▲ Avg. mastery</small>
                 </div>
-                <img src="../shared-assets/img/dashboard-preview.jpg" alt="Dashboard preview" class="img-fluid rounded" style="max-width: 180px;">
+                <img src="../shared-assets/img/dashboard-preview.jpg" alt="Dashboard preview" class="img-fluid rounded" style="max-width: 180px; border: 1px solid rgba(255,255,255,0.2);">
               </div>
               <div class="progress" style="height: .5rem;">
-                <div class="progress-bar" style="width: 78%;"></div>
+                <div class="progress-bar bg-warning" style="width: 78%;"></div>
               </div>
-              <div class="d-flex justify-content-between small mt-2 text-muted">
+              <div class="d-flex justify-content-between small mt-2 text-white-50">
                 <span>Curriculum coverage</span>
                 <span>78%</span>
               </div>
@@ -94,10 +218,10 @@
         <p class="text-uppercase text-primary fw-semibold small">Trending learning journeys</p>
         <h2 class="fw-bold">Pick a workspace to get started</h2>
       </div>
-      <div class="row g-4">
+      <div class="row g-4 stagger">
         <div class="col-12 col-md-4">
           <a class="card-link" href="front-office/index.php">
-            <div class="card shadow-sm h-100">
+            <div class="card tile h-100">
               <img src="../shared-assets/img/student-portal.jpg" class="showcase-img" alt="Student portal" loading="lazy">
               <div class="card-body">
                 <h3 class="h5">Student Space</h3>
@@ -109,7 +233,7 @@
         </div>
         <div class="col-12 col-md-4">
           <a class="card-link" href="teacher-back-office/index.php">
-            <div class="card shadow-sm h-100">
+            <div class="card tile h-100">
               <img src="../shared-assets/img/teacher-workspace.jpg" class="showcase-img" alt="Teacher workspace" loading="lazy">
               <div class="card-body">
                 <h3 class="h5">Teacher Workspace</h3>
@@ -121,7 +245,7 @@
         </div>
         <div class="col-12 col-md-4">
           <a class="card-link" href="admin-back-office/index.php">
-            <div class="card shadow-sm h-100">
+            <div class="card tile h-100">
               <img src="../shared-assets/img/admin-console.jpg" class="showcase-img" alt="Admin console" loading="lazy">
               <div class="card-body">
                 <h3 class="h5">Admin Console</h3>
@@ -229,6 +353,15 @@
   </footer>
 
   <script>
+    // Respect OS theme without storing in localStorage
+    (function(){
+      const root = document.documentElement;
+      const apply = (isDark) => root.setAttribute('data-theme', isDark ? 'dark' : 'light');
+      const mq = window.matchMedia('(prefers-color-scheme: dark)');
+      apply(mq.matches);
+      mq.addEventListener('change', (e)=> apply(e.matches));
+    })();
+
     document.getElementById('year').textContent = new Date().getFullYear();
   </script>
   <script src="../shared-assets/vendor/bootstrap.bundle.min.js"></script>

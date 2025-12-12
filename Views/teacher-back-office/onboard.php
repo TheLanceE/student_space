@@ -50,14 +50,18 @@ $email = $_SESSION['email'] ?? '';
         <label class="form-label">Email</label>
         <input class="form-control" name="email" type="email" value="<?php echo htmlspecialchars($email); ?>" required />
        </div>
-       <div class="mb-3">
-        <label class="form-label">Mobile</label>
-        <input class="form-control" name="mobile" />
-       </div>
-       <div class="mb-3">
-        <label class="form-label">Department</label>
-        <input class="form-control" name="department" />
-       </div>
+      <div class="mb-3">
+       <label class="form-label">Mobile</label>
+       <input class="form-control" name="mobile" />
+      </div>
+      <div class="mb-3">
+       <label class="form-label">Address</label>
+       <input class="form-control" name="address" />
+      </div>
+      <div class="mb-3">
+       <label class="form-label">Department / Specialty</label>
+       <input class="form-control" name="specialty" />
+      </div>
        <div class="d-flex justify-content-end gap-2">
         <a class="btn btn-outline-secondary" href="dashboard.php">Skip</a>
         <button class="btn btn-primary" type="submit">Save & Continue</button>
