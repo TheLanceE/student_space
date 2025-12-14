@@ -4,6 +4,8 @@
   <title>EduMind | Admin Panel</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -174,6 +176,48 @@
     .table tr:hover {
       background: #f8f9fa;
     }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .pagination button, .pagination span {
+      padding: 8px 12px;
+      border: 1px solid #e0e0e0;
+      background: white;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .pagination button:hover {
+      background: #4361ee;
+      color: white;
+      border-color: #4361ee;
+    }
+
+    .pagination button.active, .pagination span.active {
+      background: #4361ee;
+      color: white;
+      border-color: #4361ee;
+    }
+
+    .pagination button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .pagination-info {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 14px;
+      color: #666;
+    }
     
     .badge {
       padding: 5px 10px;
@@ -340,6 +384,18 @@
       </div>
     </div>
 
+    <!-- Category Pie Chart -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <span>Quizzes by Category</span>
+      </div>
+      <div class="card-body">
+        <div style="width: 100%; max-width: 600px; margin: 0 auto;">
+          <canvas id="categoryPieChart"></canvas>
+        </div>
+      </div>
+    </div>
+
     <!-- Quiz Management -->
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
@@ -347,6 +403,9 @@
         
       </div>
       <div class="card-body">
+        <div style="margin-bottom: 20px;">
+          <input type="text" id="searchQuizzes" class="form-control" placeholder="Search quizzes by title..." style="max-width: 400px; padding: 8px 12px; border: 1px solid #ddd; border-radius: 5px;">
+        </div>
         <div id="quizzesContainer">
           <!-- Quizzes will be loaded here dynamically -->
         </div>
@@ -366,9 +425,133 @@
   </div>
 
   <script>
+    var categoryPieChart = null;
+    var allQuizData = [];
+    var allQuizDataOriginal = [];
+    var currentPage = 1;
+    var itemsPerPage = 5;
+    
+    function renderCategoryPieChart(categoryData){
+      var ctx = document.getElementById('categoryPieChart');
+      if(!ctx) return;
+      
+      var categories = Object.keys(categoryData);
+      var counts = Object.values(categoryData);
+      
+      if(categories.length === 0){
+        ctx.parentElement.innerHTML = '<p style="text-align: center; color: #999;">No categories available</p>';
+        return;
+      }
+      
+      var colors = [
+        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+        '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384'
+      ];
+      
+      if(categoryPieChart){
+        categoryPieChart.destroy();
+      }
+      
+      try {
+        Chart.register(ChartDataLabels);
+      } catch(e) {
+        console.log('ChartDataLabels already registered');
+      }
+      
+      categoryPieChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: categories,
+          datasets: [{
+            data: counts,
+            backgroundColor: colors.slice(0, categories.length),
+            borderColor: '#fff',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            },
+            datalabels: {
+              color: '#fff',
+              font: {
+                weight: 'bold'
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    function displayQuizzesPage() {
+      var startIndex = (currentPage - 1) * itemsPerPage;
+      var endIndex = startIndex + itemsPerPage;
+      var visibleQuizzes = allQuizData.slice(startIndex, endIndex);
+      var tbody = document.getElementById('allQuizRows');
+      tbody.innerHTML = '';
+      
+      visibleQuizzes.forEach(function(row) {
+        var tr = document.createElement('tr');
+        tr.innerHTML = row;
+        tbody.appendChild(tr);
+      });
+      
+      renderPagination();
+    }
+    
+    function renderPagination() {
+      var totalPages = Math.ceil(allQuizData.length / itemsPerPage);
+      var paginationContainer = document.getElementById('pagination');
+      if (!paginationContainer) return;
+      
+      var html = '';
+      html += '<button onclick="previousPage()" ' + (currentPage === 1 ? 'disabled' : '') + '>Previous</button>';
+      
+      for (var i = 1; i <= totalPages; i++) {
+        if (i === currentPage) {
+          html += '<span class="active">' + i + '</span>';
+        } else {
+          html += '<button onclick="goToPage(' + i + ')">' + i + '</button>';
+        }
+      }
+      
+      html += '<button onclick="nextPage()" ' + (currentPage === totalPages || totalPages === 0 ? 'disabled' : '') + '>Next</button>';
+      paginationContainer.innerHTML = html;
+      
+      var info = document.getElementById('paginationInfo');
+      if (info) {
+        var start = allQuizData.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+        var end = Math.min(currentPage * itemsPerPage, allQuizData.length);
+        info.innerHTML = 'Showing ' + start + ' to ' + end + ' of ' + allQuizData.length + ' quizzes';
+      }
+    }
+    
+    function goToPage(page) {
+      currentPage = page;
+      displayQuizzesPage();
+    }
+    
+    function nextPage() {
+      var totalPages = Math.ceil(allQuizData.length / itemsPerPage);
+      if (currentPage < totalPages) {
+        currentPage++;
+        displayQuizzesPage();
+      }
+    }
+    
+    function previousPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        displayQuizzesPage();
+      }
+    }
+    
     document.addEventListener('DOMContentLoaded', function(){
       var container = document.getElementById('quizzesContainer');
-      function loadAll(){
         fetch('../controller/quizcontroller.php?action=getAllQuizzes')
           .then(function(res){ return res.text(); })
           .then(function(rows){
@@ -376,21 +559,138 @@
               '<div style="overflow-x:auto;">'+
               '<table class="table">'+
               '<thead><tr><th>Title</th><th>Teacher</th><th>Category</th><th>Grade</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>'+
-              '<tbody id="allQuizRows"></tbody></table></div>';
+              '<tbody id="allQuizRows"></tbody></table></div>'+
+              '<div class="pagination" id="pagination"></div>'+
+              '<div class="pagination-info" id="paginationInfo"></div>';
             container.innerHTML = html;
-            var tbody = document.getElementById('allQuizRows');
+            
+            var tbody = document.createElement('tbody');
             tbody.innerHTML = rows;
-            document.getElementById('totalQuizzes').textContent = tbody.querySelectorAll('tr').length;
+            allQuizData = [];
+            allQuizDataOriginal = [];
+            tbody.querySelectorAll('tr').forEach(function(row) {
+              var rowHtml = row.innerHTML;
+              allQuizData.push(rowHtml);
+              allQuizDataOriginal.push(rowHtml);
+            });
+            document.getElementById('totalQuizzes').textContent = allQuizData.length;
+            
+            currentPage = 1;
+            displayQuizzesPage();
+            
+            // Extract and render category data from the table
+            var categoryCount = {};
+            allQuizData.forEach(function(rowHtml) {
+              var tempTr = document.createElement('tr');
+              tempTr.innerHTML = rowHtml;
+              var cells = tempTr.querySelectorAll('td');
+              if(cells.length > 2){
+                var category = cells[2].textContent.trim();
+                if(category && category.length > 0){
+                  categoryCount[category] = (categoryCount[category] || 0) + 1;
+                }
+              }
+            });
+            
+            renderCategoryPieChart(categoryCount);
+          })
+          .catch(function(err){
+            console.error('Error loading quizzes:', err);
           });
-      }
+      
       window.deleteQuiz = function(id){
         if(!confirm('Delete this quiz?')) return;
         fetch('../controller/quizcontroller.php?action=delete', {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: 'quiz_id=' + encodeURIComponent(id)
-        }).then(function(){ loadAll(); });
+        }).then(function(res){
+          // Optimistically remove the quiz row without full reload
+          // Remove from original and current arrays by matching the id within the row HTML
+          function filterOutById(arr){
+            var out = [];
+            for (var i = 0; i < arr.length; i++) {
+              var rowHtml = arr[i];
+              // Create a temp TR to query action cells
+              var tmp = document.createElement('tr');
+              tmp.innerHTML = rowHtml;
+              var actionsCell = tmp.querySelector('td:last-child');
+              var hasId = false;
+              if (actionsCell) {
+                var btns = actionsCell.querySelectorAll('button, a');
+                for (var j = 0; j < btns.length; j++) {
+                  var onclickStr = btns[j].getAttribute('onclick') || '';
+                  if (onclickStr.indexOf('deleteQuiz(') !== -1 && onclickStr.indexOf(id.toString()) !== -1) {
+                    hasId = true; break;
+                  }
+                }
+              }
+              if (!hasId) out.push(rowHtml);
+            }
+            return out;
+          }
+
+          allQuizDataOriginal = filterOutById(allQuizDataOriginal);
+          allQuizData = filterOutById(allQuizData);
+
+          // If current page is now out of bounds, adjust
+          var totalPages = Math.ceil(allQuizData.length / itemsPerPage);
+          if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+          if (totalPages === 0) currentPage = 1;
+
+          // Re-render table, pagination, totals, and pie chart
+          displayQuizzesPage();
+          document.getElementById('totalQuizzes').textContent = allQuizData.length;
+
+          // Recompute categories for pie chart
+          var categoryCount = {};
+          for (var i = 0; i < allQuizData.length; i++) {
+            var tempTr = document.createElement('tr');
+            tempTr.innerHTML = allQuizData[i];
+            var cells = tempTr.querySelectorAll('td');
+            if (cells.length > 2) {
+              var category = (cells[2].textContent || '').trim();
+              if (category) categoryCount[category] = (categoryCount[category] || 0) + 1;
+            }
+          }
+          renderCategoryPieChart(categoryCount);
+        }).catch(function(err){
+          console.error('Delete error:', err);
+          // Fallback to full reload if something goes wrong
+          loadAll();
+        });
       };
+      
+      window.searchQuizzes = function(searchTerm){
+        var searchLower = searchTerm.toLowerCase();
+        
+        if (searchLower === '') {
+          // Restore original data
+          allQuizData = allQuizDataOriginal.slice();
+        } else {
+          // Filter from original data
+          allQuizData = [];
+          allQuizDataOriginal.forEach(function(rowHtml) {
+            var tempTr = document.createElement('tr');
+            tempTr.innerHTML = rowHtml;
+            var firstCell = tempTr.querySelector('td');
+            if (firstCell && firstCell.textContent.toLowerCase().includes(searchLower)) {
+              allQuizData.push(rowHtml);
+            }
+          });
+        }
+        
+        currentPage = 1;
+        displayQuizzesPage();
+      };
+      
+      // Setup search input listener
+      var searchInput = document.getElementById('searchQuizzes');
+      if(searchInput){
+        searchInput.addEventListener('keyup', function(){
+          searchQuizzes(this.value);
+        });
+      }
       
       window.previewQuiz = function(id){
         fetch('../controller/quizcontroller.php?action=preview&id=' + id)

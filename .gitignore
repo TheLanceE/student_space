@@ -3,6 +3,8 @@ config.php
 .env
 .env.local
 .env.*.php
+gemini.key
+deepseek.key
 
 # IDE & Editor
 .vscode/

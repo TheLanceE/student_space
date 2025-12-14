@@ -265,7 +265,7 @@ function setCorrectAnswer(questionId, optionLetter) {
     // Set this option as correct
     var correctButton = document.getElementById('set-correct-Q' + questionId + '-O' + optionLetter);
     if (correctButton) {
-        correctButton.innerHTML = 'Correct ✓';
+        correctButton.innerHTML = 'Correct';
         correctButton.className = 'btn-success btn-sm set-correct';
 
         var correctHiddenInput = correctButton.nextElementSibling;
@@ -423,3 +423,39 @@ if (window.addEventListener) {
         showInitialValidationErrors(); // Show validation errors on load
     });
 }
+
+// Global delegation for remove buttons to support dynamically inserted questions
+document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.remove-question');
+    if (!btn) return;
+    e.preventDefault();
+    // Try to find question id by button id or closest question-item
+    var qid = null;
+    if (btn.id && btn.id.indexOf('remove-question-') === 0) {
+        qid = btn.id.replace('remove-question-', '');
+    } else {
+        var qEl = btn.closest('.question-item');
+        if (qEl && qEl.id && qEl.id.indexOf('question-') === 0) {
+            qid = qEl.id.replace('question-', '');
+        }
+    }
+    if (qid) {
+        removeQuestion(qid);
+    }
+});
+
+// Fallback: handle generic "Remove" buttons even if class is missing
+document.addEventListener('click', function(e) {
+    var el = e.target;
+    var btn = el.closest('button');
+    if (!btn) return;
+    var isDanger = /btn-danger/.test(btn.className || '');
+    var hasRemoveText = (btn.textContent || '').trim().toLowerCase() === 'remove';
+    if (!isDanger || !hasRemoveText) return;
+    e.preventDefault();
+    var qEl = btn.closest('.question-item');
+    if (qEl && qEl.id && qEl.id.indexOf('question-') === 0) {
+        var qid = qEl.id.replace('question-', '');
+        removeQuestion(qid);
+    }
+});

@@ -1,5 +1,5 @@
 <script>
-let questionCount = 0;
+var questionCount = 0;
 
 document.addEventListener('DOMContentLoaded', function() {
     loadMyQuizzes();
@@ -8,14 +8,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function loadMyQuizzes() {
     fetch('/quizzes2/quizzes2/quiz/controller/quizcontroller.php?action=getMyQuizzes')
-        .then(res => res.text())
-        .then(htmlRows => {
-            const container = document.getElementById('quizzesContainer');
+        .then(function(res) { return res.text(); })
+        .then(function(htmlRows) {
+            var container = document.getElementById('quizzesContainer');
             container.innerHTML = '<div class="card"><div class="card-body"><table class="table"><thead><tr><th>Title</th><th>Category</th><th>Grade</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead><tbody id="quizRows"></tbody></table></div></div>';
-            const tbody = document.getElementById('quizRows');
+            var tbody = document.getElementById('quizRows');
             tbody.innerHTML = htmlRows;
         })
-        .catch(err => {
+        .catch(function(err) {
             document.getElementById('quizzesContainer').innerHTML = '<div class="alert alert-danger">Error loading quizzes</div>';
             console.error('Error loading quizzes:', err);
         });
@@ -23,66 +23,29 @@ function loadMyQuizzes() {
 
 function addQuestion() {
     questionCount++;
-    const html = `
-    <div class="card mb-3 question-card" data-question="${questionCount}">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6>Question ${questionCount}</h6>
-                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeQuestion(${questionCount})">
-                    <i class="bi bi-trash"></i>
-                </button>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Question Text *</label>
-                <input type="text" class="form-control question-text">
-            </div>
-            <div class="mb-2">
-                <label class="form-label">Options *</label>
-            </div>
-            <div class="option-group">
-                <div class="input-group mb-2">
-                    <span class="input-group-text">A</span>
-                    <input type="text" class="form-control option-input" placeholder="Option A">
-                    <div class="input-group-text">
-                        <input class="form-check-input correct-option" type="radio" name="correct${questionCount}" value="0">
-                    </div>
-                </div>
-                <div class="input-group mb-2">
-                    <span class="input-group-text">B</span>
-                    <input type="text" class="form-control option-input" placeholder="Option B">
-                    <div class="input-group-text">
-                        <input class="form-check-input correct-option" type="radio" name="correct${questionCount}" value="1">
-                    </div>
-                </div>
-                <div class="input-group mb-2">
-                    <span class="input-group-text">C</span>
-                    <input type="text" class="form-control option-input" placeholder="Option C">
-                    <div class="input-group-text">
-                        <input class="form-check-input correct-option" type="radio" name="correct${questionCount}" value="2">
-                    </div>
-                </div>
-                <div class="input-group mb-2">
-                    <span class="input-group-text">D</span>
-                    <input type="text" class="form-control option-input" placeholder="Option D">
-                    <div class="input-group-text">
-                        <input class="form-check-input correct-option" type="radio" name="correct${questionCount}" value="3">
-                    </div>
-                </div>
-            </div>
-            <small class="text-muted">Select the correct answer by clicking the radio button</small>
-        </div>
-    </div>
-    `;
+    var html = '<div class="card mb-3 question-card" data-question="' + questionCount + '"><div class="card-body"><div class="d-flex justify-content-between align-items-center mb-3"><h6>Question ' + questionCount + '</h6><button type="button" class="btn btn-sm btn-outline-danger" onclick="removeQuestion(' + questionCount + ')"><i class="bi bi-trash"></i></button></div><div class="mb-3"><label class="form-label">Question Text *</label><input type="text" class="form-control question-text"></div><div class="mb-2"><label class="form-label">Options *</label></div><div class="option-group"><div class="input-group mb-2"><span class="input-group-text">A</span><input type="text" class="form-control option-input" placeholder="Option A"><div class="input-group-text"><input class="form-check-input correct-option" type="radio" name="correct' + questionCount + '" value="0"></div></div><div class="input-group mb-2"><span class="input-group-text">B</span><input type="text" class="form-control option-input" placeholder="Option B"><div class="input-group-text"><input class="form-check-input correct-option" type="radio" name="correct' + questionCount + '" value="1"></div></div><div class="input-group mb-2"><span class="input-group-text">C</span><input type="text" class="form-control option-input" placeholder="Option C"><div class="input-group-text"><input class="form-check-input correct-option" type="radio" name="correct' + questionCount + '" value="2"></div></div><div class="input-group mb-2"><span class="input-group-text">D</span><input type="text" class="form-control option-input" placeholder="Option D"><div class="input-group-text"><input class="form-check-input correct-option" type="radio" name="correct' + questionCount + '" value="3"></div></div></div><small class="text-muted">Select the correct answer by clicking the radio button</small></div></div>';
     
     document.getElementById('questionsContainer').insertAdjacentHTML('beforeend', html);
 }
 
 function removeQuestion(num) {
-    document.querySelector(`[data-question="${num}"]`).remove();
+    var el = document.querySelector('[data-question="' + num + '"]');
+    if (el) el.remove();
 }
 
+// Delegated handler for Remove buttons to work for dynamically inserted questions
+document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.btn-outline-danger');
+    if (!btn) return;
+    e.preventDefault();
+    var card = btn.closest('.question-card');
+    if (card) {
+        card.remove();
+    }
+});
+
 function buildFormBody(status) {
-    const params = new URLSearchParams();
+    var params = new URLSearchParams();
     params.set('title', document.getElementById('quizTitle').value);
     params.set('category', document.getElementById('quizCategory').value);
     params.set('gradeLevel', document.getElementById('quizGrade').value);
@@ -91,34 +54,34 @@ function buildFormBody(status) {
     params.set('passing_grade', document.getElementById('passingGrade').value || 70);
     params.set('time_limit', document.getElementById('timeLimit').value || 0);
     
-    const cards = document.querySelectorAll('.question-card');
-    let qIndex = 0;
-    cards.forEach(card => {
-        const qText = card.querySelector('.question-text').value;
-        params.set(`questions[${qIndex}][text]`, qText);
+    var cards = document.querySelectorAll('.question-card');
+    var qIndex = 0;
+    for (var i = 0; i < cards.length; i++) {
+        var card = cards[i];
+        var qText = card.querySelector('.question-text').value;
+        params.set('questions[' + qIndex + '][text]', qText);
         
-        const options = card.querySelectorAll('.option-input');
-        const correct = card.querySelector('.correct-option:checked');
-        options.forEach((opt, i) => {
-            params.set(`questions[${qIndex}][options][${i}][text]`, opt.value);
-            const isC = correct && parseInt(correct.value) === i ? '1' : '0';
-            params.set(`questions[${qIndex}][options][${i}][is_correct]`, isC);
-        });
+        var options = card.querySelectorAll('.option-input');
+        var correct = card.querySelector('.correct-option:checked');
+        for (var j = 0; j < options.length; j++) {
+            params.set('questions[' + qIndex + '][options][' + j + '][text]', options[j].value);
+            var isC = correct && parseInt(correct.value) === j ? '1' : '0';
+            params.set('questions[' + qIndex + '][options][' + j + '][is_correct]', isC);
+        }
         qIndex++;
-    });
+    }
     return params.toString();
 }
 
 function saveQuiz(status) {
-    const params = new URLSearchParams(buildFormBody(status));
+    var params = new URLSearchParams(buildFormBody(status));
     params.set('ajax', '1');
     
-    // Check if we're in edit mode
-    const form = document.getElementById('quizForm');
-    const mode = form.getAttribute('data-mode');
-    const quizId = form.getAttribute('data-quiz-id') || document.getElementById('quizId').value;
+    var form = document.getElementById('quizForm');
+    var mode = form.getAttribute('data-mode');
+    var quizId = form.getAttribute('data-quiz-id') || document.getElementById('quizId').value;
     
-    let action = 'create';
+    var action = 'create';
     if (mode === 'edit' && quizId) {
         action = 'edit';
         params.set('quiz_id', quizId);
@@ -129,13 +92,12 @@ function saveQuiz(status) {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: params.toString()
     })
-    .then(res => res.text())
-    .then(text => {
+    .then(function(res) { return res.text(); })
+    .then(function(text) {
         if (text.indexOf('quiz_id=') === 0) {
-            const qid = text.split('=')[1];
+            var qid = text.split('=')[1];
             alert(action === 'edit' ? 'Quiz updated successfully' : 'Quiz created successfully');
             
-            // Reset form mode
             form.removeAttribute('data-mode');
             form.removeAttribute('data-quiz-id');
             document.getElementById('quizId').value = '';
@@ -146,7 +108,7 @@ function saveQuiz(status) {
             alert('Error saving quiz');
         }
     })
-    .catch(err => {
+    .catch(function(err) {
         alert('Error saving quiz');
         console.error('Save error:', err);
     });
@@ -171,19 +133,19 @@ function resetForm() {
 function deleteQuiz(quizId) {
     if (!confirm('Delete this quiz? This cannot be undone.')) return;
     
-    const formData = new FormData();
+    var formData = new FormData();
     formData.append('quiz_id', quizId);
     
     fetch('/quizzes2/quizzes2/quiz/controller/quizcontroller.php?action=delete', {
         method: 'POST',
         body: formData
     })
-    .then(res => res.text())
-    .then(() => {
+    .then(function(res) { return res.text(); })
+    .then(function() {
         alert('Quiz deleted successfully');
         loadMyQuizzes();
     })
-    .catch(err => {
+    .catch(function(err) {
         alert('Error deleting quiz');
         console.error('Delete error:', err);
     });
@@ -191,11 +153,10 @@ function deleteQuiz(quizId) {
 
 function editQuiz(quizId) {
     fetch('/quizzes2/quizzes2/quiz/controller/quizcontroller.php?action=getQuizFormData&id=' + quizId)
-        .then(res => res.text())
-        .then(data => {
-            const params = new URLSearchParams(data);
+        .then(function(res) { return res.text(); })
+        .then(function(data) {
+            var params = new URLSearchParams(data);
             
-            // Populate basic quiz information
             document.getElementById('quizId').value = params.get('quiz_id') || '';
             document.getElementById('quizTitle').value = params.get('title') || '';
             document.getElementById('quizCategory').value = params.get('category') || '';
@@ -204,7 +165,7 @@ function editQuiz(quizId) {
             document.getElementById('passingGrade').value = params.get('passing_grade') || '';
             document.getElementById('timeLimit').value = params.get('time_limit') || '';
             
-            const status = params.get('status') || 'active';
+            var status = params.get('status') || 'active';
             if (status === 'active') {
                 document.getElementById('statusActive').checked = true;
             } else if (status === 'draft') {
@@ -213,26 +174,25 @@ function editQuiz(quizId) {
                 document.getElementById('statusInactive').checked = true;
             }
             
-            // Clear existing questions
             document.getElementById('questionsContainer').innerHTML = '';
             questionCount = 0;
             
-            // Add questions from quiz data
-            let index = 0;
+            var index = 0;
             while (params.has('questions[' + index + '][text]')) {
                 addQuestion();
                 
-                const questionCard = document.querySelectorAll('.question-card')[index];
-                const questionText = questionCard.querySelector('.question-text');
+                var questionCards = document.querySelectorAll('.question-card');
+                var questionCard = questionCards[index];
+                var questionText = questionCard.querySelector('.question-text');
                 questionText.value = params.get('questions[' + index + '][text]') || '';
                 
-                const optionInputs = questionCard.querySelectorAll('.option-input');
-                const correctOptions = questionCard.querySelectorAll('.correct-option');
+                var optionInputs = questionCard.querySelectorAll('.option-input');
+                var correctOptions = questionCard.querySelectorAll('.correct-option');
                 
-                for (let j = 0; j < optionInputs.length; j++) {
+                for (var j = 0; j < optionInputs.length; j++) {
                     optionInputs[j].value = params.get('questions[' + index + '][options][' + j + '][text]') || '';
                     
-                    const isCorrect = params.get('questions[' + index + '][options][' + j + '][is_correct]') === '1';
+                    var isCorrect = params.get('questions[' + index + '][options][' + j + '][is_correct]') === '1';
                     if (isCorrect && correctOptions[j]) {
                         correctOptions[j].checked = true;
                     }
@@ -241,17 +201,15 @@ function editQuiz(quizId) {
                 index++;
             }
             
-            // Update form action to edit mode
             document.getElementById('quizForm').setAttribute('data-mode', 'edit');
             document.getElementById('quizForm').setAttribute('data-quiz-id', quizId);
             
-            // Switch to create quiz tab
-            const createTab = document.querySelector('a[href="#create-quiz"]');
+            var createTab = document.querySelector('a[href="#create-quiz"]');
             if (createTab) createTab.click();
             
             alert('Quiz loaded for editing');
         })
-        .catch(err => {
+        .catch(function(err) {
             alert('Error loading quiz for editing');
             console.error('Edit error:', err);
         });
@@ -259,13 +217,13 @@ function editQuiz(quizId) {
 
 function previewQuiz(quizId) {
     fetch('/quizzes2/quizzes2/quiz/controller/quizcontroller.php?action=preview&id=' + quizId)
-        .then(res => res.text())
-        .then(html => {
+        .then(function(res) { return res.text(); })
+        .then(function(html) {
             document.getElementById('previewContent').innerHTML = html;
-            const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+            var previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
             previewModal.show();
         })
-        .catch(err => {
+        .catch(function(err) {
             alert('Error loading quiz preview');
             console.error('Preview error:', err);
         });

@@ -23,6 +23,20 @@ PHP/MySQL quiz application with teacher and student front-office views.
 - Teacher view allows creating/editing quizzes (including deleting questions in edit mode) and marking correct options.
 - Student view lists available quizzes.
 
+## AI Setup (optional)
+- Provider: DeepSeek (default) or Gemini. Set `AI_PROVIDER` to `deepseek` or `gemini`.
+- Keys:
+   - DeepSeek: set the env var `DEEPSEEK_API_KEY` or create `deepseek.key` in the quiz folder with your key.
+   - Gemini:   set the env var `GEMINI_API_KEY` or create `gemini.key` in the quiz folder with your key.
+- Windows PowerShell examples:
+   - Current session:
+      - `$env:AI_PROVIDER = 'deepseek'`
+      - `$env:DEEPSEEK_API_KEY = 'YOUR_DEEPSEEK_KEY'`
+   - Persist for user:
+      - `[Environment]::SetEnvironmentVariable('AI_PROVIDER','deepseek','User')`
+      - `[Environment]::SetEnvironmentVariable('DEEPSEEK_API_KEY','YOUR_DEEPSEEK_KEY','User')`
+   - Restart Apache/XAMPP after setting.
+
 ## Troubleshooting
 - If options are not saving, verify `question_options` table exists and `config.php` DB settings are correct.
 - Ensure MySQL service is running (default XAMPP port 3306 unless customized).

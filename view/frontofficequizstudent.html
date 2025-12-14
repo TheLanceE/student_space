@@ -231,32 +231,32 @@
       var availableQuizzes = [];
 
       // DOM Elements
-      const availableQuizzesContainer = document.getElementById('availableQuizzesContainer');
-      const quizTakingInterface = document.getElementById('quizTakingInterface');
-      const quizResults = document.getElementById('quizResults');
-      const quizTitle = document.getElementById('quizTitle');
-      const questionContainer = document.getElementById('questionContainer');
-      const currentQuestionEl = document.getElementById('currentQuestion');
-      const totalQuestionsEl = document.getElementById('totalQuestions');
-      const progressFill = document.getElementById('progressFill');
-      const prevQuestionBtn = document.getElementById('prevQuestionBtn');
-      const nextQuestionBtn = document.getElementById('nextQuestionBtn');
-      const submitQuizBtn = document.getElementById('submitQuizBtn');
-      const quizTimer = document.getElementById('quizTimer');
-      const scorePercentage = document.getElementById('scorePercentage');
-      const finalScore = document.getElementById('finalScore');
-      const totalScore = document.getElementById('totalScore');
-      const reviewQuizBtn = document.getElementById('reviewQuizBtn');
-      const backToQuizzesBtn = document.getElementById('backToQuizzesBtn');
-      const questionReview = document.getElementById('questionReview');
-      const reviewContainer = document.getElementById('reviewContainer');
+      var availableQuizzesContainer = document.getElementById('availableQuizzesContainer');
+      var quizTakingInterface = document.getElementById('quizTakingInterface');
+      var quizResults = document.getElementById('quizResults');
+      var quizTitle = document.getElementById('quizTitle');
+      var questionContainer = document.getElementById('questionContainer');
+      var currentQuestionEl = document.getElementById('currentQuestion');
+      var totalQuestionsEl = document.getElementById('totalQuestions');
+      var progressFill = document.getElementById('progressFill');
+      var prevQuestionBtn = document.getElementById('prevQuestionBtn');
+      var nextQuestionBtn = document.getElementById('nextQuestionBtn');
+      var submitQuizBtn = document.getElementById('submitQuizBtn');
+      var quizTimer = document.getElementById('quizTimer');
+      var scorePercentage = document.getElementById('scorePercentage');
+      var finalScore = document.getElementById('finalScore');
+      var totalScore = document.getElementById('totalScore');
+      var reviewQuizBtn = document.getElementById('reviewQuizBtn');
+      var backToQuizzesBtn = document.getElementById('backToQuizzesBtn');
+      var questionReview = document.getElementById('questionReview');
+      var reviewContainer = document.getElementById('reviewContainer');
 
       // Current quiz state
-      let currentQuiz = null;
-      let currentQuestionIndex = 0;
-      let userAnswers = {};
-      let timerInterval = null;
-      let timeRemaining = 0;
+      var currentQuiz = null;
+      var currentQuestionIndex = 0;
+      var userAnswers = {};
+      var timerInterval = null;
+      var timeRemaining = 0;
 
       // Initialize the app: fetch teacher-created quizzes from server
       fetchAvailableQuizzes();
@@ -356,17 +356,11 @@
       // Display available quizzes
       function displayAvailableQuizzes() {
         if (availableQuizzes.length === 0) {
-          availableQuizzesContainer.innerHTML = `
-            <div class="empty-state">
-              <i class="fas fa-search"></i>
-              <h4>No quizzes available</h4>
-              <p>Check back later for new quizzes from your teachers</p>
-            </div>
-          `;
+          availableQuizzesContainer.innerHTML = '<div class="empty-state"><i class="fas fa-search"></i><h4>No quizzes available</h4><p>Check back later for new quizzes from your teachers</p></div>';
           return;
         }
 
-        let html = '';
+        var html = '';
         for (var i = 0; i < availableQuizzes.length; i++) {
           var quiz = availableQuizzes[i];
           html += '<div class="card quiz-card">';
@@ -388,12 +382,15 @@
         availableQuizzesContainer.innerHTML = html;
 
         // Add event listeners to start quiz buttons
-        document.querySelectorAll('.start-quiz').forEach(button => {
-          button.addEventListener('click', function() {
-            const quizId = this.getAttribute('data-quiz-id');
-            startQuiz(quizId);
-          });
-        });
+        var startButtons = document.querySelectorAll('.start-quiz');
+        for (var i = 0; i < startButtons.length; i++) {
+          (function(button) {
+            button.addEventListener('click', function() {
+              var quizId = this.getAttribute('data-quiz-id');
+              startQuiz(quizId);
+            });
+          })(startButtons[i]);
+        }
       }
 
       // Start a quiz - load quiz data (with IDs) and show quiz interface

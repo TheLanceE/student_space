@@ -6,11 +6,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function loadQuizzes() {
     fetch('../controller/quizcontroller.php?action=getAllQuizzes')
-        .then(response => response.text())
-        .then(html => {
+        .then(function(response) { return response.text(); })
+        .then(function(html) {
             document.getElementById('quizzesContainer').innerHTML = html;
         })
-        .catch(error => {
+        .catch(function(error) {
             console.error('Error:', error);
             document.getElementById('quizzesContainer').innerHTML = 
                 '<div class="alert alert-danger">Error loading quizzes. Please try again later.</div>';

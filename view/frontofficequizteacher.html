@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <title>EduMind+ | Quizzes</title>
@@ -121,28 +121,21 @@
 
     <!-- STATS CARDS -->
     <div class="row" style="margin-bottom: 20px;">
-      <div class="col-md-3">
+      <div class="col-md-4">
         <div class="card stats-card">
           <i class="fas fa-list-alt"></i>
           <div class="number" id="availableQuizzes">0</div>
           <div>Available Quizzes</div>
         </div>
       </div>
-      <div class="col-md-3">
-        <div class="card stats-card">
-          <i class="fas fa-check-circle"></i>
-          <div class="number" id="completedQuizzes">0</div>
-          <div>Quizzes Completed</div>
-        </div>
-      </div>
-      <div class="col-md-3">
+      <div class="col-md-4">
         <div class="card stats-card">
           <i class="fas fa-trophy"></i>
           <div class="number" id="averageScore">0%</div>
           <div>Average Score</div>
         </div>
       </div>
-      <div class="col-md-3">
+      <div class="col-md-4">
         <div class="card stats-card">
           <i class="fas fa-plus-circle"></i>
           <div class="number" id="myQuizzesCount">0</div>
@@ -162,6 +155,9 @@
       <!-- TAB 1: BROWSE QUIZZES -->
       <div id="browse-quizzes" class="tab-pane active teacher-only">
         <h2 style="margin-bottom: 20px;">Available Quizzes</h2>
+        <div style="margin-bottom: 20px;">
+          <input type="text" id="searchBrowseQuizzes" class="form-control" placeholder="Search quizzes by title..." style="max-width: 400px;">
+        </div>
         <div class="quiz-list" id="browseQuizzesContainer">
           <!-- Quizzes will be dynamically added here -->
         </div>
@@ -285,8 +281,42 @@
               <!-- Description -->
               <div class="form-group">
                 <label class="form-label">Description</label>
-                <textarea class="form-control" id="quizDescription" name="description" rows="3" placeholder="Enter quiz description (optional)"></textarea>
+                <div style="position: relative;">
+                  <textarea class="form-control" id="quizDescription" name="description" rows="3" placeholder="Enter quiz description (optional)" style="padding-right: 65px;"></textarea>
+                  <button type="button" id="voiceBtn" onclick="startVoiceRecognition()" style="position: absolute; right: 8px; top: 8px; background: #4CAF50; color: white; border: none; border-radius: 50%; width: 50px; height: 50px; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.3); transition: all 0.2s ease;" title="Click to speak">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="white" style="margin-left: 3px;">
+                      <polygon points="5,3 5,21 21,12"></polygon>
+                    </svg>
+                  </button>
+                </div>
+                <small id="voiceStatus" style="color: #666; display: none;"></small>
               </div>
+              
+              <!-- AI GENERATION SECTION -->
+              <div style="background: #f0f7ff; border: 2px solid #4361ee; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                  <i class="fas fa-magic" style="color: #4361ee; font-size: 24px; margin-right: 10px;"></i>
+                  <div>
+                    <div style="font-weight: bold; font-size: 16px; color: #333;">AI Question Generator</div>
+                    <div style="font-size: 12px; color: #666;">Let AI create questions based on your quiz details</div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="form-label">Number of Questions to Generate</label>
+                      <input type="number" class="form-control" id="aiQuestionCount" value="5" min="1" max="20" placeholder="e.g., 5">
+                    </div>
+                  </div>
+                  <div class="col-md-6" style="display: flex; align-items: flex-end;">
+                    <button type="button" class="btn-primary" id="generateQuestionsBtn" onclick="generateAIQuestions()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); width: 100%;">
+                      <i class="fas fa-magic"></i> Generate Questions with AI
+                    </button>
+                  </div>
+                </div>
+                <div id="aiGenerationStatus" style="margin-top: 10px; font-size: 13px; display: none;"></div>
+              </div>
+              
               <!-- QUESTIONS SECTION -->
               <div class="questions-section">
                 <div class="section-header">Quiz Questions</div>
@@ -326,12 +356,17 @@
             <h3 style="margin: 0;">My Created Quizzes</h3>
           </div>
           <div class="card-body">
+            <div style="margin-bottom: 20px;">
+              <input type="text" id="searchMyQuizzes" class="form-control" placeholder="Search your quizzes by title..." style="max-width: 400px;">
+            </div>
             <div id="myQuizzesContainer">
               <!-- Quizzes will be dynamically added here -->
             </div>
           </div>
         </div>
       </div>
+      
+
     </div>
   </div>
 
@@ -349,6 +384,278 @@
   </div>
 
   <script>
+    var myQuizzesData = [];
+    var myQuizzesOriginalData = [];
+    var browseQuizzesData = [];
+    var browseQuizzesOriginalData = [];
+    var currentMyPage = 1;
+    var currentBrowsePage = 1;
+    var itemsPerPage = 5;
+    
+    function displayMyQuizzesPage() {
+      var startIndex = (currentMyPage - 1) * itemsPerPage;
+      var endIndex = startIndex + itemsPerPage;
+      var visibleQuizzes = myQuizzesData.slice(startIndex, endIndex);
+      var tbody = document.getElementById('myQuizzesTableBody');
+      tbody.innerHTML = '';
+      
+      visibleQuizzes.forEach(function(row) {
+        var tr = document.createElement('tr');
+        tr.innerHTML = row;
+        tbody.appendChild(tr);
+      });
+      
+      renderMyQuizzesPagination();
+    }
+    
+    function renderMyQuizzesPagination() {
+      var totalPages = Math.ceil(myQuizzesData.length / itemsPerPage);
+      var paginationContainer = document.getElementById('myQuizzesPagination');
+      if (!paginationContainer) return;
+      
+      var html = '';
+      html += '<button onclick="previousMyPage()" ' + (currentMyPage === 1 ? 'disabled' : '') + '>Previous</button>';
+      
+      for (var i = 1; i <= totalPages; i++) {
+        if (i === currentMyPage) {
+          html += '<span class="active">' + i + '</span>';
+        } else {
+          html += '<button onclick="goToMyPage(' + i + ')">' + i + '</button>';
+        }
+      }
+      
+      html += '<button onclick="nextMyPage()" ' + (currentMyPage === totalPages || totalPages === 0 ? 'disabled' : '') + '>Next</button>';
+      paginationContainer.innerHTML = html;
+      
+      var info = document.getElementById('myQuizzesPaginationInfo');
+      if (info) {
+        var start = myQuizzesData.length === 0 ? 0 : (currentMyPage - 1) * itemsPerPage + 1;
+        var end = Math.min(currentMyPage * itemsPerPage, myQuizzesData.length);
+        info.innerHTML = 'Showing ' + start + ' to ' + end + ' of ' + myQuizzesData.length + ' quizzes';
+      }
+    }
+    
+    function goToMyPage(page) {
+      currentMyPage = page;
+      displayMyQuizzesPage();
+    }
+    
+    function nextMyPage() {
+      var totalPages = Math.ceil(myQuizzesData.length / itemsPerPage);
+      if (currentMyPage < totalPages) {
+        currentMyPage++;
+        displayMyQuizzesPage();
+      }
+    }
+    
+    function previousMyPage() {
+      if (currentMyPage > 1) {
+        currentMyPage--;
+        displayMyQuizzesPage();
+      }
+    }
+    
+    function displayBrowseQuizzesPage() {
+      var startIndex = (currentBrowsePage - 1) * itemsPerPage;
+      var endIndex = startIndex + itemsPerPage;
+      var visibleQuizzes = browseQuizzesData.slice(startIndex, endIndex);
+      var tbody = document.getElementById('browseQuizzesTableBody');
+      tbody.innerHTML = '';
+      
+      visibleQuizzes.forEach(function(row) {
+        var tr = document.createElement('tr');
+        tr.innerHTML = row;
+        tbody.appendChild(tr);
+      });
+      
+      renderBrowseQuizzesPagination();
+    }
+    
+    function renderBrowseQuizzesPagination() {
+      var totalPages = Math.ceil(browseQuizzesData.length / itemsPerPage);
+      var paginationContainer = document.getElementById('browseQuizzesPagination');
+      if (!paginationContainer) return;
+      
+      var html = '';
+      html += '<button onclick="previousBrowsePage()" ' + (currentBrowsePage === 1 ? 'disabled' : '') + '>Previous</button>';
+      
+      for (var i = 1; i <= totalPages; i++) {
+        if (i === currentBrowsePage) {
+          html += '<span class="active">' + i + '</span>';
+        } else {
+          html += '<button onclick="goToBrowsePage(' + i + ')">' + i + '</button>';
+        }
+      }
+      
+      html += '<button onclick="nextBrowsePage()" ' + (currentBrowsePage === totalPages || totalPages === 0 ? 'disabled' : '') + '>Next</button>';
+      paginationContainer.innerHTML = html;
+      
+      var info = document.getElementById('browseQuizzesPaginationInfo');
+      if (info) {
+        var start = browseQuizzesData.length === 0 ? 0 : (currentBrowsePage - 1) * itemsPerPage + 1;
+        var end = Math.min(currentBrowsePage * itemsPerPage, browseQuizzesData.length);
+        info.innerHTML = 'Showing ' + start + ' to ' + end + ' of ' + browseQuizzesData.length + ' quizzes';
+      }
+    }
+    
+    function goToBrowsePage(page) {
+      currentBrowsePage = page;
+      displayBrowseQuizzesPage();
+    }
+    
+    function nextBrowsePage() {
+      var totalPages = Math.ceil(browseQuizzesData.length / itemsPerPage);
+      if (currentBrowsePage < totalPages) {
+        currentBrowsePage++;
+        displayBrowseQuizzesPage();
+      }
+    }
+    
+    function previousBrowsePage() {
+      if (currentBrowsePage > 1) {
+        currentBrowsePage--;
+        displayBrowseQuizzesPage();
+      }
+    }
+    
+    // AI Question Generation (JSON used only for OpenAI API communication)
+    function generateAIQuestions() {
+      var title = document.getElementById('quizTitle').value.trim();
+      var category = document.getElementById('quizCategory').value;
+      var grade = document.getElementById('quizGrade').value;
+      var description = document.getElementById('quizDescription').value.trim();
+      var questionCount = document.getElementById('aiQuestionCount').value;
+      
+      if (!title) {
+        alert('Please enter a quiz title before generating questions.');
+        return;
+      }
+      if (!category) {
+        alert('Please select a category before generating questions.');
+        return;
+      }
+      if (!grade) {
+        alert('Please select a grade level before generating questions.');
+        return;
+      }
+      
+      var statusDiv = document.getElementById('aiGenerationStatus');
+      var generateBtn = document.getElementById('generateQuestionsBtn');
+      
+      statusDiv.style.display = 'block';
+      statusDiv.style.color = '#4361ee';
+      statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating questions... This may take a moment.';
+      generateBtn.disabled = true;
+      generateBtn.style.opacity = '0.6';
+      
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '../controller/quizcontroller.php?action=generateQuestions', true);
+      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+      
+      xhr.onload = function() {
+        generateBtn.disabled = false;
+        generateBtn.style.opacity = '1';
+        
+        if (xhr.status === 200) {
+          var response = parseAIResponse(xhr.responseText);
+          
+          if (response && response.success && response.questions) {
+            statusDiv.style.color = '#2ecc71';
+            statusDiv.innerHTML = '<i class="fas fa-check-circle"></i> Successfully generated ' + response.questions.length + ' questions!';
+            
+            document.getElementById('questionsContainer').innerHTML = '';
+            
+            for (var i = 0; i < response.questions.length; i++) {
+              var q = response.questions[i];
+              addAIQuestion(q.text, q.options, q.correctAnswer);
+            }
+            
+            setTimeout(function() {
+              statusDiv.style.display = 'none';
+            }, 5000);
+          } else {
+            statusDiv.style.color = '#e63946';
+            statusDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + (response.error || 'Failed to generate questions.');
+          }
+        } else {
+          statusDiv.style.color = '#e63946';
+          statusDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> Server error. Please try again.';
+        }
+      };
+      
+      xhr.onerror = function() {
+        generateBtn.disabled = false;
+        generateBtn.style.opacity = '1';
+        statusDiv.style.color = '#e63946';
+        statusDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> Network error. Please check your connection.';
+      };
+      
+      var params = 'title=' + encodeURIComponent(title) +
+                   '&category=' + encodeURIComponent(category) +
+                   '&grade=' + encodeURIComponent(grade) +
+                   '&description=' + encodeURIComponent(description) +
+                   '&questionCount=' + encodeURIComponent(questionCount);
+      
+      xhr.send(params);
+    }
+    
+    function parseAIResponse(text) {
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        return { success: false, error: 'Invalid response format' };
+      }
+    }
+    
+    function addAIQuestion(text, options, correctAnswer) {
+      questionCount++;
+      var questionHTML = '<div class="question-item" id="question-' + questionCount + '">' +
+      '<div class="question-header">' +
+      '<div class="section-subheader">Question ' + questionCount + '</div>' +
+      '<button type="button" class="btn-danger btn-sm remove-question" style="float: right;"><i class="fas fa-trash"></i> Remove</button>' +
+      '<div class="clearfix"></div>' +
+      '</div>' +
+      '<div class="form-group">' +
+          '<label class="form-label"><strong>Question Text *</strong></label>' +
+          '<input type="text" class="form-control question-text" name="questions[' + questionCount + '][text]" value="' + (text || '') + '" placeholder="Enter your question">' +
+      '</div>' +
+      '<div class="option-group">' +
+          '<label class="form-label"><strong>Options *</strong></label>';
+  
+      var optionLetters = ['A', 'B', 'C', 'D'];
+      for (var i = 0; i < optionLetters.length; i++) {
+          var letter = optionLetters[i];
+          var optionText = options && options[i] ? options[i] : '';
+          var isCorrect = correctAnswer === i ? ' checked="checked"' : '';
+          questionHTML += '<div class="option-row">' +
+          '<div class="option-label">' + letter + '</div>' +
+          '<input type="text" class="form-control option-input option-' + letter.toLowerCase() + '" name="questions[' + questionCount + '][options][' + i + '][text]" value="' + optionText + '" placeholder="Option ' + letter + '">' +
+          '<div class="correct-option">' +
+          '<button type="button" class="btn-outline-primary btn-sm set-correct" id="set-correct-Q' + questionCount + '-O' + letter + '">' +
+          (isCorrect ? 'Correct' : 'Set Correct') +
+          '</button>' +
+          '<input type="hidden" class="correct-input" name="questions[' + questionCount + '][options][' + i + '][is_correct]" value="' + (isCorrect ? '1' : '0') + '">' +
+          '</div>' +
+          '<div class="clearfix"></div>' +
+          '</div>';
+      }
+  
+      questionHTML += '</div>' +
+      '<div class="correct-answer-display">' +
+          '<small class="text-muted">Correct answer: <span id="correct-answer-' + questionCount + '" style="' + (correctAnswer >= 0 ? 'color: green; font-weight: bold;' : '') + '">' +
+          (correctAnswer >= 0 ? 'Option ' + optionLetters[correctAnswer] : 'Not set') +
+          '</span></small>' +
+      '</div>' +
+      '</div>';
+  
+      var container = document.getElementById('questionsContainer');
+      var newQuestion = document.createElement('div');
+      newQuestion.innerHTML = questionHTML;
+      container.appendChild(newQuestion);
+      addQuestionEventListeners(questionCount);
+      validateQuestions();
+    }
+    
     // Function to show initial validation errors
     function showInitialValidationErrors() {
       // Show error for quiz title
@@ -396,12 +703,16 @@
       fetchTeacherStats();
       setupTabSwitching();
       setupRoleSwitching();
+      setupSearchFunctionality();
       
       // Initialize form with one question
       addNewQuestion();
       
-      // Show initial validation errors
-      showInitialValidationErrors();
+      // Show validation messages only in create mode (not edit mode)
+      var quizIdField = document.getElementById('quizId');
+      if (!quizIdField || !quizIdField.value) {
+        showInitialValidationErrors();
+      }
     };
 
     // Fetch teacher stats and update cards (Average Score)
@@ -493,6 +804,13 @@
             displayMyQuizzes();
           } else if (targetId === 'browse-quizzes') {
             fetchAllQuizzes();
+          } else if (targetId === 'create-quiz') {
+            // Check if form is in create mode (not edit mode)
+            var quizIdField = document.getElementById('quizId');
+            if (!quizIdField || !quizIdField.value) {
+              // Only show validation messages in create mode
+              showInitialValidationErrors();
+            }
           }
         };
       }
@@ -518,10 +836,70 @@
       };
     }
     
+    // Setup search functionality
+    function setupSearchFunctionality() {
+      var searchBrowse = document.getElementById('searchBrowseQuizzes');
+      var searchMy = document.getElementById('searchMyQuizzes');
+      
+      if (searchBrowse) {
+        searchBrowse.addEventListener('keyup', function() {
+          filterQuizzes('browseQuizzesContainer', this.value);
+        });
+      }
+      
+      if (searchMy) {
+        searchMy.addEventListener('keyup', function() {
+          filterQuizzes('myQuizzesContainer', this.value);
+        });
+      }
+    }
+    
+    function filterQuizzes(containerId, searchTerm) {
+      var searchLower = searchTerm.toLowerCase();
+      
+      if (containerId === 'myQuizzesContainer') {
+        if (searchLower === '') {
+          // Restore original data
+          myQuizzesData = myQuizzesOriginalData.slice();
+        } else {
+          // Filter from original data
+          myQuizzesData = [];
+          myQuizzesOriginalData.forEach(function(rowHtml) {
+            var tempTr = document.createElement('tr');
+            tempTr.innerHTML = rowHtml;
+            var firstCell = tempTr.querySelector('td');
+            if (firstCell && firstCell.textContent.toLowerCase().includes(searchLower)) {
+              myQuizzesData.push(rowHtml);
+            }
+          });
+        }
+        currentMyPage = 1;
+        displayMyQuizzesPage();
+        
+      } else if (containerId === 'browseQuizzesContainer') {
+        if (searchLower === '') {
+          // Restore original data
+          browseQuizzesData = browseQuizzesOriginalData.slice();
+        } else {
+          // Filter from original data
+          browseQuizzesData = [];
+          browseQuizzesOriginalData.forEach(function(rowHtml) {
+            var tempTr = document.createElement('tr');
+            tempTr.innerHTML = rowHtml;
+            var firstCell = tempTr.querySelector('td');
+            if (firstCell && firstCell.textContent.toLowerCase().includes(searchLower)) {
+              browseQuizzesData.push(rowHtml);
+            }
+          });
+        }
+        currentBrowsePage = 1;
+        displayBrowseQuizzesPage();
+      }
+    }
+    
     function displayMyQuizzes() {
       var container = document.getElementById('myQuizzesContainer');
       
-      // Fetch teacher's quizzes from server
       var xhr = new XMLHttpRequest();
       xhr.open('GET', '../controller/quizcontroller.php?action=getMyQuizzes', true);
       xhr.onreadystatechange = function() {
@@ -534,11 +912,23 @@
                 '<button class="btn-primary" onclick="switchToCreateTab()">Create Quiz</button>' +
               '</div>';
           } else {
-            container.innerHTML = '<div class="card"><div class="card-body"><table class="table"><thead><tr><th>Title</th><th>Category</th><th>Questions</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead><tbody>' + xhr.responseText + '</tbody></table></div></div>';
+            container.innerHTML = '<div class="card"><div class="card-body"><table class="table"><thead><tr><th>Title</th><th>Category</th><th>Questions</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead><tbody id="myQuizzesTableBody"></tbody></table></div>' +
+              '<div class="pagination" id="myQuizzesPagination"></div>' +
+              '<div class="pagination-info" id="myQuizzesPaginationInfo"></div></div>';
             
-            // Update my quizzes count
-            var rows = container.querySelectorAll('tbody tr');
-            document.getElementById('myQuizzesCount').textContent = rows.length;
+            var tempTbody = document.createElement('tbody');
+            tempTbody.innerHTML = xhr.responseText;
+            myQuizzesData = [];
+            myQuizzesOriginalData = [];
+            tempTbody.querySelectorAll('tr').forEach(function(row) {
+              var rowHtml = row.innerHTML;
+              myQuizzesData.push(rowHtml);
+              myQuizzesOriginalData.push(rowHtml);
+            });
+            
+            document.getElementById('myQuizzesCount').textContent = myQuizzesData.length;
+            currentMyPage = 1;
+            displayMyQuizzesPage();
           }
         }
       };
@@ -555,8 +945,23 @@
             '<p>Create a quiz to see it listed here</p>' +
           '</div>';
       } else {
-        container.innerHTML = '<div class="card"><div class="card-body"><table class="table"><thead><tr><th>Title</th><th>Teacher</th><th>Category</th><th>Grade</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead><tbody>' + 
-          htmlContent + '</tbody></table></div></div>';
+        container.innerHTML = '<div class="card"><div class="card-body"><table class="table"><thead><tr><th>Title</th><th>Teacher</th><th>Category</th><th>Grade</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead><tbody id="browseQuizzesTableBody">' +
+          '</tbody></table></div>' +
+          '<div class="pagination" id="browseQuizzesPagination"></div>' +
+          '<div class="pagination-info" id="browseQuizzesPaginationInfo"></div></div>';
+        
+        var tempTbody = document.createElement('tbody');
+        tempTbody.innerHTML = htmlContent;
+        browseQuizzesData = [];
+        browseQuizzesOriginalData = [];
+        tempTbody.querySelectorAll('tr').forEach(function(row) {
+          var rowHtml = row.innerHTML;
+          browseQuizzesData.push(rowHtml);
+          browseQuizzesOriginalData.push(rowHtml);
+        });
+        
+        currentBrowsePage = 1;
+        displayBrowseQuizzesPage();
       }
     }
     
@@ -615,7 +1020,10 @@
       xhr.onreadystatechange = function(){
         if (xhr.readyState === 4 && xhr.status === 200) {
           var params = new URLSearchParams(xhr.responseText);
+          
+          // Set quiz ID FIRST before doing anything else
           document.getElementById('quizId').value = params.get('quiz_id') || '';
+          
           document.getElementById('quizTitle').value = params.get('title') || '';
           document.getElementById('quizCategory').value = params.get('category') || '';
           document.getElementById('quizGrade').value = params.get('gradeLevel') || '';
@@ -679,6 +1087,10 @@
           
           document.querySelector('a[href="#create-quiz"]').click();
           document.getElementById('quizForm').action = 'http://localhost/quizzes2/quizzes2/quiz/controller/quizcontroller.php?action=edit';
+          
+          // Clear validation error messages when editing
+          var errorElements = document.querySelectorAll('[id$="_error"]');
+          errorElements.forEach(function(el) { el.innerHTML = ''; });
         }
       };
       xhr.send();
@@ -723,6 +1135,11 @@
     
     function addNewQuestion() {
       questionCount++;
+      
+      // Check if we're in edit mode
+      var quizIdField = document.getElementById('quizId');
+      var isEditMode = quizIdField && quizIdField.value;
+      
       var questionHTML = '' +
       '<div class="question-item" id="question-' + questionCount + '">' +
       '<div class="question-header">' +
@@ -733,7 +1150,7 @@
       '<div class="form-group">' +
           '<label class="form-label"><strong>Question Text *</strong></label>' +
           '<input type="text" class="form-control question-text" name="questions[' + questionCount + '][text]" placeholder="Enter your question">' +
-          '<small class="text-muted">Must be at least 1 character</small>' + 
+          (isEditMode ? '' : '<small class="text-muted">Must be at least 1 character</small>') + 
       '</div>' +
       '<div class="option-group">' +
           '<label class="form-label"><strong>Options *</strong></label>';
@@ -820,7 +1237,7 @@
       // Set this option as correct
       var correctButton = document.getElementById('set-correct-Q' + questionId + '-O' + optionLetter);
       if (correctButton) {
-          correctButton.innerHTML = 'Correct ✓';
+          correctButton.innerHTML = 'Correct';
           correctButton.className = 'btn-success btn-sm set-correct';
   
           var correctHiddenInput = correctButton.nextElementSibling;
@@ -918,14 +1335,22 @@
     document.getElementById("quizTitle").onkeyup = function () {
         var value = this.value.replace(/^\s+|\s+\$/g, '');
         var msg = document.getElementById("quizTitle_error");
+        
+        // Check if in edit mode
+        var quizIdField = document.getElementById('quizId');
+        var isEditMode = quizIdField && quizIdField.value;
   
         if (value.length >= 3) {
-            msg.style.color = "green";
-            msg.innerHTML = "Valid";
+            if (!isEditMode) {
+                msg.style.color = "green";
+                msg.innerHTML = "Valid";
+            }
             quizTitle = true;
         } else {
-            msg.style.color = "red";
-            msg.innerHTML = "Quiz title must contain at least 3 characters";
+            if (!isEditMode) {
+                msg.style.color = "red";
+                msg.innerHTML = "Quiz title must contain at least 3 characters";
+            }
             quizTitle = false;
         }
     };
@@ -934,14 +1359,22 @@
     document.getElementById("quizCategory").onchange = function () {
         var value = this.value;
         var msg = document.getElementById("quizCategory_error");
+        
+        // Check if in edit mode
+        var quizIdField = document.getElementById('quizId');
+        var isEditMode = quizIdField && quizIdField.value;
   
         if (value !== "") {
-            msg.style.color = "green";
-            msg.innerHTML = "Valid";
+            if (!isEditMode) {
+                msg.style.color = "green";
+                msg.innerHTML = "Valid";
+            }
             quizCategory = true;
         } else {
-            msg.style.color = "red";
-            msg.innerHTML = "Please select a category";
+            if (!isEditMode) {
+                msg.style.color = "red";
+                msg.innerHTML = "Please select a category";
+            }
             quizCategory = false;
         }
     };
@@ -950,14 +1383,22 @@
     document.getElementById("quizGrade").onchange = function () {
         var value = this.value;
         var msg = document.getElementById("quizGrade_error");
+        
+        // Check if in edit mode
+        var quizIdField = document.getElementById('quizId');
+        var isEditMode = quizIdField && quizIdField.value;
   
         if (value !== "") {
-            msg.style.color = "green";
-            msg.innerHTML = "Valid";
+            if (!isEditMode) {
+                msg.style.color = "green";
+                msg.innerHTML = "Valid";
+            }
             quizGrade = true;
         } else {
-            msg.style.color = "red";
-            msg.innerHTML = "Please select a grade level";
+            if (!isEditMode) {
+                msg.style.color = "red";
+                msg.innerHTML = "Please select a grade level";
+            }
             quizGrade = false;
         }
     };
@@ -966,26 +1407,117 @@
     document.getElementById("passingGrade").onkeyup = function () {
         var value = parseInt(this.value, 10);
         var msg = document.getElementById("passingGrade_error");
+        
+        // Check if in edit mode
+        var quizIdField = document.getElementById('quizId');
+        var isEditMode = quizIdField && quizIdField.value;
   
         if (!isNaN(value) && value >= 1 && value <= 100) {
-            msg.style.color = "green";
-            msg.innerHTML = "Valid";
+            if (!isEditMode) {
+                msg.style.color = "green";
+                msg.innerHTML = "Valid";
+            }
             passingGrade = true;
         } else {
-            msg.style.color = "red";
-            msg.innerHTML = "Passing grade must be between 1 and 100";
+            if (!isEditMode) {
+                msg.style.color = "red";
+                msg.innerHTML = "Passing grade must be between 1 and 100";
+            }
             passingGrade = false;
         }
     };
+    
+    // Voice to text for Description field
+    var recognition = null;
+    var isListening = false;
+    
+    function startVoiceRecognition() {
+        var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
+        if (!SpeechRecognition) {
+            alert('Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.');
+            return;
+        }
+        
+        if (isListening) {
+            stopVoiceRecognition();
+            return;
+        }
+        
+        if (!recognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+            
+            recognition.onstart = function() {
+                isListening = true;
+                document.getElementById('voiceBtn').style.background = '#f44336';
+                document.getElementById('voiceBtn').innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="white" style="margin-left: 2px;"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+                document.getElementById('voiceStatus').style.display = 'block';
+                document.getElementById('voiceStatus').style.color = '#4CAF50';
+                document.getElementById('voiceStatus').innerHTML = 'Listening... Click again to stop';
+            };
+            
+            recognition.onresult = function(event) {
+                var transcript = '';
+                for (var i = event.resultIndex; i < event.results.length; i++) {
+                    if (event.results[i].isFinal) {
+                        transcript += event.results[i][0].transcript + ' ';
+                    }
+                }
+                if (transcript) {
+                    var currentText = document.getElementById('quizDescription').value;
+                    document.getElementById('quizDescription').value = currentText + transcript;
+                }
+            };
+            
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error:', event.error);
+                if (event.error === 'no-speech') {
+                    document.getElementById('voiceStatus').style.color = '#ff9800';
+                    document.getElementById('voiceStatus').innerHTML = 'No speech detected. Try again.';
+                } else {
+                    document.getElementById('voiceStatus').style.color = '#f44336';
+                    document.getElementById('voiceStatus').innerHTML = 'Error: ' + event.error;
+                }
+                stopVoiceRecognition();
+            };
+            
+            recognition.onend = function() {
+                if (isListening) {
+                    stopVoiceRecognition();
+                }
+            };
+        }
+        
+        recognition.start();
+    }
+    
+    function stopVoiceRecognition() {
+        if (recognition) {
+            recognition.stop();
+        }
+        isListening = false;
+        document.getElementById('voiceBtn').style.background = '#4CAF50';
+        document.getElementById('voiceBtn').innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="white" style="margin-left: 3px;"><polygon points="5,3 5,21 21,12"></polygon></svg>';
+        document.getElementById('voiceStatus').style.display = 'none';
+    }
     
     // Question validation function
     function validateQuestions() {
         var questions = document.getElementsByClassName('question-item');
         var msg = document.getElementById("questions_error");
+        
+        // Check if in edit mode
+        var quizIdField = document.getElementById('quizId');
+        var isEditMode = quizIdField && quizIdField.value;
   
         if (questions.length === 0) {
-            msg.style.color = "red";
-            msg.innerHTML = "Please add at least one question";
+            if (!isEditMode) {
+                msg.style.color = "red";
+                msg.innerHTML = "Please add at least one question";
+            }
             questionsValid = false;
             return;
         }
@@ -1041,35 +1573,46 @@
         }
   
         if (!allQuestionsHaveText) {
-            msg.style.color = "red";
-            msg.innerHTML = "All questions must have text (min. 1 character)";
+            if (!isEditMode) {
+                msg.style.color = "red";
+                msg.innerHTML = "All questions must have text (min. 1 character)";
+            }
             questionsValid = false;
         } else if (!allQuestionsHaveCorrectAnswer) {
-            msg.style.color = "red";
-            msg.innerHTML = "Please set correct answer for all questions";
+            if (!isEditMode) {
+                msg.style.color = "red";
+                msg.innerHTML = "Please set correct answer for all questions";
+            }
             questionsValid = false;
         } else if (!allOptionsFilled) {
-            msg.style.color = "red";
-            msg.innerHTML = "Please fill all options for each question";
+            if (!isEditMode) {
+                msg.style.color = "red";
+                msg.innerHTML = "Please fill all options for each question";
+            }
             questionsValid = false;
         } else {
-            msg.style.color = "green";
-            msg.innerHTML = "Valid (" + questions.length + " questions)";
+            if (!isEditMode) {
+                msg.style.color = "green";
+                msg.innerHTML = "Valid (" + questions.length + " questions)";
+            }
             questionsValid = true;
         }
     }
     
     // Submit quiz form via traditional form submission
     function submitQuizForm() {
-        validateQuestions();
-        if (!(quizTitle && quizCategory && quizGrade && passingGrade && questionsValid)) {
-            var formMessage = document.getElementById('form_message');
-            if (formMessage) { formMessage.style.color = 'red'; formMessage.innerHTML = 'Please fix all validation errors before submitting!'; }
-            else { alert('Please fix all validation errors before submitting!'); }
-            return;
-        }
-
         var isEdit = !!document.getElementById('quizId').value;
+        
+        // Only validate when creating new quiz, not when editing
+        if (!isEdit) {
+            validateQuestions();
+            if (!(quizTitle && quizCategory && quizGrade && passingGrade && questionsValid)) {
+                var formMessage = document.getElementById('form_message');
+                if (formMessage) { formMessage.style.color = 'red'; formMessage.innerHTML = 'Please fix all validation errors before submitting!'; }
+                else { alert('Please fix all validation errors before submitting!'); }
+                return;
+            }
+        }
         var actionUrl = isEdit
           ? '../controller/quizcontroller.php?action=edit'
           : '../controller/quizcontroller.php?action=create';
@@ -1112,7 +1655,7 @@
               var text = xhr.responseText || '';
               var qid = '';
               if (text.indexOf('quiz_id=') === 0) { qid = text.split('=')[1]; }
-              alert(isEdit ? 'Quiz updated successfully' : 'Quiz created successfully');
+              // Message removed - no alert on successful save
               
               // Reset form after successful save
               document.getElementById('quizForm').reset();
@@ -1131,7 +1674,7 @@
               passingGrade = false;
               questionsValid = false;
               
-              // Reset validation messages to show errors again
+              // Show validation messages for next quiz
               showInitialValidationErrors();
               
               fetchAllQuizzes();
@@ -1139,9 +1682,8 @@
               
           // Switch to My Quizzes tab to see the result
               document.querySelector('a[href="#my-quizzes"]').click();
-            } else {
-              alert('Error saving quiz');
             }
+            // Error message removed - no alert on error
           }
         };
         xhr.send(params.toString());
@@ -1172,6 +1714,193 @@
     window.previewQuiz = previewQuiz;
     window.deleteQuiz = deleteQuiz;
     window.deleteMyQuiz = deleteMyQuiz;
+    
+    (function(){
+      var form = document.getElementById('aiGenForm');
+      if (form) {
+        form.addEventListener('submit', function(e){
+          e.preventDefault ? e.preventDefault() : (e.returnValue = false);
+          startAiGeneration();
+        });
+      }
+      var insertBtn = document.getElementById('aiInsertBtn');
+      if (insertBtn) {
+        insertBtn.onclick = insertIntoCreateQuiz;
+      }
+      var printBtn = document.getElementById('aiPrintBtn');
+      if (printBtn) {
+        printBtn.onclick = function(){ window.print(); };
+      }
+      var editBtn = document.getElementById('aiEditBtn');
+      if (editBtn) {
+        editBtn.onclick = function(){
+          if (typeof window.enableEditMode === 'function') { window.enableEditMode(); }
+          else {
+            var cards = document.querySelectorAll('.question-card');
+            for (var i = 0; i < cards.length; i++) {
+              cards[i].contentEditable = true;
+              cards[i].style.border = '2px dashed #007bff';
+            }
+          }
+        };
+      }
+      var saveBtn = document.getElementById('aiSaveBtn');
+      if (saveBtn) {
+        saveBtn.onclick = function(){
+          if (typeof window.saveQuizToDatabase === 'function') { window.saveQuizToDatabase(); }
+          else { alert('Save function not loaded.'); }
+        };
+      }
+      var refreshBtn = document.getElementById('aiRefreshStatusBtn');
+      if (refreshBtn) {
+        refreshBtn.onclick = function(){ checkAiStatus(); };
+      }
+      // Initial AI status check
+      checkAiStatus();
+    })();
+    
+    function startAiGeneration() {
+      var subject = document.getElementById('aiSubject').value || '';
+      var topic = document.getElementById('aiTopic').value || '';
+      var difficulty = document.getElementById('aiDifficulty').value || 'medium';
+      var numQ = document.getElementById('aiNumQuestions').value || '5';
+      var loading = document.getElementById('aiLoading');
+      var results = document.getElementById('aiQuizResults');
+      var container = document.getElementById('aiQuizContainer');
+      loading.style.display = 'block';
+      results.style.display = 'none';
+      container.innerHTML = '';
+      
+      var params = 'title=' + encodeURIComponent(topic + ' Quiz') +
+                   '&category=' + encodeURIComponent(subject.toLowerCase()) +
+                   '&grade=8' +
+                   '&description=' + encodeURIComponent('Auto-generated quiz on ' + topic + ' (' + subject + ', ' + difficulty + ').') +
+                   '&questionCount=' + encodeURIComponent(numQ);
+      
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '../controller/quizcontroller.php?action=generateQuestions', true);
+      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+      xhr.onreadystatechange = function(){
+        if (xhr.readyState === 4) {
+          loading.style.display = 'none';
+          if (xhr.status === 200) {
+            try {
+              var resp = JSON.parse(xhr.responseText);
+              if (resp.success && resp.questions && resp.questions.length) {
+                for (var i=0; i<resp.questions.length; i++) {
+                  var q = resp.questions[i];
+                  var card = document.createElement('div');
+                  card.className = 'question-card';
+                  var html = '<div><strong>Q' + (i+1) + ':</strong> ' + escapeHtml(q.text || '') + '</div>';
+                  html += '<ul style="margin-top:8px;">';
+                  for (var j=0; j<q.options.length; j++) {
+                    html += '<li>' + escapeHtml(q.options[j] || '') + (q.correctAnswer === j ? ' <span class="correct-answer">(correct)</span>' : '') + '</li>';
+                  }
+                  html += '</ul>';
+                  card.innerHTML = html;
+                  container.appendChild(card);
+                }
+                results.style.display = 'block';
+              } else {
+                container.innerHTML = '<div class="error">Failed to generate questions: ' + escapeHtml(resp.error || 'Unknown error') + '</div>';
+                results.style.display = 'block';
+              }
+            } catch(ex) {
+              container.innerHTML = '<div class="error">Invalid response format.</div>';
+              results.style.display = 'block';
+            }
+          } else {
+            container.innerHTML = '<div class="error">Server error (' + xhr.status + ').</div>';
+            results.style.display = 'block';
+          }
+        }
+      };
+      xhr.send(params);
+    }
+    
+    function insertIntoCreateQuiz() {
+      var results = document.getElementById('aiQuizContainer');
+      if (!results) return;
+      var cards = results.getElementsByClassName('question-card');
+      if (!cards || cards.length === 0) return;
+      
+      for (var i=0; i<cards.length; i++) {
+        var textEl = cards[i].getElementsByTagName('div')[0];
+        var qText = '';
+        if (textEl) {
+          qText = textEl.textContent.replace(/^Q\d+:\s*/, '');
+        }
+        var opts = [];
+        var lis = cards[i].getElementsByTagName('li');
+        for (var j=0; j<lis.length; j++) {
+          var t = lis[j].textContent.replace(/\s*\(correct\)\s*$/, '');
+          opts.push(t);
+        }
+        addNewQuestion();
+        var qEl = document.getElementById('question-' + questionCount);
+        var qInput = qEl ? qEl.querySelector('.question-text') : null;
+        if (qInput) { qInput.value = qText; }
+        var optionInputs = qEl ? qEl.querySelectorAll('.option-input') : [];
+        for (var k=0; k<optionInputs.length && k<opts.length; k++) {
+          optionInputs[k].value = opts[k];
+        }
+      }
+      var tab = document.querySelector('a[href="#create-quiz"]');
+      if (tab) { tab.click(); }
+    }
+    
+    function escapeHtml(str) {
+      var div = document.createElement('div');
+      div.appendChild(document.createTextNode(str || ''));
+      return div.innerHTML;
+    }
+
+    function checkAiStatus() {
+      var badge = document.getElementById('aiStatusBadge');
+      var details = document.getElementById('aiStatusDetails');
+      if (!badge || !details) return;
+      details.textContent = 'Checking…';
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', '../controller/quizcontroller.php?action=aiStatus', true);
+      xhr.onreadystatechange = function(){
+        if (xhr.readyState === 4) {
+          try {
+            var data = JSON.parse(xhr.responseText);
+            var provider = (data.provider || '').toLowerCase();
+            if (data.ok && data.hasKey && data.api === 'reachable') {
+              badge.className = 'badge bg-success';
+              badge.textContent = 'AI Ready';
+              details.textContent = 'Provider: ' + (provider || 'unknown');
+              details.style.color = '#2ecc71';
+            } else {
+              badge.className = 'badge bg-secondary';
+              badge.textContent = 'AI Unavailable';
+              var msg = data.error ? data.error : 'Configure API key';
+              details.textContent = msg;
+              details.style.color = '#e63946';
+            }
+          } catch (e) {
+            badge.className = 'badge bg-secondary';
+            badge.textContent = 'AI Unavailable';
+            details.textContent = 'Status parse error';
+            details.style.color = '#e63946';
+          }
+        }
+      };
+      xhr.send();
+    }
+
+    // Delegated handler for Remove buttons on AI-generated questions in Create Quiz form
+    document.addEventListener('click', function(e) {
+      var btn = e.target.closest('.remove-question');
+      if (!btn) return;
+      e.preventDefault();
+      var questionItem = btn.closest('.question-item');
+      if (questionItem && questionItem.parentNode) {
+        questionItem.parentNode.removeChild(questionItem);
+      }
+    });
   </script>
+  <script src="../quiz-generator.js"></script>
 </body>
 </html>
