@@ -85,15 +85,17 @@ class Challenges {
         return false;
     }
     
-    if ($challenge['status'] !== 'Active') {
-        error_log("RETURNING FALSE: Challenge status is not Active (status: " . $challenge['status'] . ")");
-        return false;
-    }
-    
     // CRITICAL FIX: Level 0 challenges should ALWAYS be completable - no prerequisite check
     // Cast to int to ensure proper comparison
     $treeLevel = (int)$challenge['tree_level'];
     error_log("Tree level (cast to int): " . $treeLevel);
+    
+    // For level 0 challenges, allow completion even if status is not Active
+    // For other levels, check status
+    if ($treeLevel > 0 && $challenge['status'] !== 'Active') {
+        error_log("RETURNING FALSE: Challenge status is not Active (status: " . $challenge['status'] . ")");
+        return false;
+    }
     
     // Only check prerequisites for challenges above level 0
     if ($treeLevel == 0) {
