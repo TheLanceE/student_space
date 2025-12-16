@@ -121,3 +121,20 @@ type.addEventListener("input", addLocation);
 
 
 
+addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.querySelector('input[name="q"]'); 
+    if (!searchInput) return;
+
+    searchInput.addEventListener('input', function () {
+        const query = this.value.toLowerCase().trim();
+        const columns = document.querySelectorAll('.row > .col');
+
+        columns.forEach(col => {
+            const card = col.querySelector('.event-card');
+            if (!card) return;
+            
+            const text = card.textContent.toLowerCase();
+            col.style.display = text.includes(query) ? '' : 'none';
+        });
+    });
+});

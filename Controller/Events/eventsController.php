@@ -90,6 +90,16 @@
         return $statement->fetch() !== false;
     }
 
+    function GetParticipationComment($pdo, $userID, $eventID)
+    {
+        $statement = $pdo->prepare("SELECT * FROM participation WHERE id_event = ? AND id_user = ?");
+        $statement->execute([$eventID, $userID]);
+
+        $participation = $statement->fetch(PDO::FETCH_ASSOC);
+
+        return $participation['comment']    ;
+    }
+
     function deleteParticipation($pdo, $userID, $eventID)
     {
         $statement = $pdo->prepare("DELETE FROM participation WHERE id_event = ? AND id_user = ?");
@@ -101,6 +111,17 @@
         $statement = $pdo->prepare("DELETE FROM participation WHERE id_event = ?");
         $statement->execute([$eventID]);
     }
+
+    function updateEvent($pdo, $eventID, $title, $date, $startTime, $endTime, $maxParticipants, $course, $type, $location, $desc) 
+    {
+        $stmt = $pdo->prepare("
+            UPDATE events SET
+            title = ?, date = ?, startTime = ?, endTime = ?, maxParticipants = ?, course = ?, type = ?, location = ?, description = ?
+            WHERE eventID = ?
+        ");
+        $stmt->execute([$title, $date, $startTime, $endTime, $maxParticipants, $course, $type, $location, $desc, $eventID]);
+    }
+
 ?>
 
 
@@ -145,10 +166,26 @@
             header("Location: ../../View/Events/Front Office/eventsFront.php");
             exit();
         }
-        else if(isset($_POST['eventSearchBox']))
+        else if (isset($_POST['editID'])) 
         {
-        //    searchEvents($pdo, $_POST['eventSearchBox']);
+            $eventID = $_POST['editID'];
+            $title = $_POST["title"];
+            $date = $_POST["date"];
+            $startTime = $_POST["startTime"];
+            $endTime = $_POST["endTime"];
+            $course = $_POST["course"];
+            $type = $_POST["type"];
+            $location = $_POST["location"];
+            $maxParticipants = $_POST["maxParticipants"];
+            $desc = $_POST["desc"];
+
+            updateEvent($pdo, $eventID, $title, $date, $startTime, $endTime, $maxParticipants, $course, $type, $location, $desc);
+
+            header("Location: ../../View/Events/Front Office/eventsTeacher.php");
+            exit();
         }
+
+
 
 
         $title = $_POST["title"];

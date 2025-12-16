@@ -152,59 +152,135 @@
         </tr>
       </thead>
       <tbody>
-        <?php
-          $teacherID = 1;
-          $events = getAllTeacherEvents($pdo, $teacherID);
+<?php
+        $teacherID = 1; //////////////////////////////////////////////////////////////   you should be able to just plug the userID here 
+        $events = getAllTeacherEvents($pdo, $teacherID);
+?>
 
-          foreach($events as $event){
-            echo "<tr>";
+<?php foreach($events as $event): ?>
+<tr id="row-<?= $event['eventID'] ?>">
+    <td><?= htmlspecialchars($event['title']) ?></td>
+    <td><?= $event['date'] ?></td>
+    <td><?= $event['startTime'] ?></td>
+    <td><?= $event['endTime'] ?></td>
+    <td><?= $event['maxParticipants'] ?></td>
+    <td><?= $event['nbrParticipants'] ?></td>
+    <td><?= htmlspecialchars($event['course']) ?></td>
+    <td><?= htmlspecialchars($event['type']) ?></td>
+    <td>
+        <?php if(!empty($event['location'])): ?>
+            <details><summary>Show</summary><?= htmlspecialchars($event['location']) ?></details>
+        <?php else: ?>
+            No Location
+        <?php endif; ?>
+    </td>
+    <td>
+        <details><summary>Show</summary><?= htmlspecialchars($event['description']) ?></details>
+    </td>
+    <td class="text-center d-flex gap-1 justify-content-center">
+        <button class="btn btn-warning btn-sm" onclick="showEditForm(<?= $event['eventID'] ?>)">✎</button>
+        <form method='post' action='../../../Controller/Events/eventsController.php'>
+            <input type='hidden' name='deleteID' value='<?= $event['eventID'] ?>'>
+            <button class='btn btn-danger btn-sm'>X</button>
+        </form>
+    </td>
+</tr>
 
-            echo "<td>{$event['title']}</td>";
-            echo "<td>{$event['date']}</td>";
-            echo "<td>{$event['startTime']}</td>";
-            echo "<td>{$event['endTime']}</td>";
-            echo "<td>{$event['maxParticipants']}</td>";
-            echo "<td>{$event['nbrParticipants']}</td>";
-            echo "<td>{$event['course']}</td>";
-            echo "<td>{$event['type']}</td>";
-            if(!empty($event['location']))
-            {            
-              echo "<td><details><summary>Show</summary>" . htmlspecialchars($event['location']) . "</details></td>";
-            }
-            else
-            {
-              echo "<td>No Location</td>";
-            }
-            echo "<td><details><summary>Show</summary>" . htmlspecialchars($event['description']) . "</details></td>";
+<tr id="edit-<?= $event['eventID'] ?>" style="display:none; background:#f9f9f9;">
+  <td colspan="11">
+    <form method="post" action="../../../Controller/Events/eventsController.php" class="row g-2">
+      <input type="hidden" name="editID" value="<?= $event['eventID'] ?>">
 
-            echo "<td class='text-center d-flex gap-1 justify-content-center'>
-                    <!-- Edit button -->
-                    <form method='get' action=='../../../Controller/Events/eventsController.php>
-                        <input type='hidden' name='eventEditID' value='{$event['eventID']}'>
-                        <button class='btn btn-warning btn-sm p-0' style='width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;'>
-                            ✎
-                        </button>
-                    </form>
+      <div class="col-md-4">
+        <label class="form-label">Title</label>
+        <input type="text" name="title" class="form-control" value="<?= htmlspecialchars($event['title']) ?>">
+      </div>
 
-                    <!-- Delete button -->
-                    <form method='post' action='../../../Controller/Events/eventsController.php'>
-                        <input type='hidden' name='deleteID' value='{$event['eventID']}'>
-                        <button class='btn btn-danger btn-sm p-0' style='width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;'>
-                            X
-                        </button>
-                    </form>
-                  </td>";
+      <div class="col-md-4">
+        <label class="form-label">Course/Subject</label>
+        <input type="text" name="course" class="form-control" value="<?= htmlspecialchars($event['course']) ?>">
+      </div>
 
+      <div class="col-md-2">
+        <label class="form-label">Date</label>
+        <input type="date" name="date" class="form-control" value="<?= $event['date'] ?>">
+      </div>
 
-            echo "</tr>";
-          }
-        ?>
+      <div class="col-md-1">
+        <label class="form-label">Start</label>
+        <input type="time" name="startTime" class="form-control" value="<?= $event['startTime'] ?>">
+      </div>
+
+      <div class="col-md-1">
+        <label class="form-label">End</label>
+        <input type="time" name="endTime" class="form-control" value="<?= $event['endTime'] ?>">
+      </div>
+
+      <div class="col-md-2">
+        <label class="form-label">Type</label>
+        <select name="type" class="form-select">
+          <option value="Lecture" <?= $event['type']=='Lecture'?'selected':'' ?>>Lecture</option>
+          <option value="Webinar" <?= $event['type']=='Webinar'?'selected':'' ?>>Webinar</option>
+          <option value="Other" <?= $event['type']=='Other'?'selected':'' ?>>Other</option>
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <label class="form-label">Recurring</label>
+        <select name="recurring" class="form-select">
+          <option value="None" <?= ($event['recurring']??'None')=='None'?'selected':'' ?>>None</option>
+          <option value="Daily" <?= ($event['recurring']??'None')=='Daily'?'selected':'' ?>>Daily</option>
+          <option value="Weekly" <?= ($event['recurring']??'None')=='Weekly'?'selected':'' ?>>Weekly</option>
+          <option value="Monthly" <?= ($event['recurring']??'None')=='Monthly'?'selected':'' ?>>Monthly</option>
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label">Location</label>
+        <input type="text" name="location" class="form-control" value="<?= htmlspecialchars($event['location']) ?>">
+      </div>
+
+      <div class="col-md-2">
+        <label class="form-label">Max Participants</label>
+        <input type="number" name="maxParticipants" class="form-control" value="<?= $event['maxParticipants'] ?>">
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label">Attachments / Links</label>
+        <input type="text" name="links" class="form-control" value="<?= htmlspecialchars($event['links']??'') ?>">
+      </div>
+
+      <div class="col-md-12">
+        <label class="form-label">Description</label>
+        <textarea name="desc" class="form-control" rows="3"><?= htmlspecialchars($event['description']) ?></textarea>
+      </div>
+
+      <div class="col-md-12 d-flex gap-2 mt-2">
+        <button type="submit" class="btn btn-success btn-sm">Save</button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="hideEditForm(<?= $event['eventID'] ?>)">Cancel</button>
+      </div>
+    </form>
+  </td>
+</tr>
+
+<?php endforeach; ?>
+
       </tbody>
     </table>
   </div>
 </div>
 
 <script src="assets/JavaScript/events.js"></script>
+<script>
+function showEditForm(id) {
+    document.getElementById('edit-' + id).style.display = '';
+}
+
+function hideEditForm(id) {
+    document.getElementById('edit-' + id).style.display = 'none';
+}
+</script>
+
 
 </body>
 </html>

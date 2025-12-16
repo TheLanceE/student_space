@@ -51,7 +51,7 @@
 
 <?php
 $events = getAllEvents($pdo);
-$userID = 899;
+$userID = 899; //////////////////////////////////////////////////////////////   you should be able to just plug the userID here 
 ?>
 
 <?php foreach($events as $event): ?>
@@ -98,6 +98,11 @@ $userID = 899;
 <?php if(isUserInEvent($pdo,$userID,$event['eventID'])): ?>
           <input type="hidden" name="leave" value="1">
           <button class="btn btn-danger w-100 register-btn"><i class="bi bi-dash-circle"></i> Leave</button>
+          <br><br>
+          <details class="small mb-3">
+              <summary class="fw-semibold"><i class="bi bi-geo-alt"></i> Comment</summary>
+              <?= GetParticipationComment($pdo, $userID, $event['eventID']) ?>
+          </details>
 <?php else: ?>
   <?php if($event['nbrParticipants'] >= $event['maxParticipants']): ?>
           <button class="btn btn-secondary w-100 register-btn" disabled><i class="bi bi-x-circle"></i> Full</button>
@@ -115,29 +120,77 @@ $userID = 899;
 <?php endforeach; ?>
 
   </div>
+  <nav class="mt-4">
+  <ul class="pagination justify-content-center" id="pagination"></ul>
+</nav>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const searchInput = document.querySelector('input[name="q"]'); // or #searchBox if you add an id
-    if (!searchInput) return;
+<script> //i have no idea how this script works
+document.addEventListener('DOMContentLoaded', () => {
+  const cards = [...document.querySelectorAll('.row > .col')];
+  const perPage = 6;
+  let page = 1;
 
-    searchInput.addEventListener('input', function () {
-        const query = this.value.toLowerCase().trim();
-        const columns = document.querySelectorAll('.row > .col');
+  const pager = document.getElementById('pagination');
+  const searchInput = document.querySelector('input[name="q"]');
 
-        columns.forEach(col => {
-            const card = col.querySelector('.event-card');
-            if (!card) return;
+  function getVisibleCards() {
+    return cards.filter(c => c.style.display !== 'none' || !c.dataset.hidden);
+  }
 
-            // Get all text from the card: title, course, type, etc.
-            const text = card.textContent.toLowerCase();
-            col.style.display = text.includes(query) ? '' : 'none';
-        });
+  function renderPagination(visibleCards) {
+    pager.innerHTML = '';
+    const totalPages = Math.ceil(visibleCards.length / perPage) || 1;
+    for (let i = 1; i <= totalPages; i++) {
+      pager.innerHTML += `
+        <li class="page-item ${i === page ? 'active' : ''}">
+          <a class="page-link" href="#">${i}</a>
+        </li>`;
+    }
+  }
+
+  function showPage(visibleCards) {
+    visibleCards.forEach((c, i) => {
+      c.style.display = (i >= (page - 1) * perPage && i < page * perPage) ? '' : 'none';
     });
+  }
+
+  function update() {
+    const q = searchInput.value.toLowerCase().trim();
+
+    cards.forEach(c => {
+      const text = c.textContent.toLowerCase();
+      c.dataset.hidden = (!text.includes(q) && q) ? '1' : '0';
+      c.style.display = c.dataset.hidden === '1' ? 'none' : '';
+    });
+
+    const visibleCards = cards.filter(c => c.dataset.hidden !== '1');
+    page = 1;
+    renderPagination(visibleCards);
+    showPage(visibleCards);
+  }
+
+  pager.addEventListener('click', e => {
+    if (!e.target.classList.contains('page-link')) return;
+    e.preventDefault();
+    page = +e.target.textContent;
+    const visibleCards = cards.filter(c => c.dataset.hidden !== '1');
+    showPage(visibleCards);
+
+
+    [...pager.children].forEach(li => li.classList.remove('active'));
+    e.target.parentElement.classList.add('active');
+  });
+
+  searchInput.addEventListener('input', update);
+
+  update(); // initial render
 });
 </script>
+
+
 
 </body>
 </html>
