@@ -403,7 +403,16 @@ class ChallengesController {
 
     private static function completeChallenge($pdo, $studentID) {
     $id = (int)($_GET['id'] ?? 0);
+    
+    // DEBUG: Log controller entry
+    error_log("=== ChallengesController::completeChallenge ===");
+    error_log("Challenge ID from GET: " . ($_GET['id'] ?? 'NOT SET'));
+    error_log("Challenge ID (cast): " . $id);
+    error_log("Student ID from session: " . ($_SESSION['userID'] ?? 'NOT SET'));
+    error_log("Student ID (used): " . $studentID);
+    
     if ($id <= 0) { 
+        error_log("ERROR: Invalid challenge ID");
         $_SESSION['error_message'] = 'Invalid challenge ID';
         self::redirectBack();
         exit;
@@ -415,14 +424,19 @@ class ChallengesController {
         $stmt->execute([$id]);
         $challengeInfo = $stmt->fetch(PDO::FETCH_ASSOC);
         
+        error_log("Challenge info from DB: " . ($challengeInfo ? json_encode($challengeInfo) : 'NOT FOUND'));
+        
         if (!$challengeInfo) {
+            error_log("ERROR: Challenge not found in database");
             $_SESSION['error_message'] = 'Challenge not found';
             self::redirectBack();
             exit;
         }
         
         // Use the Challenges::complete method which handles everything
+        error_log("Calling Challenges::complete()...");
         $result = Challenges::complete($pdo, $id, $studentID);
+        error_log("Challenges::complete() returned: " . ($result === false ? 'FALSE' : $result));
         
         if ($result === false) {
             // More specific error message based on what might have failed
@@ -433,17 +447,26 @@ class ChallengesController {
             $stmt->execute([$studentID, $id]);
             if ($stmt->fetchColumn() > 0) {
                 $errorMsg = 'You have already completed this challenge!';
+                error_log("Error reason: Already completed");
             } else if ($challengeInfo['status'] !== 'Active') {
                 $errorMsg = 'This challenge is not currently active';
-            } else if ($challengeInfo['tree_level'] > 0 && $challengeInfo['prerequisite_id']) {
-                // Check prerequisite
-                $stmt = $pdo->prepare("SELECT COUNT(*) FROM activity_log WHERE user_id = ? AND activity_type = 'challenge_complete' AND target_id = ?");
-                $stmt->execute([$studentID, $challengeInfo['prerequisite_id']]);
-                if ($stmt->fetchColumn() == 0) {
-                    $errorMsg = 'Please complete the prerequisite challenge first';
+                error_log("Error reason: Challenge not active (status: " . $challengeInfo['status'] . ")");
+            } else {
+                $treeLevel = (int)$challengeInfo['tree_level'];
+                if ($treeLevel > 0 && $challengeInfo['prerequisite_id']) {
+                    // Check prerequisite
+                    $stmt = $pdo->prepare("SELECT COUNT(*) FROM activity_log WHERE user_id = ? AND activity_type = 'challenge_complete' AND target_id = ?");
+                    $stmt->execute([$studentID, $challengeInfo['prerequisite_id']]);
+                    if ($stmt->fetchColumn() == 0) {
+                        $errorMsg = 'Please complete the prerequisite challenge first';
+                        error_log("Error reason: Prerequisite not completed");
+                    }
+                } else {
+                    error_log("Error reason: Unknown - check error logs for details");
                 }
             }
             
+            error_log("Setting error message: " . $errorMsg);
             $_SESSION['error_message'] = $errorMsg;
             self::redirectBack();
             exit;
