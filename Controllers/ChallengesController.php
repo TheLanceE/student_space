@@ -16,6 +16,7 @@ class ChallengesController {
             case 'update': self::updateChallenge($pdo); break;
             case 'delete': self::deleteChallenge($pdo); break;
             case 'complete': self::completeChallenge($pdo, $studentID); break;
+            case 'check': self::checkChallenge($pdo, $studentID); break;
             case 'get': self::showOne($pdo); break;
             case 'leaderboard': self::showLeaderboard($pdo); break;
             case 'tree': self::showChallengeTree($pdo, $studentID); break;
@@ -30,10 +31,10 @@ class ChallengesController {
                     switch($postAction) {
                         case 'create': self::createChallenge($pdo); break;
                         case 'update': self::updateChallenge($pdo); break;
-                        default: self::redirectToDashboard('Invalid action');
+                        default: self::redirectBack();
                     }
                 } else {
-                    self::redirectToDashboard('Invalid action');
+                    self::redirectBack();
                 }
         }
     }
@@ -69,7 +70,7 @@ class ChallengesController {
         $id = (int)($_GET['id'] ?? 0);
         if ($id <= 0) { 
             $_SESSION['error_message'] = 'Invalid challenge ID';
-            self::redirectToDashboard();
+            self::redirectBack();
             exit;
         }
         
@@ -77,7 +78,7 @@ class ChallengesController {
             $challenge = Challenges::getByID($pdo, $id);
             if (!$challenge) { 
                 $_SESSION['error_message'] = 'Challenge not found';
-                self::redirectToDashboard();
+                self::redirectBack();
                 exit;
             }
             
@@ -130,11 +131,11 @@ class ChallengesController {
                 'end_date_year' => $end_date_parts[0] ?? ''
             ];
             
-            self::redirectToDashboard();
+            self::redirectBack();
             exit;
         } catch (Exception $e) {
             $_SESSION['error_message'] = 'Error loading challenge: ' . $e->getMessage();
-            self::redirectToDashboard();
+            self::redirectBack();
             exit;
         }
     }
@@ -231,7 +232,7 @@ class ChallengesController {
             
             if ($ok) {
                 $_SESSION['success_message'] = 'Challenge created successfully';
-                self::redirectToDashboard();
+                self::redirectBack();
                 exit;
             } else {
                 throw new Exception("Failed to create challenge");
@@ -239,7 +240,7 @@ class ChallengesController {
         } catch (Exception $e) {
             $_SESSION['error_message'] = $e->getMessage();
             $_SESSION['form_data'] = $_POST;
-            self::redirectToDashboard();
+            self::redirectBack();
             exit;
         }
     }
@@ -248,7 +249,7 @@ class ChallengesController {
         $id = (int)($_GET['id'] ?? $_POST['id'] ?? 0);
         if ($id <= 0) { 
             $_SESSION['error_message'] = 'Invalid challenge ID';
-            self::redirectToDashboard();
+            self::redirectBack();
             exit;
         }
         
@@ -342,7 +343,7 @@ class ChallengesController {
             
             if ($ok) {
                 $_SESSION['success_message'] = 'Challenge updated successfully';
-                self::redirectToDashboard();
+                self::redirectBack();
                 exit;
             } else {
                 throw new Exception("Failed to update challenge");
@@ -350,7 +351,7 @@ class ChallengesController {
         } catch (Exception $e) {
             $_SESSION['error_message'] = $e->getMessage();
             $_SESSION['form_data'] = $_POST;
-            self::redirectToDashboard();
+            self::redirectBack();
             exit;
         }
     }
@@ -359,7 +360,7 @@ class ChallengesController {
         $id = (int)($_GET['id'] ?? 0);
         if ($id <= 0) { 
             $_SESSION['error_message'] = 'Invalid challenge ID';
-            self::redirectToDashboard();
+            self::redirectBack();
             exit;
         }
         
@@ -367,44 +368,105 @@ class ChallengesController {
             $ok = Challenges::delete($pdo, $id);
             if ($ok === false) {
                 $_SESSION['error_message'] = 'Cannot delete challenge. It is a prerequisite for other challenges.';
-                self::redirectToDashboard();
+                self::redirectBack();
                 exit;
             }
             $_SESSION['success_message'] = 'Challenge deleted successfully';
-            self::redirectToDashboard();
+            self::redirectBack();
             exit;
         } catch (Exception $e) {
             $_SESSION['error_message'] = 'Error deleting challenge: ' . $e->getMessage();
-            self::redirectToDashboard();
+            self::redirectBack();
+            exit;
+        }
+    }
+
+    private static function checkChallenge($pdo, $studentID) {
+        $id = (int)($_GET['id'] ?? 0);
+        if ($id <= 0) { 
+            header('Content-Type: application/json');
+            echo json_encode(['can_attempt' => false]);
+            exit;
+        }
+        
+        try {
+            $canAttempt = Challenges::canAttemptChallenge($pdo, $studentID, $id);
+            header('Content-Type: application/json');
+            echo json_encode(['can_attempt' => $canAttempt]);
+            exit;
+        } catch (Exception $e) {
+            header('Content-Type: application/json');
+            echo json_encode(['can_attempt' => false, 'error' => $e->getMessage()]);
             exit;
         }
     }
 
     private static function completeChallenge($pdo, $studentID) {
-        $id = (int)($_GET['id'] ?? 0);
-        if ($id <= 0) { 
-            $_SESSION['error_message'] = 'Invalid challenge ID';
-            header('Location: ../Views/front-office/Challenges.php');
+    $id = (int)($_GET['id'] ?? 0);
+    if ($id <= 0) { 
+        $_SESSION['error_message'] = 'Invalid challenge ID';
+        self::redirectBack();
+        exit;
+    }
+    
+    try {
+        // Debug: Check if challenge exists and get its details
+        $stmt = $pdo->prepare("SELECT id, title, tree_level, status, prerequisite_id FROM challenges WHERE id = ?");
+        $stmt->execute([$id]);
+        $challengeInfo = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$challengeInfo) {
+            $_SESSION['error_message'] = 'Challenge not found';
+            self::redirectBack();
             exit;
         }
         
-        try {
-            $result = Challenges::complete($pdo, $id, $studentID);
-            if ($result === false) {
-                $_SESSION['error_message'] = 'Cannot complete challenge. You may have already completed it or not met prerequisites.';
-                header('Location: ../Views/front-office/Challenges.php');
-                exit;
+        // Use the Challenges::complete method which handles everything
+        $result = Challenges::complete($pdo, $id, $studentID);
+        
+        if ($result === false) {
+            // More specific error message based on what might have failed
+            $errorMsg = 'Maybe later !';
+            
+            // Check if already completed
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM activity_log WHERE user_id = ? AND activity_type = 'challenge_complete' AND target_id = ?");
+            $stmt->execute([$studentID, $id]);
+            if ($stmt->fetchColumn() > 0) {
+                $errorMsg = 'You have already completed this challenge!';
+            } else if ($challengeInfo['status'] !== 'Active') {
+                $errorMsg = 'This challenge is not currently active';
+            } else if ($challengeInfo['tree_level'] > 0 && $challengeInfo['prerequisite_id']) {
+                // Check prerequisite
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM activity_log WHERE user_id = ? AND activity_type = 'challenge_complete' AND target_id = ?");
+                $stmt->execute([$studentID, $challengeInfo['prerequisite_id']]);
+                if ($stmt->fetchColumn() == 0) {
+                    $errorMsg = 'Please complete the prerequisite challenge first';
+                }
             }
-            $_SESSION['success_message'] = 'Challenge completed successfully! Points awarded: ' . $result;
-            header('Location: ../Views/front-office/Challenges.php');
-            exit;
-        } catch (Exception $e) {
-            $_SESSION['error_message'] = 'Error completing challenge: ' . $e->getMessage();
-            header('Location: ../Views/front-office/Challenges.php');
+            
+            $_SESSION['error_message'] = $errorMsg;
+            self::redirectBack();
             exit;
         }
+        
+        // Get updated points balance - use the Points model
+        $newBalance = Points::getBalance($pdo, $studentID);
+        
+        // Store success message with green styling - user requested "Congratulations, completed!"
+        $_SESSION['success_message'] = '<span style="color: #059669; font-weight: bold;">Congratulations, completed!</span><br>Points awarded: <strong>' . $result . '</strong> (Total: <strong>' . $newBalance . '</strong>)';
+        
+        // Also store the points awarded for potential confetti animation
+        $_SESSION['points_awarded'] = $result;
+        
+        self::redirectBack();
+        exit;
+        
+    } catch (Exception $e) {
+        $_SESSION['error_message'] = 'Error: ' . $e->getMessage();
+        self::redirectBack();
+        exit;
     }
-
+}
     private static function showLeaderboard($pdo) {
         try {
             require_once __DIR__ . '/../Models/Users.php';
@@ -428,14 +490,14 @@ class ChallengesController {
             $ok = Challenges::addRewardToChallenge($pdo, $challengeID, $rewardID, $userID);
             if ($ok) {
                 $_SESSION['success_message'] = 'Reward added to challenge successfully';
-                self::redirectToDashboard();
+                self::redirectBack();
                 exit;
             } else {
                 throw new Exception("Reward already assigned to this challenge");
             }
         } catch (Exception $e) {
             $_SESSION['error_message'] = $e->getMessage();
-            self::redirectToDashboard();
+            self::redirectBack();
             exit;
         }
     }
@@ -452,14 +514,14 @@ class ChallengesController {
             $ok = Challenges::removeRewardFromChallenge($pdo, $challengeID, $rewardID);
             if ($ok) {
                 $_SESSION['success_message'] = 'Reward removed from challenge successfully';
-                self::redirectToDashboard();
+                self::redirectBack();
                 exit;
             } else {
                 throw new Exception("Failed to remove reward");
             }
         } catch (Exception $e) {
             $_SESSION['error_message'] = $e->getMessage();
-            self::redirectToDashboard();
+            self::redirectBack();
             exit;
         }
     }
@@ -473,11 +535,11 @@ class ChallengesController {
             
             $rewards = Challenges::getChallengeRewards($pdo, $challengeID);
             $_SESSION['challenge_rewards'] = $rewards;
-            self::redirectToDashboard('view_rewards='.$challengeID);
+            self::redirectBack('view_rewards='.$challengeID);
             exit;
         } catch (Exception $e) {
             $_SESSION['error_message'] = $e->getMessage();
-            self::redirectToDashboard();
+            self::redirectBack();
             exit;
         }
     }
@@ -535,19 +597,34 @@ class ChallengesController {
         return $year . '-' . str_pad($month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($day, 2, '0', STR_PAD_LEFT);
     }
     
-    private static function redirectToDashboard($query = '') {
-        $role = $_SESSION['userRole'] ?? 'admin';
+    private static function redirectBack($query = '') {
+        // Get the referring page (where the request came from)
+        $referer = $_SERVER['HTTP_REFERER'] ?? '';
         
-        if ($role == 'admin') {
-            $url = '../Views/admin-back-office/Challenges.php';
-        } else if ($role == 'teacher') {
-            $url = '../Views/teacher-front-office/Challenges.php';
+        // If we have a referer, go back to it
+        if (!empty($referer)) {
+            $url = $referer;
         } else {
-            $url = '../Views/front-office/Challenges.php';
+            // If no referer, determine based on user role
+            $role = $_SESSION['role'] ?? $_SESSION['userRole'] ?? 'student';
+            
+            if ($role == 'admin') {
+                $url = '../Views/admin-back-office/Challenges.php';
+            } else if ($role == 'teacher') {
+                $url = '../Views/teacher-front-office/Challenges.php';
+            } else {
+                $url = '../Views/front-office/Challenges.php';
+            }
         }
         
+        // Add query string if provided
         if (!empty($query)) {
-            $url .= '?' . $query;
+            // Check if URL already has a query string
+            if (strpos($url, '?') !== false) {
+                $url .= '&' . $query;
+            } else {
+                $url .= '?' . $query;
+            }
         }
         
         header('Location: ' . $url);
