@@ -90,12 +90,23 @@ if ($role !== 'admin') {
 	 echo '<div class="alert alert-danger">Database error loading users.</div>';
  }
  ?>
- <div class="mb-3">
-	 <span class="badge bg-primary me-2">Admins: <?php echo count($admins); ?></span>
-	 <span class="badge bg-success me-2">Teachers: <?php echo count($teachers); ?></span>
-	 <span class="badge bg-warning text-dark">Students: <?php echo count($students); ?></span>
+ <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+	 <div>
+		 <span class="badge bg-primary me-2">Admins: <?php echo count($admins); ?></span>
+		 <span class="badge bg-success me-2">Teachers: <?php echo count($teachers); ?></span>
+		 <span class="badge bg-warning text-dark">Students: <?php echo count($students); ?></span>
+	 </div>
+	 <div class="d-flex gap-2 align-items-center">
+		 <select id="roleFilter" class="form-select form-select-sm" style="width:auto;">
+			 <option value="all">All Roles</option>
+			 <option value="admin">Admins</option>
+			 <option value="teacher">Teachers</option>
+			 <option value="student">Students</option>
+		 </select>
+		 <input type="search" id="userSearch" class="form-control form-control-sm" placeholder="Search users..." style="width:180px;">
+	 </div>
  </div>
- <div class="table-responsive">
+ <div class="table-responsive" style="max-height:500px; overflow-y:auto;">
 	 <table class="table table-sm table-striped align-middle" id="usersTable">
 		 <thead>
 			 <tr>
@@ -261,6 +272,39 @@ if ($role !== 'admin') {
 	 	 	 rows.forEach(r => tbody.appendChild(r));
 	 	 });
 	 });
+	})();
+
+	// Search and filter functionality
+	(function(){
+	 const searchInput = document.getElementById('userSearch');
+	 const roleFilter = document.getElementById('roleFilter');
+	 const table = document.getElementById('usersTable');
+	 
+	 function applyFilters() {
+		 const searchTerm = searchInput.value.toLowerCase().trim();
+		 const selectedRole = roleFilter.value;
+		 const rows = table.querySelectorAll('tbody tr');
+		 let visibleCount = 0;
+		 
+		 rows.forEach(row => {
+			 const roleCell = row.querySelector('td:nth-child(2) .badge');
+			 const role = roleCell ? roleCell.textContent.toLowerCase() : '';
+			 const text = row.textContent.toLowerCase();
+			 
+			 const matchesRole = selectedRole === 'all' || role === selectedRole;
+			 const matchesSearch = !searchTerm || text.includes(searchTerm);
+			 
+			 if (matchesRole && matchesSearch) {
+				 row.style.display = '';
+				 visibleCount++;
+			 } else {
+				 row.style.display = 'none';
+			 }
+		 });
+	 }
+	 
+	 searchInput.addEventListener('input', applyFilters);
+	 roleFilter.addEventListener('change', applyFilters);
 	})();
  </script>
  <!-- Removed old JS data layer; server-side rendering used above -->
