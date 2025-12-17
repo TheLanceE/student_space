@@ -4,6 +4,9 @@
 
 USE edumind;
 
+/* Disable foreign key checks during import */
+SET FOREIGN_KEY_CHECKS = 0;
+
 /* STUDENTS (including SuperKid) - Password for all: password123 */
 INSERT INTO students (id, username, password, fullName, email, mobile, address, gradeLevel, createdAt, lastLoginAt) VALUES
 ('stu_superkid', 'superkid', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Super Kid', 'superkid@edumind.app', '+1234567890', '100 Hero Lane, Metropolis', 'Grade 10', DATE_SUB(NOW(), INTERVAL 60 DAY), DATE_SUB(NOW(), INTERVAL 1 HOUR)),
@@ -276,3 +279,6 @@ INSERT INTO recommendations (id, userId, courseId, reason, createdAt) VALUES
 ('rec_sk_2', 'stu_superkid', 'cs201', 'You aced the CS quizzes! Web Development is the natural next step.', DATE_SUB(NOW(), INTERVAL 3 DAY)),
 ('rec_sk_3', 'stu_superkid', 'sci201', 'Your science scores are impressive. Physics Fundamentals awaits!', DATE_SUB(NOW(), INTERVAL 5 DAY))
 ON DUPLICATE KEY UPDATE reason=reason;
+
+/* Re-enable foreign key checks */
+SET FOREIGN_KEY_CHECKS = 1;
