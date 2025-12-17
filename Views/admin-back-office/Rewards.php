@@ -612,6 +612,40 @@ label {
 </head>
 <body>
 
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <!-- Logo/Brand -->
+        <a class="navbar-brand" href="#">
+            <i class="bi bi-mortarboard-fill"></i>
+            EduMind+
+        </a>
+        
+        <!-- Mobile toggle button -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <!-- Navbar links -->
+        <div class="collapse navbar-collapse" id="mainNavbar">
+            <ul class="navbar-nav me-auto">
+                <!-- Challenges link -->
+                <li class="nav-item">
+                    <a class="nav-link" href="Challenges.php">
+                        <i class="bi bi-flag me-1"></i>Challenges
+                    </a>
+                </li>
+                
+                <!-- Rewards link - ACTIVE on this page -->
+                <li class="nav-item">
+                    <a class="nav-link active" href="Rewards.php">
+                        <i class="bi bi-trophy-fill me-1"></i>Rewards
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
 <!-- Success/Error Messages -->
 <?php if(isset($_SESSION['success'])): ?>
     <div class="alert-message alert-success">
