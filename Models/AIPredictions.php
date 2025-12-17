@@ -123,28 +123,91 @@ class AIPredictions {
      * Calculate confidence
      */
     private static function calculateConfidence($student, $daysPassed) {
-        $activeDays = (int)$student['active_days'];
-        $activityConfidence = $daysPassed > 0 ? min(1.0, $activeDays / $daysPassed) : 0.5;
-        $dataConfidence = $daysPassed >= 7 ? 0.8 : ($daysPassed / 7);
-        $confidence = ($activityConfidence * 0.6 + $dataConfidence * 0.4) * 100;
-        return min(95, max(30, $confidence));
+    $activeDays = (int)$student['active_days'];
+    $challengesThisMonth = (int)$student['challenges_this_month'];
+    
+    // If no activity at all, very low confidence
+    if ($activeDays == 0 && $challengesThisMonth == 0) {
+        return 10; // 10% confidence - basically guessing
     }
     
+    // Activity confidence: based on consistency
+    $activityConfidence = 0;
+    if ($daysPassed > 0) {
+        $activityRate = $activeDays / $daysPassed;
+        if ($activityRate >= 0.8) $activityConfidence = 0.9; // Very consistent
+        elseif ($activityRate >= 0.5) $activityConfidence = 0.7; // Fairly consistent
+        elseif ($activityRate >= 0.3) $activityConfidence = 0.5; // Somewhat consistent
+        else $activityConfidence = 0.3; // Inconsistent
+    } else {
+        $activityConfidence = 0.1; // No days passed yet
+    }
+    
+    // Data confidence: based on amount of data
+    $dataConfidence = 0;
+    if ($challengesThisMonth >= 10) $dataConfidence = 0.9; // Lots of data
+    elseif ($challengesThisMonth >= 5) $dataConfidence = 0.7; // Good amount
+    elseif ($challengesThisMonth >= 2) $dataConfidence = 0.5; // Some data
+    elseif ($challengesThisMonth == 1) $dataConfidence = 0.3; // Minimal data
+    else $dataConfidence = 0.1; // No data
+    
+    // Time factor: earlier in month = lower confidence
+    $timeFactor = $daysPassed / date('t'); // Portion of month passed
+    
+    // Weighted confidence calculation
+    $confidence = (
+        ($activityConfidence * 0.4) +      // 40% weight to activity consistency
+        ($dataConfidence * 0.4) +          // 40% weight to data quantity
+        ($timeFactor * 0.2)                // 20% weight to time passed
+    ) * 100;
+    
+    // Round and ensure reasonable bounds
+    $confidence = round($confidence);
+    $confidence = max(10, min(95, $confidence)); // Between 10-95%
+    
+    return $confidence;
+} 
+
     /**
      * Generate reasoning
      */
     private static function generateReasoning($student, $pointsPrediction, $rewardsPrediction, $confidence) {
-        $currentPoints = $student['current_points'];
-        $challengesThisMonth = $student['challenges_this_month'];
-        
-        $reasoning = "Based on your current activity: ";
-        $reasoning .= "You've completed " . $challengesThisMonth . " challenges this month. ";
-        $reasoning .= "We predict you'll earn approximately " . ($pointsPrediction - $currentPoints) . " more points. ";
-        $reasoning .= "Confidence: " . round($confidence) . "%. ";
-        $reasoning .= "These predictions are based on your activity patterns.";
-        
-        return $reasoning;
+    $currentPoints = $student['current_points'];
+    $challengesThisMonth = $student['challenges_this_month'];
+    $activeDays = $student['active_days'];
+    $daysPassed = date('j'); // Current day of month
+    
+    $pointsIncrease = $pointsPrediction - $currentPoints;
+    
+    $reasoning = "Based on your current activity: ";
+    $reasoning .= "You've completed {$challengesThisMonth} challenge" . ($challengesThisMonth != 1 ? 's' : '') . " ";
+    $reasoning .= "over {$activeDays} day" . ($activeDays != 1 ? 's' : '') . " this month. ";
+    
+    if ($pointsIncrease > 0) {
+        $reasoning .= "We predict you'll earn approximately {$pointsIncrease} more points by month end. ";
+    } else {
+        $reasoning .= "Your current points are already at a good level. ";
     }
+    
+    // Add confidence explanation
+    if ($confidence >= 70) {
+        $reasoning .= "High confidence ({$confidence}%) due to consistent activity patterns. ";
+    } elseif ($confidence >= 40) {
+        $reasoning .= "Moderate confidence ({$confidence}%) based on recent trends. ";
+    } else {
+        $reasoning .= "Lower confidence ({$confidence}%) - more activity would improve accuracy. ";
+    }
+    
+    // Add personalized tips
+    if ($challengesThisMonth < 2) {
+        $reasoning .= "Try completing more challenges to increase prediction accuracy. ";
+    } elseif ($activeDays / $daysPassed < 0.3) {
+        $reasoning .= "More regular participation would improve your point earnings. ";
+    }
+    
+    return $reasoning;
+}
+
     
     /**
      * Get all students with predictions

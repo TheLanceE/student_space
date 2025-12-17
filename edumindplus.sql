@@ -197,10 +197,13 @@ INSERT INTO challenge_ratings (challenge_id, student_id, rating, comment) VALUES
 (1, 3, 5, 'Great for building reading habits!'),
 (1, 4, 4, 'Enjoyed the daily reading challenge'),
 (2, 3, 3, 'Good but would like more variety'),
+(2, 2, 5, 'I enjoyed this challenge a lot !'),
 (3, 5, 5, 'Perfect for math practice'),
+(7, 4, 5, 'Very exciting !'),
 (4, 6, 4, 'Challenging but rewarding'),
 (7, 3, 5, 'Exciting time pressure!'),
 (8, 4, 4, 'Improved my writing skills');
+
 
 -- Create SINGLE achievement entries for tier progression (NO DUPLICATES)
 INSERT INTO activity_log (user_id, activity_type, target_id, points_amount, details) VALUES 
