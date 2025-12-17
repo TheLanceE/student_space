@@ -1,6 +1,10 @@
 <?php
 // FrontOffice Task list
 session_start();
+// Set default student session if not already set
+if (!isset($_SESSION['user'])) {
+    $_SESSION['user'] = ['id' => 'stu_debug', 'username' => 'debug_student', 'role' => 'student'];
+}
 include_once(__DIR__ . '/../../Controllers/TaskController.php');
 include_once(__DIR__ . '/../../Controllers/ProjectController.php');
 $tctrl = new TaskController();
@@ -27,6 +31,7 @@ if ($projectId) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tasks - FrontOffice</title>
   <link href="../../assets/vendor/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 </head>
 <body>
   <div class="container py-4">
@@ -59,7 +64,28 @@ if ($projectId) {
           <div class="list-group-item">
             <div class="d-flex justify-content-between">
               <div>
-                <h6><?= htmlspecialchars($task['taskName']) ?> <small class="text-muted">(<?= htmlspecialchars($task['projectName'] ?? 'No Project') ?>)</small></h6>
+                <?php
+                  $status = $task['status'] ?? 'not_started';
+                  $labelMap = [
+                    'not_started' => 'not started',
+                    'in_progress' => 'in progress',
+                    'completed' => 'completed',
+                    'on_hold' => 'on hold'
+                  ];
+                  $classMap = [
+                    'not_started' => 'secondary',
+                    'in_progress' => 'primary',
+                    'completed' => 'success',
+                    'on_hold' => 'warning'
+                  ];
+                  $badgeClass = $classMap[$status] ?? 'secondary';
+                  $badgeLabel = $labelMap[$status] ?? htmlspecialchars(ucfirst(str_replace('_',' ',$status)));
+                ?>
+                <h6>
+                  <?= htmlspecialchars($task['taskName']) ?>
+                  <span class="badge rounded-pill bg-<?= $badgeClass ?> align-middle" style="vertical-align: middle;"><?= $badgeLabel ?></span>
+                  <small class="text-muted">(<?= htmlspecialchars($task['projectName'] ?? 'No Project') ?>)</small>
+                </h6>
                 <p class="mb-1 text-muted"><?= htmlspecialchars($task['description'] ?? '') ?></p>
               </div>
               <div class="text-end">
@@ -68,7 +94,7 @@ if ($projectId) {
                 <form method="POST" action="deleteTask.php" class="d-inline" onsubmit="return confirm('Delete task?');">
                   <input type="hidden" name="action" value="delete_task">
                   <input type="hidden" name="taskId" value="<?= htmlspecialchars($task['id']) ?>">
-                  <input type="hidden" name="redirect" value="taskList.php">
+                  <input type="hidden" name="redirect" value="taskList.php<?= $projectId ? '?projectId=' . urlencode($projectId) : '' ?>">
                   <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
                 </form>
               </div>

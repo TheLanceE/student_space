@@ -37,6 +37,13 @@ class ProjectController {
 
     public function getCurrentUserId() { return $_SESSION['user']['id'] ?? 'stu_debug'; }
 
+    private function requireTeacher() {
+        $role = $_SESSION['user']['role'] ?? '';
+        if ($role !== 'teacher') {
+            throw new Exception('Only teachers can react');
+        }
+    }
+
     public function listProjectMembers($projectId){
         if (!$projectId) return [];
         try{
@@ -61,8 +68,24 @@ class ProjectController {
     public function listProjects() {
         try {
             $userId = $this->getCurrentUserId();
-            $stmt = $this->db->prepare("SELECT p.*, COUNT(t.id) as taskCount, SUM(CASE WHEN t.isComplete = 1 THEN 1 ELSE 0 END) as completedTasks FROM projects p LEFT JOIN tasks t ON p.id=t.projectId WHERE p.createdBy=:userId OR p.assignedTo=:userId GROUP BY p.id ORDER BY p.createdAt DESC");
-            $stmt->execute([':userId' => $userId]);
+            $role = $_SESSION['user']['role'] ?? 'student';
+
+            // Teachers/admins see all projects; students see only theirs
+            $baseSql = "SELECT p.*, COUNT(t.id) as taskCount, SUM(CASE WHEN t.status = 'completed' THEN 1 ELSE 0 END) as completedTasks,
+                (SELECT r.type FROM reactions r JOIN users u ON u.id = r.userId WHERE r.projectId = p.id AND r.userId = :userId AND u.role = 'teacher' ORDER BY r.updatedAt DESC LIMIT 1) AS myReaction,
+                (SELECT r.type FROM reactions r JOIN users u ON u.id = r.userId WHERE r.projectId = p.id AND u.role = 'teacher' ORDER BY r.updatedAt DESC LIMIT 1) AS latestReaction
+                FROM projects p LEFT JOIN tasks t ON p.id=t.projectId";
+
+            if (in_array($role, ['teacher','admin'])) {
+                $sql = $baseSql . " GROUP BY p.id ORDER BY p.createdAt DESC";
+                $stmt = $this->db->prepare($sql);
+                $stmt->execute([':userId' => $userId]);
+            } else {
+                $sql = $baseSql . " WHERE p.createdBy=:userId OR p.assignedTo=:userId GROUP BY p.id ORDER BY p.createdAt DESC";
+                $stmt = $this->db->prepare($sql);
+                $stmt->execute([':userId' => $userId]);
+            }
+
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) { die('Error: ' . $e->getMessage()); }
     }
@@ -74,38 +97,28 @@ class ProjectController {
         $stmt = $this->db->prepare("SELECT * FROM tasks WHERE projectId=:projectId ORDER BY createdAt DESC"); $stmt->execute([':projectId'=>$id]);
         $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Try to compute completion based on project members when mapping exists
+        // Compute progress based on task status
+        $expected = (int)($project['expectedTaskCount'] ?? 0);
+        $createdCount = count($tasks);
+        $completedCount = 0;
+        foreach ($tasks as $t) { if (($t['status'] ?? 'not_started') === 'completed') { $completedCount++; } }
+        $totalForProgress = $expected > 0 ? $expected : ($createdCount > 0 ? $createdCount : 0);
+        $project['completionPercentage'] = $totalForProgress>0 ? min(100, round(($completedCount/$totalForProgress)*100)) : 0;
+        $project['memberCount'] = 0;
+        $project['completedMemberCount'] = $completedCount;
+        // attach reaction info: latest and current user's reaction
         try {
-            // Count project members
-            $stmt = $this->db->prepare("SELECT COUNT(*) FROM project_members WHERE projectId=:projectId");
-            $stmt->execute([':projectId'=>$id]);
-            $memberCount = (int)$stmt->fetchColumn();
-
-            if ($memberCount > 0) {
-                // Count distinct members who have at least one completed task assigned to them for this project
-                $stmt = $this->db->prepare("SELECT COUNT(DISTINCT assignedTo) FROM tasks WHERE projectId=:projectId AND isComplete=1 AND assignedTo IS NOT NULL");
-                $stmt->execute([':projectId'=>$id]);
-                $completedMembers = (int)$stmt->fetchColumn();
-                $project['completionPercentage'] = round(($completedMembers / $memberCount) * 100);
-                $project['memberCount'] = $memberCount;
-                $project['completedMemberCount'] = $completedMembers;
-            } else {
-                // Progress based on tasks created vs expected count
-                $expected = (int)($project['expectedTaskCount'] ?? 0);
-                $createdCount = count($tasks);
-                $totalForProgress = $expected > 0 ? $expected : $createdCount;
-                $project['completionPercentage'] = $totalForProgress>0?round(($createdCount/$totalForProgress)*100):0;
-                $project['memberCount'] = 0;
-                $project['completedMemberCount'] = array_reduce($tasks,function($c,$t){return $c+(!empty($t['isComplete'])?1:0);},0);
-            }
-        } catch (PDOException $e) {
-            // project_members table likely missing; fallback to task-created based progress
-            $expected = (int)($project['expectedTaskCount'] ?? 0);
-            $createdCount = count($tasks);
-            $totalForProgress = $expected > 0 ? $expected : $createdCount;
-            $project['completionPercentage'] = $totalForProgress>0?round(($createdCount/$totalForProgress)*100):0;
-            $project['memberCount'] = 0;
-            $project['completedMemberCount'] = array_reduce($tasks,function($c,$t){return $c+(!empty($t['isComplete'])?1:0);},0);
+            $stmtR = $this->db->prepare("SELECT r.type, r.userId FROM reactions r JOIN users u ON u.id = r.userId WHERE r.projectId = :pid AND u.role = 'teacher' ORDER BY r.updatedAt DESC LIMIT 1");
+            $stmtR->execute([':pid' => $id]);
+            $rowR = $stmtR->fetch(PDO::FETCH_ASSOC);
+            $project['latestReaction'] = $rowR['type'] ?? null;
+            $project['latestReactionBy'] = $rowR['userId'] ?? null;
+            $uid = $this->getCurrentUserId();
+            $stmtUR = $this->db->prepare("SELECT r.type FROM reactions r JOIN users u ON u.id = r.userId WHERE r.projectId = :pid AND r.userId = :uid AND u.role = 'teacher' ORDER BY r.updatedAt DESC LIMIT 1");
+            $stmtUR->execute([':pid' => $id, ':uid' => $uid]);
+            $project['myReaction'] = $stmtUR->fetchColumn() ?: null;
+        } catch (Exception $e) {
+            // ignore reaction fetch errors
         }
         return ['project'=>$project,'tasks'=>$tasks];
     }
@@ -137,6 +150,11 @@ class ProjectController {
 
     public function deleteExistingProject($id){
         if (!$id) throw new Exception('Project ID required');
+        // delete reactions linked to this project if the table exists
+        try {
+            $stmt = $this->db->prepare("DELETE FROM reactions WHERE projectId=:projectId");
+            $stmt->execute([':projectId'=>$id]);
+        } catch (Exception $e) {}
         $stmt = $this->db->prepare("DELETE FROM tasks WHERE projectId=:projectId"); $stmt->execute([':projectId'=>$id]);
         $stmt = $this->db->prepare("DELETE FROM projects WHERE id=:id"); $stmt->execute([':id'=>$id]);
         return true;
@@ -144,17 +162,29 @@ class ProjectController {
 
     public function updateReaction($projectId, $reaction) {
         if (!$projectId) throw new Exception('Project ID required');
+        $this->requireTeacher();
         $userId = $this->getCurrentUserId();
-        // reaction can be null to remove it, or a string (emoji)
-        // reactedBy stores the user ID who reacted
+
+        // remove reaction for current user
         if (empty($reaction)) {
-            $stmt = $this->db->prepare("UPDATE projects SET reaction=NULL, reactedBy=NULL, updatedAt=NOW() WHERE id=:id");
-            $stmt->execute([':id'=>$projectId]);
-        } else {
-            $stmt = $this->db->prepare("UPDATE projects SET reaction=:reaction, reactedBy=:reactedBy, updatedAt=NOW() WHERE id=:id");
-            $stmt->execute([':id'=>$projectId, ':reaction'=>$reaction, ':reactedBy'=>$userId]);
+            $stmt = $this->db->prepare("DELETE FROM reactions WHERE projectId = :pid AND userId = :uid");
+            $stmt->execute([':pid' => $projectId, ':uid' => $userId]);
+            return 'removed';
         }
-        return true;
+
+        // check if reaction exists to tailor message
+        $stmtCheck = $this->db->prepare("SELECT 1 FROM reactions WHERE projectId = :pid AND userId = :uid LIMIT 1");
+        $stmtCheck->execute([':pid' => $projectId, ':uid' => $userId]);
+        $exists = (bool)$stmtCheck->fetchColumn();
+
+        // upsert reaction (prevent duplicates per user/project)
+        $id = 'react_' . bin2hex(random_bytes(8));
+        $sql = "INSERT INTO reactions (id, projectId, userId, type, createdAt, updatedAt)
+                VALUES (:id, :pid, :uid, :type, NOW(), NOW())
+                ON DUPLICATE KEY UPDATE type = VALUES(type), updatedAt = NOW()";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':id' => $id, ':pid' => $projectId, ':uid' => $userId, ':type' => $reaction]);
+        return $exists ? 'updated' : 'created';
     }
 
     // handlers
@@ -174,10 +204,18 @@ class ProjectController {
         $this->respond(true,'Project deleted',$redirect);
     }
     public function handleReaction(){
-        $projectId = $_POST['projectId'] ?? null;
-        $reaction = $_POST['reaction'] ?? null;
-        $this->updateReaction($projectId, $reaction);
-        $this->respond(true,'Reaction updated');
+        try {
+            $projectId = $_POST['projectId'] ?? null;
+            $reaction = $_POST['reaction'] ?? null;
+            $result = $this->updateReaction($projectId, $reaction);
+            $msg = 'Reaction saved';
+            if ($result === 'removed') $msg = 'Reaction removed';
+            elseif ($result === 'updated') $msg = 'Reaction updated';
+            elseif ($result === 'created') $msg = 'Reaction saved';
+            $this->respond(true, $msg);
+        } catch (Exception $e) {
+            $this->respond(false, $e->getMessage());
+        }
     }
 
 }

@@ -76,14 +76,11 @@ if (!empty($_SESSION['flash_success']) || !empty($_SESSION['flash_error'])) {
                data-project-status="<?= htmlspecialchars($proj['status']) ?>"
                data-project-due="<?= htmlspecialchars($proj['dueDate'] ?? '') ?>"
                >
-            <div class="card h-100 shadow-sm">
+            <div class="card shadow-sm">
               <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start mb-2">
                   <div class="d-flex align-items-center gap-2">
                     <h5 class="card-title mb-0"><?= htmlspecialchars($proj['projectName']) ?></h5>
-                    <?php if (!empty($proj['reaction'])): ?>
-                      <span style="font-size: 1.25rem;" title="Teacher's reaction"><?= htmlspecialchars($proj['reaction']) ?></span>
-                    <?php endif; ?>
                   </div>
                   <div>
                     <a class="btn btn-sm btn-outline-secondary me-1" href="taskList.php?projectId=<?= urlencode($proj['id']) ?>"><i class="bi bi-list-task"></i> Tasks</a>
@@ -93,7 +90,7 @@ if (!empty($_SESSION['flash_success']) || !empty($_SESSION['flash_error'])) {
                 <p class="card-text text-muted small mt-2"><?= htmlspecialchars($proj['description'] ?? 'No description') ?></p>
                 <div class="d-flex justify-content-between align-items-center mt-3">
                   <small class="text-muted">
-                    <i class="bi bi-check2-square"></i> <?= htmlspecialchars($proj['taskCount'] ?? 0) ?>/<?= htmlspecialchars($proj['expectedTaskCount'] ?? 0) ?> tasks
+                    <i class="bi bi-check2-square"></i> <?= htmlspecialchars($proj['completedTasks'] ?? 0) ?>/<?= htmlspecialchars($proj['expectedTaskCount'] ?? 0) ?> tasks
                   </small>
                   <?= $proj['dueDate'] ? '<small class="text-muted"><i class="bi bi-calendar"></i> ' . htmlspecialchars(date('M j, Y', strtotime($proj['dueDate']))) . '</small>' : '' ?>
                 </div>
@@ -137,8 +134,14 @@ if (!empty($_SESSION['flash_success']) || !empty($_SESSION['flash_error'])) {
             </div>
             <div class="mb-3">
               <label for="projectDesc" class="form-label">Description</label>
-              <textarea class="form-control" id="projectDesc" name="data[description]" rows="3"></textarea>
+              <div class="input-group">
+                <textarea class="form-control" id="projectDesc" name="data[description]" rows="3"></textarea>
+                <button type="button" class="btn btn-outline-secondary" id="projectDescVoiceBtn" title="Voice input">
+                  <i class="bi bi-mic-fill"></i>
+                </button>
+              </div>
               <div id="projectDescError" style="display: none; color: #dc3545; font-size: 0.875rem; margin-top: 0.25rem;"></div>
+              <small class="text-muted" id="projectDescVoiceStatus" style="display: none;"></small>
             </div>
             <div class="row">
               <div class="col-md-6 mb-3">
@@ -202,7 +205,27 @@ if (!empty($_SESSION['flash_success']) || !empty($_SESSION['flash_error'])) {
                           <div class="list-group-item task-item <?= !empty($task['isComplete']) ? 'task-completed' : '' ?>">
                             <div class="d-flex justify-content-between align-items-start">
                               <div class="flex-grow-1">
-                                <h6 class="mb-1"><?= htmlspecialchars($task['taskName']) ?></h6>
+                                <?php
+                                  $status = $task['status'] ?? 'not_started';
+                                  $labelMap = [
+                                    'not_started' => 'not started',
+                                    'in_progress' => 'in progress',
+                                    'completed' => 'completed',
+                                    'on_hold' => 'on hold'
+                                  ];
+                                  $classMap = [
+                                    'not_started' => 'secondary',
+                                    'in_progress' => 'primary',
+                                    'completed' => 'success',
+                                    'on_hold' => 'warning'
+                                  ];
+                                  $badgeClass = $classMap[$status] ?? 'secondary';
+                                  $badgeLabel = $labelMap[$status] ?? htmlspecialchars(ucfirst(str_replace('_',' ',$status)));
+                                ?>
+                                <h6 class="mb-1">
+                                  <?= htmlspecialchars($task['taskName']) ?>
+                                  <span class="badge rounded-pill bg-<?= $badgeClass ?> align-middle" style="vertical-align: middle;"><?= $badgeLabel ?></span>
+                                </h6>
                                 <small class="text-muted"><?= htmlspecialchars($task['description'] ?? 'No description') ?></small>
                                 <?= !empty($task['dueDate']) ? '<small class="text-muted d-block mt-2"><i class="bi bi-calendar"></i> ' . htmlspecialchars(date('M j, Y', strtotime($task['dueDate']))) . '</small>' : '' ?>
                               </div>
@@ -226,10 +249,13 @@ if (!empty($_SESSION['flash_success']) || !empty($_SESSION['flash_error'])) {
                     <div class="card">
                       <div class="card-body">
                         <h6 class="card-subtitle mb-3 text-muted">Project Info</h6>
-                        <?php if (!empty($proj['reaction'])): ?>
+                        <?php if (!empty($proj['latestReaction'])): ?>
                           <div class="mb-3">
                             <small class="text-muted d-block"><i class="bi bi-person-check"></i> Teacher's reaction</small>
-                            <span style="font-size: 1.5rem;"><?= htmlspecialchars($proj['reaction']) ?></span>
+                            <span style="font-size: 1.25rem;" class="me-2"><?= htmlspecialchars($proj['latestReaction']) ?></span>
+                            <?php if (!empty($proj['latestReactionBy'])): ?>
+                              <small class="text-muted">by <?= htmlspecialchars($proj['latestReactionBy']) ?></small>
+                            <?php endif; ?>
                           </div>
                         <?php endif; ?>
                         <div class="mb-3">
@@ -336,6 +362,63 @@ if (!empty($_SESSION['flash_success']) || !empty($_SESSION['flash_error'])) {
             expectedTaskCount.classList.remove('is-invalid');
           }
         });
+      }
+
+      // Speech-to-text for project description
+      const projectDescVoiceBtn = document.getElementById('projectDescVoiceBtn');
+      const projectDescTextarea = document.getElementById('projectDesc');
+      const projectDescVoiceStatus = document.getElementById('projectDescVoiceStatus');
+
+      if (projectDescVoiceBtn && projectDescTextarea && 'webkitSpeechRecognition' in window) {
+        const recognition = new webkitSpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        let isListening = false;
+
+        projectDescVoiceBtn.addEventListener('click', function() {
+          if (isListening) {
+            recognition.stop();
+            return;
+          }
+
+          recognition.start();
+          isListening = true;
+          projectDescVoiceBtn.classList.add('btn-danger');
+          projectDescVoiceBtn.classList.remove('btn-outline-secondary');
+          projectDescVoiceBtn.innerHTML = '<i class="bi bi-mic-fill"></i> Listening...';
+          projectDescVoiceStatus.textContent = '🎤 Listening... Speak now';
+          projectDescVoiceStatus.style.display = 'block';
+        });
+
+        recognition.onresult = function(event) {
+          const transcript = event.results[0][0].transcript;
+          const currentText = projectDescTextarea.value;
+          projectDescTextarea.value = currentText ? currentText + ' ' + transcript : transcript;
+          projectDescVoiceStatus.textContent = '✓ Voice input captured';
+          setTimeout(() => projectDescVoiceStatus.style.display = 'none', 2000);
+        };
+
+        recognition.onend = function() {
+          isListening = false;
+          projectDescVoiceBtn.classList.remove('btn-danger');
+          projectDescVoiceBtn.classList.add('btn-outline-secondary');
+          projectDescVoiceBtn.innerHTML = '<i class="bi bi-mic-fill"></i>';
+        };
+
+        recognition.onerror = function(event) {
+          isListening = false;
+          projectDescVoiceBtn.classList.remove('btn-danger');
+          projectDescVoiceBtn.classList.add('btn-outline-secondary');
+          projectDescVoiceBtn.innerHTML = '<i class="bi bi-mic-fill"></i>';
+          projectDescVoiceStatus.textContent = '⚠ Voice input error: ' + event.error;
+          projectDescVoiceStatus.style.display = 'block';
+          setTimeout(() => projectDescVoiceStatus.style.display = 'none', 3000);
+        };
+      } else if (projectDescVoiceBtn && !('webkitSpeechRecognition' in window)) {
+        projectDescVoiceBtn.disabled = true;
+        projectDescVoiceBtn.title = 'Voice input not supported in this browser';
       }
     });
   </script>

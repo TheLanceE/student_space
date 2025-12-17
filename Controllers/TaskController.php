@@ -153,15 +153,14 @@ class TaskController {
         }
         
         // build columns dynamically to allow optional assignedTo if supplied (and only used when column exists in DB)
-        $columns = ['id','projectId','taskName','description','priority','isComplete','dueDate','createdAt'];
-        $placeholders = [':id',':projectId',':name',':desc',':priority',':isComplete',':dueDate','NOW()'];
+        $columns = ['id','projectId','taskName','description','status','dueDate','createdAt'];
+        $placeholders = [':id',':projectId',':name',':desc',':status',':dueDate','NOW()'];
         $bindings = [
             ':id'=>$id,
             ':projectId'=>$projectId,
                 ':name'=>$name,
             ':desc'=>$data['description'] ?? '',
-            ':priority'=>$data['priority'] ?? 'medium',
-            ':isComplete'=>!empty($data['isComplete'])?1:0,
+            ':status'=>$data['status'] ?? 'not_started',
             ':dueDate'=>$data['dueDate'] ?? null
         ];
 
@@ -201,9 +200,8 @@ class TaskController {
             $sets[] = 'taskName=:name'; $bindings[':name'] = $name;
         }
         $sets[] = 'description=:desc'; $bindings[':desc'] = $data['description'] ?? '';
-        // Only update priority/isComplete if provided in the payload; we removed these from student forms
-        if (array_key_exists('priority', $data)) { $sets[] = 'priority=:priority'; $bindings[':priority'] = $data['priority'] ?? 'medium'; }
-        if (array_key_exists('isComplete', $data)) { $sets[] = 'isComplete=:isComplete'; $bindings[':isComplete'] = !empty($data['isComplete'])?1:0; }
+        // Update status if provided
+        if (array_key_exists('status', $data)) { $sets[] = 'status=:status'; $bindings[':status'] = $data['status'] ?? 'not_started'; }
         $sets[] = 'dueDate=:dueDate'; $bindings[':dueDate'] = $data['dueDate'] ?? null;
 
         // due date validation

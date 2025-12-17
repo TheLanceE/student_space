@@ -14,8 +14,9 @@
       if (value.length < 10) {
         errors.push('Description must be at least 10 characters long');
       }
-      if (!/^[A-Za-z0-9\s]*$/.test(value)) {
-        errors.push('Description can only contain letters (A-Z, a-z) and numbers (0-9)');
+      // Allow letters, numbers, spaces, and common punctuation for natural text/speech input
+      if (!/^[A-Za-z0-9\s.,!?'"()\-:;]+$/.test(value)) {
+        errors.push('Description contains invalid characters');
       }
     }
 

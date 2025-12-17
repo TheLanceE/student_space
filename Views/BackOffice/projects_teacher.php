@@ -15,11 +15,13 @@
 <body data-page="teacher-projects">
 <?php
 session_start();
-// Set role for teacher mode
-if (!isset($_SESSION['user'])) {
-    $_SESSION['user'] = ['id' => 'teach_debug', 'username' => 'debug_teacher', 'role' => 'teacher'];
+// Force debug teacher identity for this page so reactions use teach_debug
+if (!isset($_SESSION['user']) || !is_array($_SESSION['user'])) {
+  $_SESSION['user'] = ['id' => 'teach_debug', 'username' => 'debug_teacher', 'role' => 'teacher'];
 } else {
-    $_SESSION['user']['role'] = 'teacher';
+  $_SESSION['user']['id'] = 'teach_debug';
+  $_SESSION['user']['username'] = 'debug_teacher';
+  $_SESSION['user']['role'] = 'teacher';
 }
 if (!empty($_SESSION['flash_success']) || !empty($_SESSION['flash_error'])) {
   echo '<div class="container mt-3" id="flashContainer">';
@@ -90,14 +92,11 @@ if (!empty($_SESSION['flash_success']) || !empty($_SESSION['flash_error'])) {
       <?php else: ?>
         <?php foreach ($projects as $proj): ?>
           <div class="col-md-6 col-lg-4" data-project-id="<?= htmlspecialchars($proj['id']) ?>">
-            <div class="card h-100 shadow-sm">
+            <div class="card shadow-sm">
               <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start mb-2">
                   <div class="d-flex align-items-center gap-2">
                     <h5 class="card-title mb-0"><?= htmlspecialchars($proj['projectName']) ?></h5>
-                    <?php if (!empty($proj['reaction'])): ?>
-                      <span style="font-size: 1.25rem;" title="Teacher's reaction"><?= htmlspecialchars($proj['reaction']) ?></span>
-                    <?php endif; ?>
                   </div>
                   <div>
                     <a class="btn btn-sm btn-outline-secondary me-1" href="taskList.php?projectId=<?= urlencode($proj['id']) ?>"><i class="bi bi-list-task"></i> Tasks</a>
@@ -107,7 +106,7 @@ if (!empty($_SESSION['flash_success']) || !empty($_SESSION['flash_error'])) {
                 <p class="card-text text-muted small mt-2"><?= htmlspecialchars($proj['description'] ?? 'No description') ?></p>
                 <div class="d-flex justify-content-between align-items-center mt-3">
                   <small class="text-muted">
-                    <i class="bi bi-check2-square"></i> <?= htmlspecialchars($proj['taskCount'] ?? 0) ?>/<?= htmlspecialchars($proj['expectedTaskCount'] ?? 0) ?> tasks
+                    <i class="bi bi-check2-square"></i> <?= htmlspecialchars($proj['completedTasks'] ?? 0) ?>/<?= htmlspecialchars($proj['expectedTaskCount'] ?? 0) ?> tasks
                   </small>
                   <?= $proj['dueDate'] ? '<small class="text-muted"><i class="bi bi-calendar"></i> ' . htmlspecialchars(date('M j, Y', strtotime($proj['dueDate']))) . '</small>' : '' ?>
                 </div>
@@ -168,7 +167,27 @@ if (!empty($_SESSION['flash_success']) || !empty($_SESSION['flash_error'])) {
                           <div class="list-group-item task-item <?= !empty($task['isComplete']) ? 'task-completed' : '' ?>">
                             <div class="d-flex justify-content-between align-items-start">
                               <div class="flex-grow-1">
-                                <h6 class="mb-1"><?= htmlspecialchars($task['taskName']) ?></h6>
+                                <?php
+                                  $status = $task['status'] ?? 'not_started';
+                                  $labelMap = [
+                                    'not_started' => 'not started',
+                                    'in_progress' => 'in progress',
+                                    'completed' => 'completed',
+                                    'on_hold' => 'on hold'
+                                  ];
+                                  $classMap = [
+                                    'not_started' => 'secondary',
+                                    'in_progress' => 'primary',
+                                    'completed' => 'success',
+                                    'on_hold' => 'warning'
+                                  ];
+                                  $badgeClass = $classMap[$status] ?? 'secondary';
+                                  $badgeLabel = $labelMap[$status] ?? htmlspecialchars(ucfirst(str_replace('_',' ',$status)));
+                                ?>
+                                <h6 class="mb-1">
+                                  <?= htmlspecialchars($task['taskName']) ?>
+                                  <span class="badge rounded-pill bg-<?= $badgeClass ?> align-middle" style="vertical-align: middle;"><?= $badgeLabel ?></span>
+                                </h6>
                                 <small class="text-muted"><?= htmlspecialchars($task['description'] ?? 'No description') ?></small>
                               </div>
                               <div class="d-flex gap-2 align-items-start">
@@ -190,6 +209,15 @@ if (!empty($_SESSION['flash_success']) || !empty($_SESSION['flash_error'])) {
                     <div class="card">
                       <div class="card-body">
                         <h6 class="card-subtitle mb-3 text-muted">Project Info</h6>
+                        <?php if (!empty($proj['latestReaction'])): ?>
+                          <div class="mb-3">
+                            <small class="text-muted d-block"><i class="bi bi-person-check"></i> Teacher's reaction</small>
+                            <span style="font-size: 1.25rem;" class="me-2"><?= htmlspecialchars($proj['latestReaction']) ?></span>
+                            <?php if (!empty($proj['latestReactionBy'])): ?>
+                              <small class="text-muted">by <?= htmlspecialchars($proj['latestReactionBy']) ?></small>
+                            <?php endif; ?>
+                          </div>
+                        <?php endif; ?>
                         <div class="mb-3">
                           <small class="text-muted d-block">Status</small>
                           <?php

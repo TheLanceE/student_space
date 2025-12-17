@@ -37,6 +37,24 @@ if ($projectId) {
 <body>
   <div class="container py-4">
     <h3><?= htmlspecialchars($task['taskName']) ?></h3>
+    <?php
+      $status = $task['status'] ?? 'not_started';
+      $labelMap = [
+        'not_started' => 'not started',
+        'in_progress' => 'in progress',
+        'completed' => 'completed',
+        'on_hold' => 'on hold'
+      ];
+      $classMap = [
+        'not_started' => 'secondary',
+        'in_progress' => 'primary',
+        'completed' => 'success',
+        'on_hold' => 'warning'
+      ];
+      $badgeClass = $classMap[$status] ?? 'secondary';
+      $badgeLabel = $labelMap[$status] ?? htmlspecialchars(ucfirst(str_replace('_',' ',$status)));
+    ?>
+    <p><strong>Status:</strong> <span class="badge rounded-pill bg-<?= $badgeClass ?>"><?= $badgeLabel ?></span></p>
     <p><?= htmlspecialchars($task['description'] ?? '') ?></p>
     <?php if ($project): ?>
       <p><strong>Project:</strong> <?= htmlspecialchars($project['projectName']) ?></p>
