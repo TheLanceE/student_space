@@ -1,3 +1,37 @@
+<?php
+require_once __DIR__ . '/../../Controllers/auth_check.php';
+require_once __DIR__ . '/../../Models/Quiz.php';
+
+if (($_SESSION['role'] ?? null) !== 'admin') {
+	http_response_code(403);
+	die('Forbidden');
+}
+
+$error = null;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+	$posted = (string)($_POST['csrf_token'] ?? '');
+	$sessionToken = (string)($_SESSION['csrf_token'] ?? '');
+	if ($posted === '' || $sessionToken === '' || !hash_equals($sessionToken, $posted)) {
+		$error = 'Invalid CSRF token';
+	} else {
+		$action = (string)($_POST['action'] ?? '');
+		if ($action === 'delete') {
+			$quizId = trim((string)($_POST['quizId'] ?? ''));
+			if ($quizId !== '') {
+				$ok = Quiz::delete($db_connection, $quizId);
+				if (!$ok) {
+					$error = 'Failed to delete quiz';
+				}
+			}
+		}
+	}
+}
+
+$quizzes = Quiz::listAll($db_connection);
+$total = count($quizzes);
+?>
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -10,197 +44,76 @@
  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 </head>
 <body data-page="admin-quizzes">
- <nav class="navbar navbar-expand-lg navbar-dark admin-nav">
- <div class="container-fluid">
- <a class="navbar-brand" href="dashboard.php"><i class="bi bi-shield-check"></i> EduMind+ Admin</a>
- <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation">
- <span class="navbar-toggler-icon"></span>
- </button>
- <div class="collapse navbar-collapse" id="nav">
- <ul class="navbar-nav me-auto">
- <li class="nav-item"><a class="nav-link" href="dashboard.php"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
- <li class="nav-item"><a class="nav-link" href="projects.php"><i class="bi bi-folder me-1"></i>Projects</a></li>
- <li class="nav-item"><a class="nav-link" href="users.php"><i class="bi bi-people me-1"></i>Users</a></li>
- <li class="nav-item"><a class="nav-link" href="roles.php"><i class="bi bi-person-badge me-1"></i>Roles</a></li>
- <li class="nav-item"><a class="nav-link" href="courses.php"><i class="bi bi-book me-1"></i>Courses</a></li>
- <li class="nav-item"><a class="nav-link" href="events.php"><i class="bi bi-calendar-event me-1"></i>Events</a></li>
- <li class="nav-item"><a class="nav-link active" aria-current="page" href="quizzes.php"><i class="bi bi-question-circle me-1"></i>Quizzes</a></li>
- <li class="nav-item"><a class="nav-link" href="quiz-reports.php"><i class="bi bi-graph-up me-1"></i>Quiz Reports</a></li>
- <li class="nav-item"><a class="nav-link" href="logs.php"><i class="bi bi-journal-text me-1"></i>Logs</a></li>
- <li class="nav-item"><a class="nav-link" href="reports.php"><i class="bi bi-file-bar-graph me-1"></i>Reports</a></li>
- <li class="nav-item"><a class="nav-link" href="settings.php"><i class="bi bi-gear me-1"></i>Settings</a></li>
- </ul>
- <a href="../../Controllers/logout_handler.php" class="btn btn-outline-light btn-sm"><i class="bi bi-box-arrow-right me-1"></i>Logout</a>
- </div>
- </div>
- </nav>
+ <?php include __DIR__ . '/../partials/navbar_admin.php'; ?>
 
  <main class="container py-4">
  <div class="d-flex justify-content-between align-items-center mb-4">
- <h1 class="h3">Quiz Management</h1>
- <div class="text-muted">Admin can view and delete quizzes</div>
+	 <h1 class="h3">Quiz Management</h1>
+	 <div class="text-muted">Total: <?= (int)$total ?></div>
  </div>
 
- <div class="row g-3 mb-4">
- <div class="col-12 col-lg-3">
- <div class="stat">
- <div class="text-muted small"><i class="bi bi-question-circle-fill me-1"></i>Total Quizzes</div>
- <div id="totalQuizzes" class="h4 mb-0">-</div>
- </div>
- </div>
- <div class="col-12 col-lg-3">
- <div class="stat">
- <div class="text-muted small"><i class="bi bi-check-circle me-1"></i>Active</div>
- <div id="activeQuizzes" class="h4 mb-0">-</div>
- </div>
- </div>
- <div class="col-12 col-lg-3">
- <div class="stat">
- <div class="text-muted small"><i class="bi bi-pencil me-1"></i>Draft</div>
- <div id="draftQuizzes" class="h4 mb-0">-</div>
- </div>
- </div>
- <div class="col-12 col-lg-3">
- <div class="stat">
- <div class="text-muted small"><i class="bi bi-people me-1"></i>Attempts</div>
- <div id="totalAttempts" class="h4 mb-0">-</div>
- </div>
- </div>
- </div>
+ <?php if ($error): ?>
+	 <div class="alert alert-danger" role="alert"><?= htmlspecialchars($error) ?></div>
+ <?php endif; ?>
 
  <div class="card shadow-sm">
- <div class="card-body">
- <h2 class="h6 mb-3">All Quizzes</h2>
- <div class="table-responsive">
- <table class="table table-hover align-middle">
- <thead>
- <tr>
- <th>Quiz Name</th>
- <th>Category</th>
- <th>Grade</th>
- <th>Questions</th>
- <th>Status</th>
- <th>Created By</th>
- <th>Created</th>
- <th>Attempts</th>
- <th>Actions</th>
- </tr>
- </thead>
- <tbody id="quizzesTable">
- <tr><td colspan="9" class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></td></tr>
- </tbody>
- </table>
- </div>
- </div>
+	 <div class="card-body">
+		 <h2 class="h6 mb-3">All Quizzes</h2>
+		 <div class="table-responsive">
+			 <table class="table table-hover align-middle">
+				 <thead>
+				 <tr>
+					 <th>Title</th>
+					 <th>Course</th>
+					 <th>Teacher</th>
+					 <th>Questions</th>
+					 <th>Duration</th>
+					 <th>Difficulty</th>
+					 <th>Created</th>
+					 <th class="text-end">Actions</th>
+				 </tr>
+				 </thead>
+				 <tbody>
+				 <?php if (!$quizzes): ?>
+					 <tr><td colspan="8" class="text-center py-4 text-muted">No quizzes found</td></tr>
+				 <?php else: ?>
+					 <?php foreach ($quizzes as $q): ?>
+						 <?php
+						 $questionsCount = 0;
+						 $decoded = json_decode((string)($q['questions'] ?? '[]'), true);
+						 if (is_array($decoded)) {
+							 $questionsCount = count($decoded);
+						 }
+						 ?>
+						 <tr>
+							 <td>
+								 <div class="fw-semibold"><?= htmlspecialchars((string)($q['title'] ?? '')) ?></div>
+								 <div class="text-muted small">ID: <?= htmlspecialchars((string)($q['id'] ?? '')) ?></div>
+							 </td>
+							 <td class="text-muted small"><?= htmlspecialchars((string)($q['courseTitle'] ?? $q['courseId'] ?? '')) ?></td>
+							 <td class="text-muted small"><?= htmlspecialchars((string)($q['teacherName'] ?? $q['createdBy'] ?? '')) ?></td>
+							 <td><?= (int)$questionsCount ?></td>
+							 <td class="text-muted small"><?= (int)($q['durationSec'] ?? 60) ?>s</td>
+							 <td class="text-muted small"><?= htmlspecialchars((string)($q['difficulty'] ?? '')) ?></td>
+							 <td class="text-muted small"><?= htmlspecialchars((string)($q['createdAt'] ?? '')) ?></td>
+							 <td class="text-end">
+								 <form method="post" class="d-inline" onsubmit="return confirm('Delete this quiz? This may also remove related scores.');">
+									 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+									 <input type="hidden" name="action" value="delete">
+									 <input type="hidden" name="quizId" value="<?= htmlspecialchars((string)($q['id'] ?? '')) ?>">
+									 <button class="btn btn-sm btn-danger" type="submit"><i class="bi bi-trash"></i> Delete</button>
+								 </form>
+							 </td>
+						 </tr>
+					 <?php endforeach; ?>
+				 <?php endif; ?>
+				 </tbody>
+			 </table>
+		 </div>
+	 </div>
  </div>
  </main>
 
  <script src="../../shared-assets/vendor/bootstrap.bundle.min.js"></script>
- <script>
- document.addEventListener('DOMContentLoaded', function() {
- loadQuizzes();
- });
-
- function loadQuizzes() {
- fetch('../../Quizzes/quizzes/controller/quizcontroller.php?action=getAllQuizzes')
- .then(res => res.json())
- .then(data => {
- const quizzes = data.quizzes || data.data || [];
- displayQuizzes(quizzes);
- updateStats(quizzes);
- })
- .catch(err => {
- document.getElementById('quizzesTable').innerHTML = '<tr><td colspan="9" class="text-center text-danger">Error loading quizzes</td></tr>';
- console.error('Error loading quizzes:', err);
- });
- }
-
- function displayQuizzes(quizzes) {
- const tbody = document.getElementById('quizzesTable');
- 
- if (!quizzes || quizzes.length === 0) {
- tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-muted">No quizzes found</td></tr>';
- return;
- }
-
- let html = '';
- quizzes.forEach(quiz => {
- const statusBadge = quiz.status === 'active' 
- ? '<span class="badge bg-success">Active</span>' 
- : '<span class="badge bg-warning text-dark">Draft</span>';
- 
- const categoryBadge = getCategoryBadge(quiz.category || '');
- 
- html += `
- <tr>
- <td>${quiz.title || 'Untitled'}</td>
- <td>${categoryBadge}</td>
- <td>Grade ${quiz.gradeLevel || quiz.grade || ''}</td>
- <td>${quiz.questionCount || 0}</td>
- <td>${statusBadge}</td>
- <td>${quiz.createdByName || 'Teacher'}</td>
- <td>${quiz.createdDate || ''}</td>
- <td>${quiz.attempts || 0}</td>
- <td>
- <button class="btn btn-sm btn-danger" onclick="deleteQuiz('${quiz.id}')">
- <i class="bi bi-trash"></i> Delete
- </button>
- </td>
- </tr>
- `;
- });
- 
- tbody.innerHTML = html;
- }
-
- function getCategoryBadge(category) {
- const categories = {
- 'math': { name: 'Mathematics', class: 'bg-primary' },
- 'science': { name: 'Science', class: 'bg-info' },
- 'history': { name: 'History', class: 'bg-warning text-dark' },
- 'english': { name: 'English', class: 'bg-success' },
- 'geography': { name: 'Geography', class: 'bg-secondary' },
- 'art': { name: 'Art', class: 'bg-danger' }
- };
- 
- const cat = categories[category.toLowerCase()] || { name: category, class: 'bg-secondary' };
- return `<span class="badge ${cat.class}">${cat.name}</span>`;
- }
-
- function updateStats(quizzes) {
- const total = quizzes.length;
- const active = quizzes.filter(q => q.status === 'active').length;
- const draft = total - active;
- const attempts = quizzes.reduce((sum, q) => sum + (q.attempts || 0), 0);
- 
- document.getElementById('totalQuizzes').textContent = total;
- document.getElementById('activeQuizzes').textContent = active;
- document.getElementById('draftQuizzes').textContent = draft;
- document.getElementById('totalAttempts').textContent = attempts;
- }
-
- function deleteQuiz(quizId) {
- if (!confirm('Are you sure you want to delete this quiz? This action cannot be undone.')) return;
- 
- fetch('../../Quizzes/quizzes/controller/quizcontroller.php?action=deleteQuiz', {
- method: 'POST',
- headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
- body: 'id=' + encodeURIComponent(quizId)
- })
- .then(res => res.json())
- .then(data => {
- if (data.success || data.deleted) {
- alert('Quiz deleted successfully');
- loadQuizzes();
- } else {
- alert('Failed to delete quiz: ' + (data.error || 'Unknown error'));
- }
- })
- .catch(err => {
- alert('Error deleting quiz');
- console.error('Delete error:', err);
- });
- }
- </script>
 </body>
 </html>

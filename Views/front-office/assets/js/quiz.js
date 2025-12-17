@@ -1,16 +1,20 @@
-(function(){
-  const params = new URLSearchParams(location.search);
-  const quizId = params.get('quizId');
-  const quiz = Data.getQuizById(quizId);
-  const user = Storage.get('currentUser');
+(() => {
+  const ctx = window.__QUIZ_CONTEXT__ || {};
+  const quiz = ctx.quiz;
+  const studentId = ctx.studentId;
+  const username = ctx.username;
+  const csrfToken = (document.querySelector('meta[name="csrf-token"]') || {}).content || '';
 
-  if(!quiz){
-    document.getElementById('quizTitle').textContent = 'Quiz not found';
-    document.getElementById('quizForm').style.display = 'none';
+  if (!quiz || !quiz.id) {
+    const title = document.getElementById('quizTitle');
+    if (title) title.textContent = 'Quiz not found';
+    const form = document.getElementById('quizForm');
+    if (form) form.style.display = 'none';
     return;
   }
 
   let remaining = quiz.durationSec || 60;
+  const startedAt = Date.now();
   let intervalId = null;
 
   function startTimer(){
@@ -65,44 +69,58 @@
     });
   }
 
-  function submitQuiz(){
+  async function submitQuiz(){
     if(intervalId) clearInterval(intervalId);
     document.getElementById('submitBtn').disabled = true;
 
-    let correct = 0;
-    const details = [];
+    const answers = {};
     for(const q of quiz.questions){
       const selected = document.querySelector(`input[name="${q.id}"]:checked`);
-      const chosenIdx = selected ? parseInt(selected.value, 10) : -1;
-      const isCorrect = chosenIdx === q.correctIndex;
-      if(isCorrect) correct += 1;
-      details.push({ qid: q.id, chosenIdx, correctIdx: q.correctIndex, isCorrect });
-
-      const fb = document.getElementById(`feedback_${q.id}`);
-      fb.className = 'mt-2 small ' + (isCorrect ? 'quiz-correct p-2' : 'quiz-incorrect p-2');
-      fb.textContent = isCorrect ? 'Correct!' : `Incorrect. Correct answer: ${q.options[q.correctIndex]}`;
+      answers[q.id] = selected ? parseInt(selected.value, 10) : -1;
     }
 
-    const existingAttempts = (window.Data && typeof Data.getScoresForUser === 'function')
-      ? Data.getScoresForUser(user.id).filter(s => s.quizId === quiz.id && s.type === 'quiz')
-      : [];
+    const durationSec = Math.max(0, Math.round((Date.now() - startedAt) / 1000));
 
-    const record = {
-      id: Database.nextId('score'),
-      userId: user.id,
-      username: user.username,
-      courseId: quiz.courseId,
-      quizId: quiz.id,
-      score: correct,
-      total: quiz.questions.length,
-      durationSec: (quiz.durationSec || 60) - remaining,
-      attempt: existingAttempts.length + 1,
-      timestamp: new Date().toISOString(),
-      type: 'quiz'
-    };
+    let apiResult;
+    try {
+      const res = await fetch('../../Controllers/ScoreController.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
+        body: JSON.stringify({
+          action: 'submit_quiz_attempt',
+          quizId: quiz.id,
+          answers,
+          durationSec,
+          csrf_token: csrfToken
+        })
+      });
+      apiResult = await res.json();
+    } catch (e) {
+      apiResult = { success: false, error: 'Network error while saving score' };
+    }
 
-    if(window.Data && typeof Data.saveScore === 'function'){
-      Data.saveScore(record);
+    if (!apiResult || apiResult.success !== true) {
+      alert((apiResult && apiResult.error) ? apiResult.error : 'Failed to submit quiz');
+      document.getElementById('submitBtn').disabled = false;
+      return;
+    }
+
+    const record = apiResult.record;
+    const feedback = apiResult.feedback || {};
+
+    // Per-question feedback
+    for(const q of quiz.questions){
+      const fb = document.getElementById(`feedback_${q.id}`);
+      const f = feedback[q.id] || null;
+      if (!fb || !f) continue;
+
+      fb.className = 'mt-2 small ' + (f.isCorrect ? 'quiz-correct p-2' : 'quiz-incorrect p-2');
+      const correctIdx = typeof f.correctIdx === 'number' ? f.correctIdx : -1;
+      const correctText = (correctIdx >= 0 && correctIdx < q.options.length) ? q.options[correctIdx] : '';
+      fb.textContent = f.isCorrect ? 'Correct!' : (correctText ? `Incorrect. Correct answer: ${correctText}` : 'Incorrect.');
     }
 
     // Result panel
@@ -125,15 +143,26 @@
         </div>
       </div>
     `;
-    const suggestions = SuggestionEngine.generate(user);
     const ul = panel.querySelector('#resultSuggestions');
+
+    const suggestions = [];
+    if (pct >= 90) {
+      suggestions.push('Great work — try a harder quiz next.');
+    } else if (pct >= 70) {
+      suggestions.push('Review the questions you missed and retry later.');
+    } else {
+      suggestions.push('Revisit the lesson content and practice similar problems.');
+    }
     suggestions.forEach(s => { const li = document.createElement('li'); li.textContent = s; ul.appendChild(li); });
   }
 
-  document.getElementById('quizForm').addEventListener('submit', function(e){ e.preventDefault(); submitQuiz(); });
+  const quizForm = document.getElementById('quizForm');
+  if (quizForm) {
+    quizForm.addEventListener('submit', function(e){ e.preventDefault(); submitQuiz(); });
+  }
 
   // Handle report submission
-  document.getElementById('submitReport').addEventListener('click', () => {
+  document.getElementById('submitReport').addEventListener('click', async () => {
     const form = document.getElementById('reportForm');
     const type = document.getElementById('reportType').value;
     const desc = document.getElementById('reportDescription').value.trim();
@@ -143,18 +172,32 @@
       return;
     }
 
-    const report = {
-      id: Database.nextId('qreport'),
-      quizId: document.getElementById('reportQuizId').value,
-      questionId: document.getElementById('reportQuestionId').value,
-      reportedBy: user.id,
-      reportType: type,
-      description: desc,
-      status: 'pending',
-      createdAt: new Date().toISOString()
-    };
+    let apiResult;
+    try {
+      const res = await fetch('../../Controllers/QuizReportController.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
+        body: JSON.stringify({
+          action: 'submit_student_report',
+          csrf_token: csrfToken,
+          quizId: document.getElementById('reportQuizId').value,
+          questionId: document.getElementById('reportQuestionId').value,
+          reportType: type,
+          description: desc
+        })
+      });
+      apiResult = await res.json();
+    } catch (e) {
+      apiResult = { success: false, error: 'Network error while submitting report' };
+    }
 
-    Database.insert('quizReports', report);
+    if (!apiResult || apiResult.success !== true) {
+      alert((apiResult && apiResult.error) ? apiResult.error : 'Failed to submit report');
+      return;
+    }
     
     const modal = bootstrap.Modal.getInstance(document.getElementById('reportModal'));
     modal.hide();

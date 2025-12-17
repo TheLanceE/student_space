@@ -43,6 +43,23 @@ $gradeLevel = $_POST['gradeLevel'] ?? null;
 $subject = $_POST['subject'] ?? null;
 $nationalId = $_POST['nationalId'] ?? null;
 
+// Input validation
+if (strlen($username) < 3 || strlen($username) > 50) {
+    redirect_with_error('Username must be 3-50 characters.');
+}
+if (!preg_match('/^[a-zA-Z0-9_]+$/', $username)) {
+    redirect_with_error('Username can only contain letters, numbers, and underscores.');
+}
+if (strlen($password) < 6) {
+    redirect_with_error('Password must be at least 6 characters.');
+}
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    redirect_with_error('Please enter a valid email address.');
+}
+if (strlen($fullName) < 2 || strlen($fullName) > 100) {
+    redirect_with_error('Full name must be 2-100 characters.');
+}
+
 try {
     // Database connection already available as $db_connection from config.php
 
@@ -54,7 +71,7 @@ try {
             redirect_with_error('Username or email already exists.');
         }
 
-        $id = uniqid('teach_');
+        $id = 'teach_' . bin2hex(random_bytes(8));
         $hash = password_hash($password, PASSWORD_DEFAULT);
 
         $insert = $db_connection->prepare('INSERT INTO teachers (id, username, password, fullName, email, mobile, address, specialty, nationalId, createdAt) VALUES (?,?,?,?,?,?,?,?,?,NOW())');
@@ -70,7 +87,7 @@ try {
             redirect_with_error('Username or email already exists.');
         }
 
-        $id = uniqid('s_');
+        $id = 'stu_' . bin2hex(random_bytes(8));
         $hash = password_hash($password, PASSWORD_DEFAULT);
 
         $insert = $db_connection->prepare('INSERT INTO students (id, username, password, fullName, email, mobile, address, gradeLevel, createdAt) VALUES (?,?,?,?,?,?,?,?,NOW())');

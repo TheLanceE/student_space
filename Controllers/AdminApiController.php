@@ -8,7 +8,8 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/auth_check.php';
 
 // Ensure admin role
-if ($_SESSION['role'] !== 'admin') {
+$role = (string)($_SESSION['user']['role'] ?? $_SESSION['role'] ?? '');
+if ($role !== 'admin') {
     http_response_code(403);
     echo json_encode(['success' => false, 'error' => 'Unauthorized']);
     exit;

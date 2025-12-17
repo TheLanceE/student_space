@@ -3,16 +3,19 @@
  * AuthController - Handles user authentication with secure session management
  */
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/SecurityHelpers.php';
 require_once __DIR__ . '/../Models/User.php';
 
 class AuthController {
     private $db;
     private $userModel;
+    private $rateLimiter;
 
     public function __construct() {
         global $db_connection;
         $this->db = $db_connection;
         $this->userModel = new User($this->db);
+        $this->rateLimiter = new RateLimiter($this->db);
     }
 
     /**
@@ -34,7 +37,20 @@ class AuthController {
      */
     public function login($username, $password, $role = 'student') {
         try {
-            $table = $role === 'teacher' ? 'teachers' : ($role === 'admin' ? 'admins' : 'students');
+            // Rate limiting - 5 attempts per minute per IP
+            $clientIP = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+            if ($this->rateLimiter->isRateLimited('api_login', $clientIP, 5, 60)) {
+                return ['success' => false, 'error' => 'Too many login attempts. Please wait a minute.'];
+            }
+            
+            // Explicit table name whitelist (prevents SQL injection)
+            $tableMap = [
+                'student' => 'students',
+                'teacher' => 'teachers',
+                'admin' => 'admins'
+            ];
+            $table = $tableMap[$role] ?? 'students';
+            $role = array_key_exists($role, $tableMap) ? $role : 'student';
             
             $stmt = $this->db->prepare("
                 SELECT * FROM $table 

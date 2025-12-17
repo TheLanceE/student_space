@@ -9,8 +9,22 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
   die('Method not allowed');
 }
 
+// CSRF validation
+$csrf = $_POST['csrf_token'] ?? '';
+if (!SessionManager::validateCSRFToken($csrf)) {
+    error_log('[OAuth Onboard] CSRF validation failed');
+    header('Location: ../Views/front-office/login.php?error=csrf');
+    exit;
+}
+
 $role = $_POST['role'] ?? ($_SESSION['role'] ?? 'student');
 $userId = $_SESSION['user_id'] ?? null;
+
+// Validate role against whitelist
+$validRoles = ['student', 'teacher'];
+if (!in_array($role, $validRoles, true)) {
+    $role = 'student';
+}
 
 error_log('[OAuth Onboard] POST data: ' . json_encode($_POST));
 error_log('[OAuth Onboard] Session data: user_id=' . $userId . ', role=' . $role);

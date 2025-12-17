@@ -293,35 +293,7 @@ try {
  </style>
 </head>
 <body>
- <nav class="navbar navbar-expand-lg navbar-dark student-nav">
-   <div class="container-fluid">
-    <a class="navbar-brand" href="dashboard.php">
-      <i class="bi bi-mortarboard-fill"></i>
-      EduMind+
-    </a>
-     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample07">
-       <span class="navbar-toggler-icon"></span>
-     </button>
-     <div class="collapse navbar-collapse" id="navbarsExample07">
-       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item"><a class="nav-link" href="dashboard.php"><i class="bi bi-house-door-fill me-1"></i>Dashboard</a></li>
-        <li class="nav-item"><a class="nav-link" href="projects.php"><i class="bi bi-folder me-1"></i>Projects</a></li>
-        <li class="nav-item"><a class="nav-link" href="courses.php"><i class="bi bi-book me-1"></i>Courses</a></li>
-        <li class="nav-item"><a class="nav-link" href="quiz.php"><i class="bi bi-question-circle me-1"></i>Quiz</a></li>
-        <li class="nav-item"><a class="nav-link active" href="profile.php"><i class="bi bi-person-circle me-1"></i>Profile</a></li>
-       </ul>
-       <div class="d-flex align-items-center gap-3">
-         <span class="text-white welcome-text">
-           <i class="bi bi-person-badge"></i>
-          <?php echo htmlspecialchars($sessionUsername); ?>
-         </span>
-         <a href="../../Controllers/logout_handler.php" class="btn btn-outline-light btn-sm">
-           <i class="bi bi-box-arrow-right me-1"></i>Logout
-         </a>
-       </div>
-     </div>
-   </div>
- </nav>
+ <?php include __DIR__ . '/../partials/navbar_student.php'; ?>
 
  <div class="profile-header">
    <div class="container text-center" style="position: relative; z-index: 1;">
@@ -343,6 +315,7 @@ try {
   <div class="card shadow-sm mb-4">
     <div class="card-body d-flex flex-wrap align-items-center gap-2">
       <form action="../../Controllers/upload_avatar.php" method="POST" enctype="multipart/form-data" class="d-flex flex-wrap align-items-center gap-2">
+        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(SessionManager::getCSRFToken(), ENT_QUOTES, 'UTF-8'); ?>">
         <input type="file" name="avatar" accept="image/png, image/jpeg, image/webp" class="form-control form-control-sm" required>
         <button type="submit" class="btn btn-primary btn-sm">Upload photo</button>
       </form>

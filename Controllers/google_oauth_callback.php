@@ -27,8 +27,12 @@ if (!empty($_GET['state'])) {
 
 $role = $_SESSION['oauth_role'] ?? ($statePayload['role'] ?? 'student'); // Default to student
 $stateNonce = $_SESSION['oauth_state_nonce'] ?? null;
-if ($statePayload && isset($statePayload['nonce']) && $stateNonce && !hash_equals($stateNonce, $statePayload['nonce'])) {
-    error_log('[OAuth Callback] State nonce mismatch');
+if ($statePayload && isset($statePayload['nonce']) && $stateNonce) {
+    if (!hash_equals($stateNonce, $statePayload['nonce'])) {
+        error_log('[OAuth Callback] State nonce mismatch - possible CSRF attack');
+        header('Location: ../Views/front-office/login.php?error=csrf');
+        exit;
+    }
 }
 
 try {
@@ -63,14 +67,10 @@ try {
 
     $sessionUsername = $user['username'] ?? ($google_user['email'] ? strtok($google_user['email'], '@') : 'user');
     $sessionFullName = $user['fullName'] ?? ($google_user['name'] ?? $sessionUsername);
-    
-    // Set session
-    $_SESSION['user_id'] = $user['id'];
-    $_SESSION['username'] = $sessionUsername;
-    $_SESSION['role'] = $role;
-    $_SESSION['logged_in'] = true;
+
+    // Set session (new + legacy compatibility)
+    SessionManager::createUserSession($user['id'], $sessionUsername, $role, $sessionFullName);
     $_SESSION['auth_method'] = 'google';
-    $_SESSION['last_activity'] = time();
     $_SESSION['email'] = $user['email'] ?? $google_user['email'] ?? '';
     $_SESSION['google_name'] = $sessionFullName;
     $_SESSION['full_name'] = $sessionFullName;

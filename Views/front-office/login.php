@@ -1,5 +1,7 @@
 <?php
-// No session_start needed - handled by authentication flow
+require_once __DIR__ . '/../../Controllers/SessionManager.php';
+SessionManager::init();
+$csrfToken = SessionManager::getCSRFToken();
 ?>
 <!doctype html>
 <html lang="en">
@@ -59,6 +61,7 @@
     
     .login-card {
       background: rgba(255, 255, 255, 0.95);
+      -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
       border: none;
       box-shadow: 0 20px 60px rgba(0,0,0,0.3);
@@ -257,9 +260,22 @@
         if (isset($_GET['registered'])) {
             echo '<div class="alert alert-success border-0">✅ Registration successful! Please login.</div>';
         }
+        if (isset($_GET['error'])) {
+            $error = $_GET['error'];
+            $errorMessages = [
+                'rate_limited' => '⏳ Too many login attempts. Please wait a minute before trying again.',
+                'csrf' => '🔒 Invalid session token. Please try again.',
+                'invalid' => '❌ Invalid username or password.',
+                'empty' => '📝 Please enter username and password.'
+            ];
+            if (isset($errorMessages[$error])) {
+                echo '<div class="alert alert-danger border-0">' . htmlspecialchars($errorMessages[$error]) . '</div>';
+            }
+        }
         ?>
         
         <form method="POST" action="../../Controllers/login_handler.php">
+          <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
           <input type="hidden" name="role" value="student">
           
           <div class="form-floating mb-3">

@@ -51,7 +51,7 @@ header('X-Frame-Options: SAMEORIGIN');
 header('X-XSS-Protection: 1; mode=block');
 
 // For API endpoints, set JSON content type
-if (strpos($_SERVER['REQUEST_URI'], 'Controller.php') !== false) {
+if (strpos($_SERVER['REQUEST_URI'] ?? '', 'Controller.php') !== false) {
     header('Content-Type: application/json');
 }
 ?>

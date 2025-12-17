@@ -36,6 +36,9 @@ class SessionManager {
         
         session_start();
         
+        // Set security headers
+        self::setSecurityHeaders();
+        
         // Initialize session security on first start
         if (!isset($_SESSION['initialized'])) {
             self::regenerateId();
@@ -50,6 +53,9 @@ class SessionManager {
         
         // Validate session security
         self::validateSession();
+
+        // Bridge legacy session shape (older code uses top-level keys)
+        self::hydrateLegacySession();
     }
     
     /**
@@ -69,6 +75,14 @@ class SessionManager {
         $_SESSION['last_activity'] = time();
         $_SESSION['user_ip'] = self::getClientIP();
         $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'] ?? '';
+
+        // Legacy compatibility keys used by older pages/controllers
+        $_SESSION['user_id'] = $userId;
+        $_SESSION['username'] = $username;
+        $_SESSION['role'] = $role;
+        $_SESSION['full_name'] = $fullName ?? $username;
+        $_SESSION['logged_in'] = true;
+        $_SESSION['login_time'] = time();
         
         return true;
     }
@@ -86,7 +100,10 @@ class SessionManager {
      */
     public static function isLoggedIn() {
         self::init();
-        return isset($_SESSION['user']) && isset($_SESSION['user']['id']);
+        if (isset($_SESSION['user']) && isset($_SESSION['user']['id'])) {
+            return true;
+        }
+        return !empty($_SESSION['logged_in']) && !empty($_SESSION['user_id']);
     }
     
     /**
@@ -102,18 +119,79 @@ class SessionManager {
      */
     public static function requireAuth($requiredRole = null) {
         self::init();
-        
+
         if (!self::isLoggedIn()) {
             self::destroy();
-            header('Location: /edumind/Views/front-office/login.php');
+
+            if (self::isJsonRequest()) {
+                http_response_code(401);
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'error' => 'Authentication required']);
+                exit;
+            }
+
+            header('Location: ' . self::getDefaultLoginPath());
             exit;
         }
         
         if ($requiredRole && !self::hasRole($requiredRole)) {
             self::destroy();
             http_response_code(403);
-            die(json_encode(['success' => false, 'error' => 'Access denied']));
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'error' => 'Access denied']);
+            exit;
         }
+    }
+
+    private static function hydrateLegacySession() {
+        if (isset($_SESSION['user']) && isset($_SESSION['user']['id'])) {
+            return;
+        }
+
+        if (empty($_SESSION['logged_in']) || empty($_SESSION['user_id'])) {
+            return;
+        }
+
+        $username = (string)($_SESSION['username'] ?? 'user');
+        $role = (string)($_SESSION['role'] ?? 'student');
+        $fullName = (string)($_SESSION['full_name'] ?? $_SESSION['google_name'] ?? $username);
+
+        $_SESSION['user'] = [
+            'id' => $_SESSION['user_id'],
+            'username' => $username,
+            'role' => $role,
+            'fullName' => $fullName,
+            'logged_in_at' => $_SESSION['login_time'] ?? time()
+        ];
+
+        if (!isset($_SESSION['last_activity'])) {
+            $_SESSION['last_activity'] = time();
+        }
+    }
+
+    private static function isJsonRequest() {
+        $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
+        $xrw = $_SERVER['HTTP_X_REQUESTED_WITH'] ?? '';
+        $uri = $_SERVER['REQUEST_URI'] ?? '';
+
+        if (stripos($accept, 'application/json') !== false) {
+            return true;
+        }
+        if (strtolower($xrw) === 'xmlhttprequest') {
+            return true;
+        }
+        return (strpos($uri, 'Controller') !== false);
+    }
+
+    private static function getDefaultLoginPath() {
+        $uri = $_SERVER['REQUEST_URI'] ?? '';
+        if (strpos($uri, '/Views/admin-back-office/') !== false) {
+            return '/edumind/Views/admin-back-office/login.php';
+        }
+        if (strpos($uri, '/Views/teacher-back-office/') !== false) {
+            return '/edumind/Views/teacher-back-office/login.php';
+        }
+        return '/edumind/Views/front-office/login.php';
     }
     
     /**
@@ -317,6 +395,41 @@ class SessionManager {
         }
         
         return self::MAX_IDLE_TIME;
+    }
+    
+    /**
+     * Set security headers for all responses
+     */
+    private static function setSecurityHeaders() {
+        // Prevent MIME type sniffing
+        header('X-Content-Type-Options: nosniff');
+        
+        // Prevent clickjacking
+        header('X-Frame-Options: SAMEORIGIN');
+        
+        // XSS protection (legacy browsers)
+        header('X-XSS-Protection: 1; mode=block');
+        
+        // Referrer policy
+        header('Referrer-Policy: strict-origin-when-cross-origin');
+        
+        // Content Security Policy
+        // Allow inline scripts/styles for Bootstrap and legacy code, but restrict sources
+        $csp = [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://apis.google.com",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+            "font-src 'self' https://fonts.gstatic.com",
+            "img-src 'self' data: https:",
+            "connect-src 'self' https://accounts.google.com",
+            "frame-src 'self' https://accounts.google.com",
+            "form-action 'self'",
+            "base-uri 'self'"
+        ];
+        header('Content-Security-Policy: ' . implode('; ', $csp));
+        
+        // Permissions Policy (restrict sensitive features)
+        header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
     }
 }
 ?>

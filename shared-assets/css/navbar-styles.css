@@ -11,6 +11,7 @@
 /* Student Navbar - Purple Gradient */
 .navbar.student-nav {
   background: var(--student-gradient) !important;
+  -webkit-backdrop-filter: saturate(120%) blur(4px);
   backdrop-filter: saturate(120%) blur(4px);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   animation: slideDown 0.6s ease-out;
@@ -19,6 +20,7 @@
 /* Teacher Navbar - Green Gradient */
 .navbar.teacher-nav {
   background: var(--teacher-gradient) !important;
+  -webkit-backdrop-filter: saturate(120%) blur(4px);
   backdrop-filter: saturate(120%) blur(4px);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   animation: slideDown 0.6s ease-out;
@@ -27,6 +29,7 @@
 /* Admin Navbar - Professional Blue Gradient */
 .navbar.admin-nav {
   background: var(--admin-gradient) !important;
+  -webkit-backdrop-filter: saturate(120%) blur(3px);
   backdrop-filter: saturate(120%) blur(3px);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border-bottom: 3px solid #1e3c72;

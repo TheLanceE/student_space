@@ -1,5 +1,4 @@
 (function(){
-  console.log('TEACHER PAGES.JS LOADED');
   const body = () => document.body || null;
   const auth = () => window.TAuth;
   const data = () => window.TData;
@@ -9,6 +8,14 @@
   const slugify = (text, fallback='item') => {
     const base = (text || fallback).toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
     return base || `${fallback}_${Date.now().toString(36)}`;
+  };
+  
+  // HTML escape helper for XSS prevention
+  const escapeHtml = (str) => {
+    if (str == null) return '';
+    const div = document.createElement('div');
+    div.textContent = String(str);
+    return div.innerHTML;
   };
 
   const ensureAuth = () => {
@@ -46,7 +53,6 @@
       const passwordField = document.getElementById('password');
       const password = passwordField ? (passwordField.value || passwordField.getAttribute('value') || '') : '';
       
-      console.log('TEACHER LOGIN: username =', username, 'password length =', password.length);
       await auth().login(username, password);
     });
   };
@@ -64,8 +70,6 @@
       // Explicitly capture password field from hidden input
       const passwordField = document.getElementById('regPassword');
       const passwordValue = passwordField ? (passwordField.value || passwordField.getAttribute('value') || '') : '';
-      console.log('TEACHER REGISTER: Password field exists:', !!passwordField);
-      console.log('TEACHER REGISTER: Password value length:', passwordValue.length);
       
       const formData = {
         login: document.getElementById('regLogin').value.trim(),
@@ -77,7 +81,6 @@
         subject: document.getElementById('regSubject').value,
         nationalId: document.getElementById('regNationalId').value.trim()
       };
-      console.log('Teacher - FormData being sent:', { ...formData, password: '***' });
       auth().register(formData);
     });
   };

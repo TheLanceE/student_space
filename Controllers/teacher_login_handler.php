@@ -1,8 +1,17 @@
 <?php
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/SecurityHelpers.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ../Views/teacher-back-office/login.php');
+    exit;
+}
+
+// Rate limit check - 5 attempts per minute per IP
+$rateLimiter = new RateLimiter($db_connection);
+$clientIP = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+if ($rateLimiter->isRateLimited('teacher_login', $clientIP, 5, 60)) {
+    header('Location: ../Views/teacher-back-office/login.php?error=rate_limited');
     exit;
 }
 

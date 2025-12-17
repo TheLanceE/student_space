@@ -1,3 +1,12 @@
+<?php
+require_once __DIR__ . '/../../Controllers/auth_check.php';
+$role = (string)($_SESSION['user']['role'] ?? $_SESSION['role'] ?? '');
+if ($role !== 'admin') {
+    http_response_code(403);
+    die('Forbidden');
+}
+$csrfToken = SessionManager::getCSRFToken();
+?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -9,35 +18,14 @@
  <link href="../../shared-assets/css/navbar-styles.css" rel="stylesheet">
 </head>
 <body data-page="admin-settings">
- <nav class="navbar navbar-expand-lg navbar-dark admin-nav">
- <div class="container-fluid">
- <a class="navbar-brand" href="dashboard.php"><i class="bi bi-shield-check"></i> EduMind+ Admin</a>
- <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation">
- <span class="navbar-toggler-icon"></span>
- </button>
- <div class="collapse navbar-collapse" id="nav">
- <ul class="navbar-nav me-auto">
- <li class="nav-item"><a class="nav-link" href="dashboard.php">Dashboard</a></li>
- <li class="nav-item"><a class="nav-link" href="projects.php">Projects</a></li>
- <li class="nav-item"><a class="nav-link" href="users.php">Users</a></li>
- <li class="nav-item"><a class="nav-link" href="roles.php">Roles</a></li>
- <li class="nav-item"><a class="nav-link" href="courses.php">Courses</a></li>
- <li class="nav-item"><a class="nav-link" href="events.php">Events</a></li>
- <li class="nav-item"><a class="nav-link" href="quiz-reports.php">Quiz Reports</a></li>
- <li class="nav-item"><a class="nav-link" href="logs.php">Logs</a></li>
- <li class="nav-item"><a class="nav-link" href="reports.php">Reports</a></li>
- <li class="nav-item"><a class="nav-link active" aria-current="page" href="settings.php">Settings</a></li>
- </ul>
- <a href="../../Controllers/logout_handler.php" class="btn btn-outline-light btn-sm"><i class="bi bi-box-arrow-right me-1"></i>Logout</a>
- </div>
- </div>
- </nav>
+ <?php include __DIR__ . '/../partials/navbar_admin.php'; ?>
 
  <main class="container py-4">
  <div class="card shadow-sm">
  <div class="card-body">
  <h1 class="h5">Platform Settings (Demo)</h1>
  <form id="settingsForm" class="mt-3">
+ <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
  <div class="row g-3">
  <div class="col-md-6">
  <label class="form-label">Suggestion Engine: Inactivity Days</label>

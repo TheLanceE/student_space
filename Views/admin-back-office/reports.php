@@ -1,3 +1,72 @@
+<?php
+require_once __DIR__ . '/../../Controllers/auth_check.php';
+require_once __DIR__ . '/../../Controllers/ReportController.php';
+
+if (($_SESSION['role'] ?? null) !== 'admin') {
+	http_response_code(403);
+	die('Forbidden');
+}
+
+$controller = new ReportController($db_connection);
+$role = (string)($_SESSION['role'] ?? '');
+$userId = (string)($_SESSION['user_id'] ?? '');
+$status = (string)($_GET['status'] ?? 'All');
+$editId = isset($_GET['edit_id']) ? (int)$_GET['edit_id'] : null;
+
+$message = null;
+$error = null;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+	$action = $_POST['action'] ?? '';
+	if ($action === 'create') {
+		$res = $controller->createForRole($role, $userId);
+		if ($res['ok']) {
+			$message = 'Report created.';
+		} else {
+			$error = $res['error'] ?? 'Failed to create report.';
+		}
+	} elseif ($action === 'update') {
+		$id = (int)($_POST['id'] ?? 0);
+		$res = $controller->updateForRole($role, $userId, $id);
+		if ($res['ok']) {
+			$message = 'Report updated.';
+			$editId = null;
+		} else {
+			$error = $res['error'] ?? 'Failed to update report.';
+			$editId = $id;
+		}
+	} elseif ($action === 'status') {
+		$id = (int)($_POST['id'] ?? 0);
+		$newStatus = (string)($_POST['status'] ?? '');
+		$res = $controller->updateStatusForRole($role, $userId, $id, $newStatus);
+		if ($res['ok']) {
+			$message = 'Status updated.';
+		} else {
+			$error = $res['error'] ?? 'Failed to update status.';
+		}
+	} elseif ($action === 'delete') {
+		$id = (int)($_POST['id'] ?? 0);
+		$res = $controller->deleteForRole($role, $userId, $id);
+		if ($res['ok']) {
+			$message = 'Report deleted.';
+		} else {
+			$error = $res['error'] ?? 'Failed to delete report.';
+		}
+	}
+}
+
+$editReport = null;
+if ($editId !== null && $editId > 0) {
+	$editReport = Report::getById($db_connection, $editId);
+	if (!$editReport) {
+		$editReport = null;
+		$editId = null;
+	}
+}
+
+$reports = $controller->listForRole($role, $userId, $status);
+?>
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -7,46 +76,197 @@
  <link href="../../shared-assets/vendor/bootstrap.min.css" rel="stylesheet">
  <link href="../../shared-assets/css/global.css" rel="stylesheet">
  <link href="../../shared-assets/css/navbar-styles.css" rel="stylesheet">
+ <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 </head>
 <body data-page="admin-reports">
- <nav class="navbar navbar-expand-lg navbar-dark admin-nav">
- <div class="container-fluid">
- <a class="navbar-brand" href="dashboard.php"><i class="bi bi-shield-check"></i> EduMind+ Admin</a>
- <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation">
- <span class="navbar-toggler-icon"></span>
- </button>
- <div class="collapse navbar-collapse" id="nav">
- <ul class="navbar-nav me-auto">
- <li class="nav-item"><a class="nav-link" href="dashboard.php">Dashboard</a></li>
- <li class="nav-item"><a class="nav-link" href="projects.php">Projects</a></li>
- <li class="nav-item"><a class="nav-link" href="users.php">Users</a></li>
- <li class="nav-item"><a class="nav-link" href="roles.php">Roles</a></li>
- <li class="nav-item"><a class="nav-link" href="courses.php">Courses</a></li>
- <li class="nav-item"><a class="nav-link" href="events.php">Events</a></li>
- <li class="nav-item"><a class="nav-link" href="quiz-reports.php">Quiz Reports</a></li>
- <li class="nav-item"><a class="nav-link" href="logs.php">Logs</a></li>
- <li class="nav-item"><a class="nav-link active" aria-current="page" href="reports.php">Reports</a></li>
- <li class="nav-item"><a class="nav-link" href="settings.php">Settings</a></li>
- </ul>
- <a href="../../Controllers/logout_handler.php" class="btn btn-outline-light btn-sm"><i class="bi bi-box-arrow-right me-1"></i>Logout</a>
- </div>
- </div>
- </nav>
+ <?php include __DIR__ . '/../partials/navbar_admin.php'; ?>
 
  <main class="container py-4">
+ <?php if ($message): ?>
+	 <div class="alert alert-success" role="alert"><?= htmlspecialchars($message) ?></div>
+ <?php endif; ?>
+ <?php if ($error): ?>
+	 <div class="alert alert-danger" role="alert"><?= htmlspecialchars($error) ?></div>
+ <?php endif; ?>
+
+ <div class="card shadow-sm mb-3">
+	 <div class="card-body">
+		 <h1 class="h5 mb-3">Reports</h1>
+		 <div class="btn-group" role="group" aria-label="Report filters">
+			 <?php foreach (array_merge(['All'], ReportController::allowedStatuses()) as $s): ?>
+				 <a class="btn btn-sm <?= ($status === $s ? 'btn-primary' : 'btn-outline-primary') ?>" href="?status=<?= urlencode($s) ?>">
+					 <?= htmlspecialchars($s) ?>
+				 </a>
+			 <?php endforeach; ?>
+		 </div>
+	 </div>
+ </div>
+
+ <?php if ($editReport): ?>
+ <div class="card shadow-sm mb-3">
+	 <div class="card-header"><strong>Edit Report #<?= (int)$editReport['id'] ?></strong></div>
+	 <div class="card-body">
+		 <form method="post" class="row g-3">
+			 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+			 <input type="hidden" name="action" value="update">
+			 <input type="hidden" name="id" value="<?= (int)$editReport['id'] ?>">
+
+			 <div class="col-md-4">
+				 <label class="form-label">Student</label>
+				 <input class="form-control" name="student" value="<?= htmlspecialchars($editReport['student'] ?? '') ?>" required>
+			 </div>
+			 <div class="col-md-4">
+				 <label class="form-label">Quiz (optional)</label>
+				 <input class="form-control" name="quiz" value="<?= htmlspecialchars($editReport['quiz'] ?? '') ?>">
+			 </div>
+			 <div class="col-md-4">
+				 <label class="form-label">Type</label>
+				 <select class="form-select" name="type" required>
+					 <?php foreach (ReportController::allowedTypes() as $t): ?>
+						 <option value="<?= htmlspecialchars($t) ?>" <?= (($editReport['type'] ?? '') === $t ? 'selected' : '') ?>><?= htmlspecialchars($t) ?></option>
+					 <?php endforeach; ?>
+				 </select>
+			 </div>
+			 <div class="col-md-4">
+				 <label class="form-label">Status</label>
+				 <select class="form-select" name="status" required>
+					 <?php foreach (ReportController::allowedStatuses() as $s): ?>
+						 <option value="<?= htmlspecialchars($s) ?>" <?= (($editReport['status'] ?? '') === $s ? 'selected' : '') ?>><?= htmlspecialchars($s) ?></option>
+					 <?php endforeach; ?>
+				 </select>
+			 </div>
+			 <div class="col-12">
+				 <label class="form-label">Content</label>
+				 <textarea class="form-control" name="content" rows="4" required><?= htmlspecialchars($editReport['content'] ?? '') ?></textarea>
+			 </div>
+			 <div class="col-12 d-flex gap-2">
+				 <button class="btn btn-primary" type="submit">Update</button>
+				 <a class="btn btn-outline-secondary" href="reports.php?status=<?= urlencode($status) ?>">Cancel</a>
+			 </div>
+		 </form>
+	 </div>
+ </div>
+ <?php endif; ?>
+
+ <div class="card shadow-sm mb-3">
+	 <div class="card-header d-flex justify-content-between align-items-center">
+		 <strong>All Reports</strong>
+		 <small class="text-muted"><?= count($reports) ?> total</small>
+	 </div>
+	 <div class="card-body">
+		 <?php if (empty($reports)): ?>
+			 <p class="text-muted mb-0">No reports found.</p>
+		 <?php else: ?>
+			 <div class="table-responsive">
+				 <table class="table table-hover align-middle">
+					 <thead>
+						 <tr>
+							 <th>Student</th>
+							 <th>Quiz</th>
+							 <th>Type</th>
+							 <th>Status</th>
+							 <th>Created By</th>
+							 <th>Created</th>
+							 <th class="text-end">Actions</th>
+						 </tr>
+					 </thead>
+					 <tbody>
+						 <?php foreach ($reports as $r): ?>
+							 <tr>
+								 <td>
+									 <div class="fw-semibold"><?= htmlspecialchars($r['student'] ?? '') ?></div>
+									 <?php if (!empty($r['content'])): ?>
+										 <?php
+											 $preview = (string)$r['content'];
+											 if (strlen($preview) > 90) {
+												 $preview = substr($preview, 0, 90) . '...';
+											 }
+										 ?>
+										 <div class="text-muted small"><?= htmlspecialchars($preview) ?></div>
+									 <?php endif; ?>
+								 </td>
+								 <td><?= htmlspecialchars((string)($r['quiz'] ?? '')) ?></td>
+								 <td><?= htmlspecialchars((string)($r['type'] ?? '')) ?></td>
+								 <td><span class="badge text-bg-secondary"><?= htmlspecialchars((string)($r['status'] ?? '')) ?></span></td>
+								 <td><?= htmlspecialchars((string)($r['created_by'] ?? '')) ?></td>
+								 <td><?= htmlspecialchars((string)($r['created_date'] ?? '')) ?></td>
+								 <td class="text-end">
+									 <div class="d-inline-flex gap-1">
+										 <a class="btn btn-sm btn-outline-primary" href="reports.php?status=<?= urlencode($status) ?>&edit_id=<?= (int)($r['id'] ?? 0) ?>">Edit</a>
+										 <form method="post" class="d-inline">
+											 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+											 <input type="hidden" name="action" value="status">
+											 <input type="hidden" name="id" value="<?= (int)($r['id'] ?? 0) ?>">
+											 <input type="hidden" name="status" value="Reviewed">
+											 <button type="submit" class="btn btn-sm btn-outline-success">Review</button>
+										 </form>
+										 <form method="post" class="d-inline">
+											 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+											 <input type="hidden" name="action" value="status">
+											 <input type="hidden" name="id" value="<?= (int)($r['id'] ?? 0) ?>">
+											 <input type="hidden" name="status" value="Kept">
+											 <button type="submit" class="btn btn-sm btn-outline-warning">Keep</button>
+										 </form>
+										 <form method="post" class="d-inline" onsubmit="return confirm('Delete this report?');">
+											 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+											 <input type="hidden" name="action" value="delete">
+											 <input type="hidden" name="id" value="<?= (int)($r['id'] ?? 0) ?>">
+											 <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+										 </form>
+									 </div>
+								 </td>
+							 </tr>
+						 <?php endforeach; ?>
+					 </tbody>
+				 </table>
+			 </div>
+		 <?php endif; ?>
+	 </div>
+ </div>
+
  <div class="card shadow-sm">
- <div class="card-body">
- <h1 class="h5">Export Platform Report</h1>
- <p class="text-muted">Exports demo users and courses to CSV.</p>
- <div class="d-flex gap-2">
- <button id="exportUsers" class="btn btn-primary">Export Users CSV</button>
- <button id="exportCourses" class="btn btn-outline-primary">Export Courses CSV</button>
- </div>
- </div>
+	 <div class="card-header"><strong>Create Report</strong></div>
+	 <div class="card-body">
+		 <form method="post" class="row g-3">
+			 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+			 <input type="hidden" name="action" value="create">
+
+			 <div class="col-md-4">
+				 <label class="form-label">Student</label>
+				 <input class="form-control" name="student" required>
+			 </div>
+			 <div class="col-md-4">
+				 <label class="form-label">Quiz (optional)</label>
+				 <input class="form-control" name="quiz">
+			 </div>
+			 <div class="col-md-4">
+				 <label class="form-label">Type</label>
+				 <select class="form-select" name="type" required>
+					 <?php foreach (ReportController::allowedTypes() as $t): ?>
+						 <option value="<?= htmlspecialchars($t) ?>"><?= htmlspecialchars($t) ?></option>
+					 <?php endforeach; ?>
+				 </select>
+			 </div>
+			 <div class="col-md-4">
+				 <label class="form-label">Status</label>
+				 <select class="form-select" name="status" required>
+					 <?php foreach (ReportController::allowedStatuses() as $s): ?>
+						 <option value="<?= htmlspecialchars($s) ?>" <?= ($s === 'Pending' ? 'selected' : '') ?>><?= htmlspecialchars($s) ?></option>
+					 <?php endforeach; ?>
+				 </select>
+			 </div>
+			 <div class="col-12">
+				 <label class="form-label">Content</label>
+				 <textarea class="form-control" name="content" rows="4" required></textarea>
+			 </div>
+			 <div class="col-12">
+				 <button class="btn btn-primary" type="submit">Add Report</button>
+			 </div>
+		 </form>
+	 </div>
  </div>
  </main>
 
  <script src="../../shared-assets/vendor/bootstrap.bundle.min.js"></script>
- <!-- Deprecated client-side admin data scripts removed for consistency -->
 </body>
 </html>

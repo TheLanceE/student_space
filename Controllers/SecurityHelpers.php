@@ -1,5 +1,20 @@
 <?php
 /**
+ * Security Helper Classes
+ * CSRF, Rate Limiting, Input Validation, Audit Logging, Secure ID Generation
+ */
+
+/**
+ * Generate cryptographically secure random ID
+ * @param string $prefix Optional prefix for the ID
+ * @param int $length Length of random bytes (default 8 = 16 hex chars)
+ * @return string Secure random ID
+ */
+function generateSecureId(string $prefix = '', int $length = 8): string {
+    return $prefix . bin2hex(random_bytes($length));
+}
+
+/**
  * CSRF Token Manager
  * Generates and validates CSRF tokens for form protection
  */
@@ -173,7 +188,7 @@ class RateLimiter {
         
         if (!$record) {
             // No recent attempts, create new record
-            $id = uniqid('rl_');
+            $id = 'rl_' . bin2hex(random_bytes(8));
             $insert = $this->pdo->prepare("
                 INSERT INTO rate_limits (id, action, identifier, attempts) 
                 VALUES (?, ?, ?, 1)
@@ -221,7 +236,7 @@ class AuditLogger {
      * Log admin action
      */
     public function log($admin_id, $action, $target_type = null, $target_id = null, $details = []) {
-        $id = uniqid('audit_');
+        $id = 'audit_' . bin2hex(random_bytes(8));
         $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
         $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
         

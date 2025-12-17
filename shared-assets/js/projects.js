@@ -3,8 +3,8 @@
 const ProjectDebug = (function() {
   'use strict';
 
-  const API_URL = '/edumind/Controllers/ProjectController.php';
-  let currentUser = { id: 'stu_debug', username: 'debug_student', role: 'student' };
+  const API_URL = '../../Controllers/ProjectController.php';
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
   let currentProjects = [];
 
   // Utility Functions
@@ -45,12 +45,22 @@ const ProjectDebug = (function() {
     try {
       const response = await fetch(API_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {})
+        },
         body: JSON.stringify({ action, ...data })
       });
 
       console.log(`[API] Response status: ${response.status}`);
-      const result = await response.json();
+      const rawText = await response.text();
+      let result;
+      try {
+        result = rawText ? JSON.parse(rawText) : {};
+      } catch (e) {
+        const snippet = (rawText || '').toString().slice(0, 300);
+        throw new Error(`Invalid JSON response (${response.status}). Response starts with: ${snippet}`);
+      }
       console.log(`[API] Response data:`, result);
 
       if (!result.success) {
@@ -205,7 +215,7 @@ const ProjectDebug = (function() {
     try {
       const result = await apiRequest('get_project', { projectId });
       const proj = result.project;
-      const tasks = result.tasks || [];
+      const tasks = result.tasks || proj?.tasks || [];
 
       document.getElementById('projectDetailTitle').textContent = proj.projectName;
       document.getElementById('projectDetailBody').innerHTML = `
@@ -214,7 +224,12 @@ const ProjectDebug = (function() {
             <h6 class="text-muted">Description</h6>
             <p>${escapeHtml(proj.description || 'No description')}</p>
             
-            <h6 class="text-muted mt-4">Tasks (${tasks.length})</h6>
+            <div class="d-flex justify-content-between align-items-center mt-4">
+              <h6 class="text-muted mb-0">Tasks (${tasks.length})</h6>
+              <button class="btn btn-sm btn-primary btn-edit" onclick="ProjectDebug.openTaskModal('${proj.id}')">
+                <i class="bi bi-plus"></i> New Task
+              </button>
+            </div>
             <div class="list-group">
               ${tasks.length === 0 ? '<p class="text-muted">No tasks yet</p>' : tasks.map(task => `
                 <div class="list-group-item task-item ${task.isComplete ? 'task-completed' : ''}">
@@ -264,6 +279,48 @@ const ProjectDebug = (function() {
     }
   }
 
+  function openTaskModal(projectId) {
+    document.getElementById('taskModalTitle').textContent = 'New Task';
+    document.getElementById('taskForm').reset();
+    document.getElementById('taskProjectId').value = projectId;
+    document.getElementById('taskId').value = '';
+    new bootstrap.Modal(document.getElementById('taskModal')).show();
+  }
+
+  async function saveTask() {
+    const projectId = document.getElementById('taskProjectId').value;
+    const taskName = document.getElementById('taskName').value.trim();
+
+    if (!taskName) {
+      alert('Please enter a task name');
+      return;
+    }
+
+    const data = {
+      projectId,
+      taskName,
+      description: document.getElementById('taskDesc').value.trim(),
+      priority: document.getElementById('taskPriority').value,
+      dueDate: document.getElementById('taskDueDate').value || null,
+      isComplete: false
+    };
+
+    try {
+      await apiRequest('create_task', { data });
+
+      const modalElement = document.getElementById('taskModal');
+      const modal = bootstrap.Modal.getInstance(modalElement);
+      modal.hide();
+
+      // Refresh project view
+      const currentProjectId = projectId;
+      await viewProject(currentProjectId);
+      showSuccess('Task created!');
+    } catch (error) {
+      alert('Failed to save task: ' + error.message);
+    }
+  }
+
   // UI Functions
   function showLoading() {
     document.getElementById('projectsList').innerHTML = `
@@ -306,7 +363,7 @@ const ProjectDebug = (function() {
   // Initialize
   function init() {
     console.log('[ProjectDebug] Initializing...');
-    console.log('[ProjectDebug] Current user:', currentUser);
+    console.log('[ProjectDebug] CSRF present:', !!csrfToken);
     
     // Load projects
     loadProjects();
@@ -324,7 +381,9 @@ const ProjectDebug = (function() {
     init,
     loadProjects,
     openProjectModal,
+    openTaskModal,
     saveProject,
+    saveTask,
     editProject,
     deleteProject,
     viewProject

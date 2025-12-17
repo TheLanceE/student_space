@@ -69,6 +69,7 @@
       letter-spacing: 0.08em;
       font-weight: 600;
       font-size: 0.75rem;
+      -webkit-backdrop-filter: blur(6px);
       backdrop-filter: blur(6px);
     }
 
@@ -82,6 +83,7 @@
     .btn-ghost-light {
       border: 2px solid rgba(255,255,255,0.7);
       color: #fff;
+      -webkit-backdrop-filter: blur(4px);
       backdrop-filter: blur(4px);
     }
 

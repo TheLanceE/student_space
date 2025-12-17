@@ -1,3 +1,33 @@
+<?php
+require_once __DIR__ . '/../../Controllers/auth_check.php';
+require_once __DIR__ . '/../../Controllers/QuizController.php';
+
+if (($_SESSION['role'] ?? null) !== 'teacher') {
+	http_response_code(403);
+	die('Forbidden');
+}
+
+$teacherId = (string)($_SESSION['teacher_id'] ?? $_SESSION['user_id'] ?? '');
+
+// Courses owned by this teacher
+$coursesStmt = $db_connection->prepare('SELECT id, title FROM courses WHERE teacherId = ? ORDER BY title ASC');
+$coursesStmt->execute([$teacherId]);
+$courses = $coursesStmt->fetchAll(PDO::FETCH_ASSOC);
+
+$message = null;
+$error = null;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+	$qc = new QuizController($db_connection);
+	$res = $qc->createFromPost($teacherId);
+	if (($res['success'] ?? false) === true) {
+		$message = 'Quiz created.';
+	} else {
+		$error = (string)($res['error'] ?? 'Failed to create quiz.');
+	}
+}
+?>
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -10,58 +40,111 @@
  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 </head>
 <body data-page="teacher-quiz-builder">
- <nav class="navbar navbar-expand-lg navbar-dark teacher-nav">
- <div class="container-fluid">
- <a class="navbar-brand" href="dashboard.php"><i class="bi bi-mortarboard-fill"></i> EduMind+ Teacher</a>
- <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation">
- <span class="navbar-toggler-icon"></span>
- </button>
- <div class="collapse navbar-collapse" id="nav">
- <ul class="navbar-nav me-auto">
- <li class="nav-item"><a class="nav-link" href="dashboard.php"><i class="bi bi-house-door me-1"></i>Dashboard</a></li>
- <li class="nav-item"><a class="nav-link" href="projects.php"><i class="bi bi-folder me-1"></i>Projects</a></li>
- <li class="nav-item"><a class="nav-link" href="courses.php"><i class="bi bi-book me-1"></i>Courses</a></li>
- <li class="nav-item"><a class="nav-link" href="events.php"><i class="bi bi-calendar-event me-1"></i>Events</a></li>
- <li class="nav-item"><a class="nav-link" href="students.php"><i class="bi bi-people me-1"></i>Students</a></li>
- <li class="nav-item"><a class="nav-link active" aria-current="page" href="quiz-builder.php"><i class="bi bi-pen me-1"></i>Quiz Builder</a></li>
- <li class="nav-item"><a class="nav-link" href="quiz-reports.php"><i class="bi bi-graph-up me-1"></i>Quiz Reports</a></li>
- <li class="nav-item"><a class="nav-link" href="reports.php"><i class="bi bi-file-bar-graph me-1"></i>Reports</a></li>
- </ul>
- <a href="../../Controllers/logout_handler.php" class="btn btn-outline-light btn-sm"><i class="bi bi-box-arrow-right me-1"></i>Logout</a>
- </div>
- </div>
- </nav>
+ <?php include __DIR__ . '/../partials/navbar_teacher.php'; ?>
 
  <main class="container py-4">
  <h1 class="h4 mb-3">Quiz Builder</h1>
- <form id="quizForm" class="card shadow-sm">
- <div class="card-body">
- <div class="row g-3">
- <div class="col-md-4">
- <label class="form-label">Course</label>
- <select id="courseId" class="form-select"></select>
- </div>
- <div class="col-md-5">
- <label class="form-label">Quiz Title</label>
- <input id="quizTitle" class="form-control" placeholder="e.g., Math Basics - Quiz 2" required />
- </div>
- <div class="col-md-3">
- <label class="form-label">Duration (sec)</label>
- <input id="duration" type="number" min="30" step="10" value="60" class="form-control" />
- </div>
- </div>
- <hr/>
- <div id="questions"></div>
- <button id="addQuestion" type="button" class="btn btn-outline-primary btn-sm mt-2">Add Question</button>
- </div>
- <div class="card-footer d-flex justify-content-end gap-2">
- <a href="courses.php" class="btn btn-outline-secondary">Back</a>
- <button class="btn btn-primary" type="submit">Save Quiz</button>
- </div>
+
+ <?php if ($message): ?>
+		 <div class="alert alert-success" role="alert"><?= htmlspecialchars($message) ?></div>
+ <?php endif; ?>
+ <?php if ($error): ?>
+		 <div class="alert alert-danger" role="alert"><?= htmlspecialchars($error) ?></div>
+ <?php endif; ?>
+
+ <form method="post" class="card shadow-sm" id="quizForm">
+		 <div class="card-body">
+				 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+
+				 <div class="row g-3">
+						 <div class="col-md-4">
+								 <label class="form-label">Course</label>
+								 <select name="courseId" class="form-select" required>
+										 <option value="">Select course...</option>
+										 <?php foreach ($courses as $c): ?>
+												 <option value="<?= htmlspecialchars($c['id']) ?>"><?= htmlspecialchars($c['title']) ?></option>
+										 <?php endforeach; ?>
+								 </select>
+						 </div>
+						 <div class="col-md-5">
+								 <label class="form-label">Quiz Title</label>
+								 <input name="title" class="form-control" placeholder="e.g., Math Basics - Quiz 2" required />
+						 </div>
+						 <div class="col-md-3">
+								 <label class="form-label">Duration (sec)</label>
+								 <input name="durationSec" type="number" min="30" step="10" value="60" class="form-control" />
+						 </div>
+						 <div class="col-md-4">
+								 <label class="form-label">Difficulty</label>
+								 <select name="difficulty" class="form-select">
+										 <option value="">(optional)</option>
+										 <option value="beginner">beginner</option>
+										 <option value="intermediate">intermediate</option>
+										 <option value="advanced">advanced</option>
+								 </select>
+						 </div>
+				 </div>
+
+				 <hr />
+				 <div id="questions"></div>
+				 <button id="addQuestion" type="button" class="btn btn-outline-primary btn-sm mt-2">Add Question</button>
+		 </div>
+
+		 <div class="card-footer d-flex justify-content-end gap-2">
+				 <a href="courses.php" class="btn btn-outline-secondary">Back</a>
+				 <button class="btn btn-primary" type="submit">Save Quiz</button>
+		 </div>
  </form>
  </main>
 
  <script src="../../shared-assets/vendor/bootstrap.bundle.min.js"></script>
+
+ <script>
+ (function(){
+	 const container = document.getElementById('questions');
+	 const addBtn = document.getElementById('addQuestion');
+	 let qIndex = 0;
+
+	 function addQuestion(){
+		 const idx = qIndex++;
+		 const el = document.createElement('div');
+		 el.className = 'border rounded p-3 mb-3';
+		 el.innerHTML = `
+			 <div class="d-flex justify-content-between align-items-center mb-2">
+				 <strong>Question ${idx+1}</strong>
+				 <button type="button" class="btn btn-sm btn-outline-danger" data-remove>Remove</button>
+			 </div>
+			 <div class="mb-2">
+				 <label class="form-label">Question text</label>
+				 <input class="form-control" name="questions[${idx}][text]" required>
+			 </div>
+			 <div class="row g-2">
+				 ${[0,1,2,3].map(i => `
+					 <div class="col-md-6">
+						 <label class="form-label">Option ${i+1}</label>
+						 <input class="form-control" name="questions[${idx}][options][${i}]" required>
+					 </div>
+				 `).join('')}
+			 </div>
+			 <div class="mt-2">
+				 <label class="form-label">Correct option</label>
+				 <select class="form-select" name="questions[${idx}][correctIndex]">
+					 <option value="0">Option 1</option>
+					 <option value="1">Option 2</option>
+					 <option value="2">Option 3</option>
+					 <option value="3">Option 4</option>
+				 </select>
+			 </div>
+		 `;
+
+		 el.querySelector('[data-remove]').addEventListener('click', () => el.remove());
+		 container.appendChild(el);
+	 }
+
+	 addBtn.addEventListener('click', addQuestion);
+	 addQuestion();
+ })();
+ </script>
 </body>
 </html>
 

@@ -7,7 +7,7 @@
 class User {
     private $pdo;
     
-    public function __construct($pdo) {
+    public function __construct(PDO $pdo): void {
         $this->pdo = $pdo;
     }
     
@@ -17,11 +17,12 @@ class User {
      * @param string $role 'student' or 'teacher'
      * @return array Success status and user ID or error
      */
-    public function create($data, $role = 'student') {
+    public function create(array $data, string $role = 'student'): array {
         try {
             $table = $role === 'teacher' ? 'teachers' : 'students';
             $prefix = $role === 'teacher' ? 'teach_' : 'stu_';
-            $id = $prefix . uniqid();
+            // Use cryptographically secure random ID
+            $id = $prefix . bin2hex(random_bytes(8));
             
             // Hash password
             $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
@@ -99,7 +100,7 @@ class User {
      * @param string $role 'student', 'teacher', or 'admin'
      * @return array|null User data or null if not found
      */
-    public function getById($id, $role = null) {
+    public function getById(string $id, ?string $role = null): ?array {
         try {
             // Determine table from ID prefix if role not provided
             if (!$role) {
@@ -142,7 +143,7 @@ class User {
      * @param array $filters Optional filters
      * @return array List of users
      */
-    public function getAll($role = 'student', $filters = []) {
+    public function getAll(string $role = 'student', array $filters = []): array {
         try {
             $table = $this->getTableName($role);
             

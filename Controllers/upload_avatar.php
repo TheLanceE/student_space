@@ -14,6 +14,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_FILES['avatar'])) {
     exit;
 }
 
+// CSRF validation
+$csrf = $_POST['csrf_token'] ?? '';
+if (!SessionManager::validateCSRFToken($csrf)) {
+    header('Location: ../Views/front-office/profile.php?error=csrf');
+    exit;
+}
+
 $file = $_FILES['avatar'];
 if ($file['error'] !== UPLOAD_ERR_OK) {
     header('Location: ../Views/front-office/profile.php?error=avatar_upload');

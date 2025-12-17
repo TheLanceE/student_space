@@ -1,3 +1,62 @@
+<?php
+require_once __DIR__ . '/../../Controllers/auth_check.php';
+require_once __DIR__ . '/../../Models/Quiz.php';
+
+// Student-only
+$role = (string)($_SESSION['user']['role'] ?? $_SESSION['role'] ?? '');
+if ($role !== 'student') {
+	http_response_code(403);
+	die('Forbidden');
+}
+
+$studentId = (string)($_SESSION['user']['id'] ?? $_SESSION['student_id'] ?? $_SESSION['user_id'] ?? '');
+$username = (string)($_SESSION['user']['username'] ?? $_SESSION['username'] ?? '');
+
+$quizId = (string)($_GET['quizId'] ?? '');
+$quizRow = null;
+$quizPayload = null;
+$quizList = [];
+
+if ($quizId !== '') {
+	$quizRow = Quiz::getById($db_connection, $quizId);
+	if ($quizRow) {
+		$questions = $quizRow['questions_decoded'] ?? [];
+		if (!is_array($questions)) {
+			$questions = [];
+		}
+
+		// Do not send correctIndex to the client.
+		$safeQuestions = [];
+		foreach ($questions as $q) {
+			$safeQuestions[] = [
+				'id' => (string)($q['id'] ?? ''),
+				'text' => (string)($q['text'] ?? ''),
+				'options' => is_array($q['options'] ?? null) ? array_values($q['options']) : [],
+			];
+		}
+
+		$quizPayload = [
+			'id' => (string)($quizRow['id'] ?? ''),
+			'courseId' => (string)($quizRow['courseId'] ?? ''),
+			'title' => (string)($quizRow['title'] ?? ''),
+			'durationSec' => (int)($quizRow['durationSec'] ?? 60),
+			'questions' => $safeQuestions,
+		];
+	}
+} else {
+	// Quiz picker (no quizId specified)
+	$sql = "
+		SELECT q.id, q.title, q.durationSec, q.difficulty, q.courseId, c.title AS courseTitle
+		FROM quizzes q
+		JOIN courses c ON c.id = q.courseId
+		WHERE c.status = 'active'
+		ORDER BY c.title ASC, q.createdAt DESC
+	";
+	$stmt = $db_connection->query($sql);
+	$quizList = $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+?>
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -8,42 +67,17 @@
  <link href="../../shared-assets/css/global.css" rel="stylesheet">
  <link href="../../shared-assets/css/navbar-styles.css" rel="stylesheet">
  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+ <meta name="csrf-token" content="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+ <script>
+   window.__QUIZ_CONTEXT__ = {
+	 studentId: <?= json_encode($studentId) ?>,
+	 username: <?= json_encode($username) ?>,
+	 quiz: <?= json_encode($quizPayload) ?>
+   };
+ </script>
 </head>
 <body data-page="front-quiz">
-<?php 
-// Check authentication
-require_once '../../Controllers/auth_check.php';
-?>
- <nav class="navbar navbar-expand-lg navbar-dark student-nav">
- <div class="container-fluid">
- <a class="navbar-brand" href="dashboard.php">
- 	<i class="bi bi-mortarboard-fill"></i>
- 	EduMind+
- </a>
- <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample07"
- aria-controls="navbarsExample07" aria-expanded="false" aria-label="Toggle navigation">
- <span class="navbar-toggler-icon"></span>
- </button>
- <div class="collapse navbar-collapse" id="navbarsExample07">
- <ul class="navbar-nav me-auto mb-2 mb-lg-0">
- <li class="nav-item"><a class="nav-link" href="dashboard.php"><i class="bi bi-house-door-fill me-1"></i>Dashboard</a></li>
- <li class="nav-item"><a class="nav-link" href="projects.php"><i class="bi bi-folder me-1"></i>Projects</a></li>
- <li class="nav-item"><a class="nav-link" href="courses.php"><i class="bi bi-book me-1"></i>Courses</a></li>
- <li class="nav-item"><a class="nav-link active" aria-current="page" href="quiz.php"><i class="bi bi-question-circle me-1"></i>Quiz</a></li>
- <li class="nav-item"><a class="nav-link" href="profile.php"><i class="bi bi-person-circle me-1"></i>Profile</a></li>
- </ul>
- <div class="d-flex align-items-center gap-3">
- <span class="text-white welcome-text">
- 	<i class="bi bi-person-badge"></i>
- 	<?php echo htmlspecialchars($_SESSION['username']); ?>
- </span>
- <a href="../../Controllers/logout_handler.php" class="btn btn-outline-light btn-sm">
- 	<i class="bi bi-box-arrow-right me-1"></i>Logout
- </a>
- </div>
- </div>
- </div>
- </nav>
+ <?php include __DIR__ . '/../partials/navbar_student.php'; ?>
 
  <main class="container py-4">
  <div class="d-flex justify-content-between align-items-center mb-3">
@@ -53,13 +87,54 @@ require_once '../../Controllers/auth_check.php';
  </div>
  </div>
 
- <form id="quizForm" class="card shadow-sm">
- <div id="questions" class="card-body"></div>
- <div class="card-footer d-flex justify-content-between">
- <a class="btn btn-outline-secondary" href="courses.php">Back</a>
- <button id="submitBtn" type="submit" class="btn btn-primary">Submit</button>
- </div>
- </form>
+ <?php if ($quizId === ''): ?>
+	 <div class="d-flex justify-content-between align-items-center mb-3">
+		 <h2 class="h5 mb-0">Choose a quiz</h2>
+		 <a class="btn btn-sm btn-outline-secondary" href="courses.php">Back to Courses</a>
+	 </div>
+
+	 <?php if (!$quizList): ?>
+		 <div class="alert alert-info" role="alert">No quizzes available yet.</div>
+	 <?php else: ?>
+		 <div class="row g-3">
+			 <?php foreach ($quizList as $q): ?>
+				 <div class="col-12 col-lg-6">
+					 <div class="card shadow-sm">
+						 <div class="card-body">
+							 <div class="d-flex justify-content-between align-items-start">
+								 <div>
+									 <div class="fw-semibold"><?= htmlspecialchars((string)$q['title']) ?></div>
+									 <div class="text-muted small"><?= htmlspecialchars((string)$q['courseTitle']) ?></div>
+								 </div>
+								 <span class="badge bg-dark"><?= (int)($q['durationSec'] ?? 60) ?>s</span>
+							 </div>
+
+							 <?php if (!empty($q['difficulty'])): ?>
+								 <div class="mt-2 text-muted small">Difficulty: <?= htmlspecialchars((string)$q['difficulty']) ?></div>
+							 <?php endif; ?>
+
+							 <div class="mt-3 d-flex justify-content-end">
+								 <a class="btn btn-sm btn-primary" href="quiz.php?quizId=<?= urlencode((string)$q['id']) ?>">Start</a>
+							 </div>
+						 </div>
+					 </div>
+				 </div>
+			 <?php endforeach; ?>
+		 </div>
+	 <?php endif; ?>
+
+ <?php elseif (!$quizPayload): ?>
+	 <div class="alert alert-warning" role="alert">Quiz not found.</div>
+	 <a class="btn btn-outline-secondary" href="quiz.php">Back to Quiz List</a>
+ <?php else: ?>
+	 <form id="quizForm" class="card shadow-sm">
+		 <div id="questions" class="card-body"></div>
+		 <div class="card-footer d-flex justify-content-between">
+			 <a class="btn btn-outline-secondary" href="quiz.php">Back</a>
+			 <button id="submitBtn" type="submit" class="btn btn-primary">Submit</button>
+		 </div>
+	 </form>
+ <?php endif; ?>
 
  <div id="resultPanel" class="mt-4" style="display:none;"></div>
 
@@ -101,12 +176,7 @@ require_once '../../Controllers/auth_check.php';
  </main>
 
  <script src="../../shared-assets/vendor/bootstrap.bundle.min.js"></script>
- <script src="assets/js/auth.js"></script>
- <script src="assets/js/data.js"></script>
- <script src="assets/js/suggestionEngine.js"></script>
- <script src="assets/js/ui.js"></script>
  <script src="assets/js/quiz.js"></script>
- <script src="assets/js/pages.js"></script>
 </body>
 </html>
 

@@ -27,11 +27,7 @@ $email = $_SESSION['email'] ?? '';
  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 </head>
 <body class="bg-light">
- <nav class="navbar navbar-expand-lg navbar-dark teacher-nav">
-  <div class="container-fluid">
-   <a class="navbar-brand" href="dashboard.php"><i class="bi bi-briefcase"></i> Welcome</a>
-  </div>
- </nav>
+ <?php include __DIR__ . '/../partials/navbar_teacher.php'; ?>
  <main class="container py-4">
   <div class="row justify-content-center">
    <div class="col-12 col-md-8 col-lg-6">
@@ -41,6 +37,7 @@ $email = $_SESSION['email'] ?? '';
      </div>
      <div class="card-body">
       <form method="POST" action="../../Controllers/oauth_onboard.php">
+       <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(SessionManager::getCSRFToken(), ENT_QUOTES, 'UTF-8'); ?>" />
        <input type="hidden" name="role" value="teacher" />
        <div class="mb-3">
         <label class="form-label">Full Name</label>

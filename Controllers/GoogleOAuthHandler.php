@@ -125,18 +125,28 @@ class GoogleOAuthHandler {
         if (!$email) {
             throw new Exception('Google user missing email');
         }
+        
+        // Explicit table name whitelist (prevents SQL injection)
+        $tableMap = [
+            'student' => 'students',
+            'teacher' => 'teachers'
+        ];
+        if (!isset($tableMap[$role])) {
+            throw new Exception('Invalid role specified');
+        }
+        $table = $tableMap[$role];
 
         $generatedUsername = $this->buildUsername($name, $email, $google_id, $role);
         
         // Check if user exists by email
-        $stmt = $this->pdo->prepare("SELECT * FROM {$role}s WHERE email = ? LIMIT 1");
+        $stmt = $this->pdo->prepare("SELECT * FROM $table WHERE email = ? LIMIT 1");
         $stmt->execute([$email]);
         $existing_user = $stmt->fetch();
         
         if ($existing_user) {
             // Update Google ID if not set
             if (empty($existing_user['google_id'])) {
-                $update_stmt = $this->pdo->prepare("UPDATE {$role}s SET google_id = ? WHERE id = ?");
+                $update_stmt = $this->pdo->prepare("UPDATE $table SET google_id = ? WHERE id = ?");
                 $update_stmt->execute([$google_id, $existing_user['id']]);
             }
             // Backfill username/fullName if missing
@@ -150,7 +160,7 @@ class GoogleOAuthHandler {
                 $needsUpdate = true;
             }
             if ($needsUpdate) {
-                $update_stmt = $this->pdo->prepare("UPDATE {$role}s SET username = ?, fullName = ? WHERE id = ?");
+                $update_stmt = $this->pdo->prepare("UPDATE $table SET username = ?, fullName = ? WHERE id = ?");
                 $update_stmt->execute([$newUsername, $newFullName, $existing_user['id']]);
                 $existing_user['username'] = $newUsername;
                 $existing_user['fullName'] = $newFullName;
@@ -158,8 +168,8 @@ class GoogleOAuthHandler {
             return ['user' => $existing_user, 'created' => false];
         }
         
-        // Create new user
-        $user_id = uniqid($role[0] . '_');
+        // Create new user with secure random ID
+        $user_id = $role[0] . '_' . bin2hex(random_bytes(8));
         $username = $generatedUsername;
         
         try {
@@ -193,7 +203,7 @@ class GoogleOAuthHandler {
         } catch (PDOException $e) {
             // Handle duplicate email by returning the existing user instead of failing the flow
             if ($e->getCode() === '23000') {
-                $stmt = $this->pdo->prepare("SELECT * FROM {$role}s WHERE email = ? LIMIT 1");
+                $stmt = $this->pdo->prepare("SELECT * FROM $table WHERE email = ? LIMIT 1");
                 $stmt->execute([$email]);
                 $existing_user = $stmt->fetch();
                 if ($existing_user) {
@@ -204,7 +214,7 @@ class GoogleOAuthHandler {
         }
         
         // Fetch newly created user
-        $stmt = $this->pdo->prepare("SELECT * FROM {$role}s WHERE id = ?");
+        $stmt = $this->pdo->prepare("SELECT * FROM $table WHERE id = ?");
         $stmt->execute([$user_id]);
         $new_user = $stmt->fetch();
         return ['user' => $new_user, 'created' => true];

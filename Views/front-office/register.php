@@ -1,3 +1,10 @@
+<?php
+require_once __DIR__ . '/../../Controllers/SessionManager.php';
+SessionManager::init();
+$csrfToken = SessionManager::getCSRFToken();
+$prefillEmail = $_GET['prefill_email'] ?? '';
+$prefillRole = $_GET['role'] ?? 'student';
+?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -7,10 +14,6 @@
   <link href="../../shared-assets/vendor/bootstrap.min.css" rel="stylesheet">
   <link href="../../shared-assets/css/global.css" rel="stylesheet">
 </head>
-<?php
-$prefillEmail = $_GET['prefill_email'] ?? '';
-$prefillRole = $_GET['role'] ?? 'student';
-?>
 <body data-page="front-register" class="bg-light d-flex align-items-center" style="min-height: 100vh;">
   <div class="container">
     <div class="row justify-content-center">
@@ -19,6 +22,7 @@ $prefillRole = $_GET['role'] ?? 'student';
           <div class="card-body p-4">
             <h1 class="h4 mb-3 text-center">Create Student Account</h1>
             <form id="registerForm" class="needs-validation" novalidate method="POST" action="../../Controllers/register_handler.php">
+              <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
               <input type="hidden" name="role" value="<?php echo htmlspecialchars($prefillRole); ?>">
               <div class="mb-3">
                 <label for="regLogin" class="form-label">Login ID</label>

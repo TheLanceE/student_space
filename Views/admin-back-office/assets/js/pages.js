@@ -1,9 +1,16 @@
 (function(){
-  console.log('ADMIN PAGES.JS LOADED');
   const body = () => document.body || null;
   const auth = () => window.AAuth;
   const data = () => window.AData;
   const storage = () => window.Storage;
+
+  // HTML escape helper for XSS prevention
+  const escapeHtml = (str) => {
+    if (str == null) return '';
+    const div = document.createElement('div');
+    div.textContent = String(str);
+    return div.innerHTML;
+  };
 
   const ensureAuth = () => {
     if(!auth()) return false;
@@ -40,7 +47,6 @@
       const passwordField = document.getElementById('password');
       const password = passwordField ? (passwordField.value || passwordField.getAttribute('value') || '') : '';
       
-      console.log('ADMIN LOGIN: username =', username, 'password length =', password.length);
       await auth().login(username, password);
     });
   };
@@ -82,13 +88,13 @@
         return `
         <tr>
           <td>
-            <div class='fw-semibold'>${c.title}</div>
-            <div class='small text-muted'>${teacherName}</div>
+            <div class='fw-semibold'>${escapeHtml(c.title)}</div>
+            <div class='small text-muted'>${escapeHtml(teacherName)}</div>
           </td>
-          <td><span class='badge ${status==='approved' ? 'bg-success' : 'bg-warning text-dark'} text-capitalize'>${status}</span></td>
+          <td><span class='badge ${status==='approved' ? 'bg-success' : 'bg-warning text-dark'} text-capitalize'>${escapeHtml(status)}</span></td>
           <td class='text-end'>
-            ${status!=='approved' ? `<button class='btn btn-sm btn-primary me-2' data-approve='${c.id}'>Approve</button>` : ''}
-            <button class='btn btn-sm btn-outline-danger' data-remove='${c.id}'>Remove</button>
+            ${status!=='approved' ? `<button class='btn btn-sm btn-primary me-2' data-approve='${escapeHtml(c.id)}'>Approve</button>` : ''}
+            <button class='btn btn-sm btn-outline-danger' data-remove='${escapeHtml(c.id)}'>Remove</button>
           </td>
         </tr>`;
       }).join('') || '<tr><td colspan="3" class="text-center text-muted">No courses found.</td></tr>';
@@ -141,12 +147,12 @@
         const disableAttr = isProtectedAdmin ? 'disabled' : '';
         return `<tr>
           <td>
-            <div class='fw-semibold text-capitalize'>${u.username}</div>
-            <div class='small text-muted'>${u.fullName || ''}</div>
+            <div class='fw-semibold text-capitalize'>${escapeHtml(u.username)}</div>
+            <div class='small text-muted'>${escapeHtml(u.fullName || '')}</div>
           </td>
-          <td class='text-capitalize'>${u.role}</td>
+          <td class='text-capitalize'>${escapeHtml(u.role)}</td>
           <td class='text-end'>
-            <button class='btn btn-sm btn-outline-danger' data-id='${u.id}' data-role='${u.role}' ${disableAttr}>Delete</button>
+            <button class='btn btn-sm btn-outline-danger' data-id='${escapeHtml(u.id)}' data-role='${escapeHtml(u.role)}' ${disableAttr}>Delete</button>
           </td>
         </tr>`;
       }).join('') || '<tr><td colspan="3" class="text-center text-muted">No users yet.</td></tr>';

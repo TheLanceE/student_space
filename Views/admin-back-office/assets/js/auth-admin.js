@@ -1,5 +1,4 @@
 (function(){
-  console.log('ADMIN AUTH.JS LOADED');
   const API_URL = '/edumind/Controllers/AuthController.php';
 
   const AAuth = {

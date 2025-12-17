@@ -63,6 +63,7 @@ $csrfToken = SessionManager::getCSRFToken();
     
     .login-card {
       background: rgba(255, 255, 255, 0.95);
+      -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
       border-radius: 20px;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -206,6 +207,23 @@ $csrfToken = SessionManager::getCSRFToken();
       <h1>👨‍🏫 Teacher Portal</h1>
       <p>Access your teaching dashboard</p>
     </div>
+    
+    <?php
+    $error = $_GET['error'] ?? '';
+    $errorMessages = [
+        'rate_limited' => 'Too many login attempts. Please wait a minute before trying again.',
+        'csrf' => 'Invalid session token. Please try again.',
+        'invalid' => 'Invalid username or password.',
+        'empty' => 'Please enter username and password.',
+        'db' => 'A system error occurred. Please try again later.'
+    ];
+    if ($error && isset($errorMessages[$error])): ?>
+    <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      <?php echo htmlspecialchars($errorMessages[$error], ENT_QUOTES, 'UTF-8'); ?>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <?php endif; ?>
     
     <form method="POST" action="../../Controllers/teacher_login_handler.php" class="needs-validation" novalidate>
       <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">

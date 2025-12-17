@@ -1,5 +1,4 @@
 (function(){
-  console.log('PAGES.JS LOADED');
   const body = () => document.body || null;
   
   // Get current user from server session (async)
@@ -262,10 +261,6 @@
       const passwordField = document.getElementById('password');
       const password = passwordField ? (passwordField.value || passwordField.getAttribute('value') || '') : '';
       
-      console.log('LOGIN DEBUG: username =', username);
-      console.log('LOGIN DEBUG: password =', password);
-      console.log('LOGIN DEBUG: password length =', password.length);
-      
       await Auth.login(username, password);
     });
   };
@@ -282,10 +277,6 @@
       
       const passwordField = document.getElementById('regPassword');
       const passwordValue = passwordField ? (passwordField.value || passwordField.getAttribute('value') || '') : '';
-      console.log('DEBUG: Password field:', passwordField);
-      console.log('DEBUG: Raw password value:', passwordValue);
-      console.log('DEBUG: Password length:', passwordValue.length);
-      console.log('DEBUG: Password type:', typeof passwordValue);
       
       const formData = {
         login: document.getElementById('regLogin').value.trim(),
@@ -297,7 +288,6 @@
         gradeLevel: document.getElementById('regGrade').value
       };
       
-      console.log('DEBUG: Complete formData:', formData);
       await Auth.register(formData);
     });
   };

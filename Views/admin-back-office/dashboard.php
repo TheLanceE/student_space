@@ -1,3 +1,12 @@
+<?php
+require_once '../../Controllers/auth_check.php';
+
+$role = (string)($_SESSION['user']['role'] ?? $_SESSION['role'] ?? '');
+if ($role !== 'admin') {
+  http_response_code(403);
+  die('Forbidden');
+}
+?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -125,31 +134,7 @@
  </style>
 </head>
 <body data-page="admin-dashboard">
- <nav class="navbar navbar-expand-lg navbar-dark admin-nav">
- <div class="container-fluid">
- <a class="navbar-brand" href="dashboard.php"><i class="bi bi-shield-check"></i> EduMind+ Admin</a>
- <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation">
- <span class="navbar-toggler-icon"></span>
- </button>
- <div class="collapse navbar-collapse" id="nav">
- <ul class="navbar-nav me-auto">
- <li class="nav-item"><a class="nav-link active" aria-current="page" href="dashboard.php"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
- <li class="nav-item"><a class="nav-link" href="projects.php"><i class="bi bi-folder me-1"></i>Projects</a></li>
- <li class="nav-item"><a class="nav-link" href="users.php"><i class="bi bi-people me-1"></i>Users</a></li>
- <li class="nav-item"><a class="nav-link" href="roles.php"><i class="bi bi-person-badge me-1"></i>Roles</a></li>
- <li class="nav-item"><a class="nav-link" href="courses.php"><i class="bi bi-book me-1"></i>Courses</a></li>
- <li class="nav-item"><a class="nav-link" href="events.php"><i class="bi bi-calendar-event me-1"></i>Events</a></li>
- <li class="nav-item"><a class="nav-link" href="quiz-reports.php"><i class="bi bi-graph-up me-1"></i>Quiz Reports</a></li>
- <li class="nav-item"><a class="nav-link" href="logs.php"><i class="bi bi-journal-text me-1"></i>Logs</a></li>
- <li class="nav-item"><a class="nav-link" href="reports.php"><i class="bi bi-file-bar-graph me-1"></i>Reports</a></li>
- <li class="nav-item"><a class="nav-link" href="settings.php"><i class="bi bi-gear me-1"></i>Settings</a></li>
- </ul>
- <a href="../../Controllers/logout_handler.php" class="btn btn-outline-light btn-sm">
-   <i class="bi bi-box-arrow-right me-1"></i>Logout
- </a>
- </div>
- </div>
- </nav>
+ <?php include __DIR__ . '/../partials/navbar_admin.php'; ?>
 
  <main class="container py-4">
  <div class="row g-3">
