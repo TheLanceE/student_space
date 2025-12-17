@@ -160,30 +160,38 @@ ON DUPLICATE KEY UPDATE name=name;
 -- ============================================================================
 -- SCORES FOR SUPERKID (showing active learning history)
 -- ============================================================================
+/* SuperKid Math scores */
 INSERT INTO scores (id, userId, username, courseId, quizId, score, total, durationSec, attempt, type, timestamp) VALUES
--- Math scores
 ('sc_sk_1', 'stu_superkid', 'superkid', 'math101', 'math101_quiz1', 5, 5, 42, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 14 DAY)),
 ('sc_sk_2', 'stu_superkid', 'superkid', 'math101', 'math101_quiz2', 4, 5, 65, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 12 DAY)),
 ('sc_sk_3', 'stu_superkid', 'superkid', 'math101', 'math101_quiz3', 5, 5, 88, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 10 DAY)),
 ('sc_sk_4', 'stu_superkid', 'superkid', 'math101', 'challenge_daily', 9, 10, 115, 1, 'challenge', DATE_SUB(NOW(), INTERVAL 8 DAY)),
-('sc_sk_5', 'stu_superkid', 'superkid', 'math201', 'math201_quiz1', 4, 5, 130, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 5 DAY)),
+('sc_sk_5', 'stu_superkid', 'superkid', 'math201', 'math201_quiz1', 4, 5, 130, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 5 DAY))
+ON DUPLICATE KEY UPDATE score=score;
 
--- Science scores
+/* SuperKid Science scores */
+INSERT INTO scores (id, userId, username, courseId, quizId, score, total, durationSec, attempt, type, timestamp) VALUES
 ('sc_sk_6', 'stu_superkid', 'superkid', 'sci101', 'sci101_quiz1', 5, 5, 48, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 13 DAY)),
 ('sc_sk_7', 'stu_superkid', 'superkid', 'sci101', 'sci101_quiz2', 4, 5, 72, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 11 DAY)),
 ('sc_sk_8', 'stu_superkid', 'superkid', 'sci101', 'sci101_quiz3', 5, 5, 95, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 9 DAY)),
-('sc_sk_9', 'stu_superkid', 'superkid', 'sci201', 'sci201_quiz1', 4, 5, 125, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 4 DAY)),
+('sc_sk_9', 'stu_superkid', 'superkid', 'sci201', 'sci201_quiz1', 4, 5, 125, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 4 DAY))
+ON DUPLICATE KEY UPDATE score=score;
 
--- CS scores
+/* SuperKid CS scores */
+INSERT INTO scores (id, userId, username, courseId, quizId, score, total, durationSec, attempt, type, timestamp) VALUES
 ('sc_sk_10', 'stu_superkid', 'superkid', 'cs101', 'cs101_quiz1', 5, 5, 55, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 7 DAY)),
 ('sc_sk_11', 'stu_superkid', 'superkid', 'cs101', 'cs101_quiz2', 4, 5, 78, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 6 DAY)),
-('sc_sk_12', 'stu_superkid', 'superkid', 'cs101', 'cs101_quiz3', 5, 5, 102, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 3 DAY)),
+('sc_sk_12', 'stu_superkid', 'superkid', 'cs101', 'cs101_quiz3', 5, 5, 102, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 3 DAY))
+ON DUPLICATE KEY UPDATE score=score;
 
--- English scores
+/* SuperKid English scores */
+INSERT INTO scores (id, userId, username, courseId, quizId, score, total, durationSec, attempt, type, timestamp) VALUES
 ('sc_sk_13', 'stu_superkid', 'superkid', 'eng101', 'eng101_quiz1', 4, 5, 62, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 6 DAY)),
-('sc_sk_14', 'stu_superkid', 'superkid', 'eng101', 'eng101_quiz2', 5, 5, 70, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 2 DAY)),
+('sc_sk_14', 'stu_superkid', 'superkid', 'eng101', 'eng101_quiz2', 5, 5, 70, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 2 DAY))
+ON DUPLICATE KEY UPDATE score=score;
 
--- History scores
+/* SuperKid History scores */
+INSERT INTO scores (id, userId, username, courseId, quizId, score, total, durationSec, attempt, type, timestamp) VALUES
 ('sc_sk_15', 'stu_superkid', 'superkid', 'hist101', 'hist101_quiz1', 5, 5, 58, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 5 DAY)),
 ('sc_sk_16', 'stu_superkid', 'superkid', 'hist101', 'hist101_quiz2', 4, 5, 98, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 1 DAY))
 ON DUPLICATE KEY UPDATE score=score;
@@ -225,6 +233,7 @@ ON DUPLICATE KEY UPDATE rating=rating;
 -- ============================================================================
 -- POINTS LEDGER FOR SUPERKID (accumulated 1,425 points)
 -- ============================================================================
+/* Points from challenge completions */
 INSERT INTO points_ledger (id, studentId, delta, reason, refType, refId, createdAt) VALUES
 ('pl_sk_1', 'stu_superkid', 50, 'Completed: Math Novice challenge', 'challenge', 'ch_math_basic', DATE_SUB(NOW(), INTERVAL 10 DAY)),
 ('pl_sk_2', 'stu_superkid', 100, 'Completed: Math Adept challenge', 'challenge', 'ch_math_adept', DATE_SUB(NOW(), INTERVAL 8 DAY)),
@@ -235,8 +244,11 @@ INSERT INTO points_ledger (id, studentId, delta, reason, refType, refId, created
 ('pl_sk_7', 'stu_superkid', 50, 'Completed: Wordsmith challenge', 'challenge', 'ch_wordsmith', DATE_SUB(NOW(), INTERVAL 5 DAY)),
 ('pl_sk_8', 'stu_superkid', 50, 'Completed: History Buff challenge', 'challenge', 'ch_historian', DATE_SUB(NOW(), INTERVAL 4 DAY)),
 ('pl_sk_9', 'stu_superkid', 100, 'Completed: 3-Day Streak challenge', 'challenge', 'ch_streak_3', DATE_SUB(NOW(), INTERVAL 9 DAY)),
-('pl_sk_10', 'stu_superkid', 250, 'Completed: Weekly Warrior challenge', 'challenge', 'ch_streak_7', DATE_SUB(NOW(), INTERVAL 2 DAY)),
--- Bonus points from quizzes
+('pl_sk_10', 'stu_superkid', 250, 'Completed: Weekly Warrior challenge', 'challenge', 'ch_streak_7', DATE_SUB(NOW(), INTERVAL 2 DAY))
+ON DUPLICATE KEY UPDATE delta=delta;
+
+/* Bonus points from perfect quiz scores */
+INSERT INTO points_ledger (id, studentId, delta, reason, refType, refId, createdAt) VALUES
 ('pl_sk_11', 'stu_superkid', 25, 'Perfect score: Math Basics Quiz 1', 'quiz', 'math101_quiz1', DATE_SUB(NOW(), INTERVAL 14 DAY)),
 ('pl_sk_12', 'stu_superkid', 25, 'Perfect score: Fractions Challenge', 'quiz', 'math101_quiz3', DATE_SUB(NOW(), INTERVAL 10 DAY)),
 ('pl_sk_13', 'stu_superkid', 25, 'Perfect score: Science Basics Quiz 1', 'quiz', 'sci101_quiz1', DATE_SUB(NOW(), INTERVAL 13 DAY)),
@@ -244,8 +256,11 @@ INSERT INTO points_ledger (id, studentId, delta, reason, refType, refId, created
 ('pl_sk_15', 'stu_superkid', 25, 'Perfect score: Programming Basics', 'quiz', 'cs101_quiz1', DATE_SUB(NOW(), INTERVAL 7 DAY)),
 ('pl_sk_16', 'stu_superkid', 25, 'Perfect score: JavaScript Intro', 'quiz', 'cs101_quiz3', DATE_SUB(NOW(), INTERVAL 3 DAY)),
 ('pl_sk_17', 'stu_superkid', 25, 'Perfect score: Vocabulary Builder', 'quiz', 'eng101_quiz2', DATE_SUB(NOW(), INTERVAL 2 DAY)),
-('pl_sk_18', 'stu_superkid', 25, 'Perfect score: World History Basics', 'quiz', 'hist101_quiz1', DATE_SUB(NOW(), INTERVAL 5 DAY)),
--- Point spending
+('pl_sk_18', 'stu_superkid', 25, 'Perfect score: World History Basics', 'quiz', 'hist101_quiz1', DATE_SUB(NOW(), INTERVAL 5 DAY))
+ON DUPLICATE KEY UPDATE delta=delta;
+
+/* Point spending (reward redemptions) */
+INSERT INTO points_ledger (id, studentId, delta, reason, refType, refId, createdAt) VALUES
 ('pl_sk_19', 'stu_superkid', -100, 'Redeemed: Golden Avatar Frame', 'reward', 'rw_avatar_gold', DATE_SUB(NOW(), INTERVAL 6 DAY)),
 ('pl_sk_20', 'stu_superkid', -50, 'Redeemed: Dark Theme Unlock', 'reward', 'rw_theme_dark', DATE_SUB(NOW(), INTERVAL 4 DAY))
 ON DUPLICATE KEY UPDATE delta=delta;
