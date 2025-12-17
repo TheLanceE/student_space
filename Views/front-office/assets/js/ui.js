@@ -1,4 +1,12 @@
 (function(){
+  // XSS Prevention helper
+  const escapeHtml = (str) => {
+    if (str == null) return '';
+    const div = document.createElement('div');
+    div.textContent = String(str);
+    return div.innerHTML;
+  };
+
   const UI = {
     requireAuth(){
       if(!Storage.get('currentUser')){
@@ -43,7 +51,7 @@
         const pct = Math.round((s.score/s.total)*100);
         const course = Data.courses.find(c=>c.id===s.courseId)?.title || s.courseId;
         const quiz = Data.getQuizById(s.quizId)?.title || s.quizId;
-        html.push(`<tr><td>${new Date(s.timestamp).toLocaleString()}</td><td>${course}</td><td>${quiz}</td><td>${pct}% (${s.score}/${s.total})</td><td>${s.attempt}</td><td>${s.durationSec}s</td></tr>`);
+        html.push(`<tr><td>${escapeHtml(new Date(s.timestamp).toLocaleString())}</td><td>${escapeHtml(course)}</td><td>${escapeHtml(quiz)}</td><td>${pct}% (${s.score}/${s.total})</td><td>${s.attempt}</td><td>${s.durationSec}s</td></tr>`);
       }
       html.push('</tbody></table>');
       el.innerHTML = html.join('');
@@ -59,10 +67,10 @@
         col.innerHTML = `
           <div class="card h-100 shadow-sm">
             <div class="card-body d-flex flex-column">
-              <h2 class="h5">${c.title}</h2>
-              <p class="text-muted flex-grow-1">${c.description}</p>
+              <h2 class="h5">${escapeHtml(c.title)}</h2>
+              <p class="text-muted flex-grow-1">${escapeHtml(c.description)}</p>
               <div class="d-grid gap-2">
-                ${quizzes.map(q => `<a class="btn btn-primary" href="quiz.html?quizId=${q.id}">${q.title}</a>`).join('')}
+                ${quizzes.map(q => `<a class="btn btn-primary" href="quiz.html?quizId=${encodeURIComponent(q.id)}">${escapeHtml(q.title)}</a>`).join('')}
               </div>
             </div>
           </div>

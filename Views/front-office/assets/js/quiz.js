@@ -1,4 +1,12 @@
 (() => {
+  // XSS Prevention helper
+  const escapeHtml = (str) => {
+    if (str == null) return '';
+    const div = document.createElement('div');
+    div.textContent = String(str);
+    return div.innerHTML;
+  };
+
   const ctx = window.__QUIZ_CONTEXT__ || {};
   const quiz = ctx.quiz;
   const studentId = ctx.studentId;
@@ -39,18 +47,18 @@
       block.className = 'mb-4 border-bottom pb-3';
       block.innerHTML = `
         <div class="d-flex justify-content-between align-items-start mb-2">
-          <div><strong>Q${idx+1}.</strong> ${q.text}</div>
-          <button type="button" class="btn btn-sm btn-outline-warning report-btn" data-qid="${q.id}" data-qtext="${q.text}">
+          <div><strong>Q${idx+1}.</strong> ${escapeHtml(q.text)}</div>
+          <button type="button" class="btn btn-sm btn-outline-warning report-btn" data-qid="${escapeHtml(q.id)}" data-qtext="${escapeHtml(q.text)}">
             <small>Report Issue</small>
           </button>
         </div>
         ${q.options.map((opt, i)=> `
           <div class="form-check">
-            <input class="form-check-input" type="radio" name="${q.id}" id="${q.id}_${i}" value="${i}">
-            <label class="form-check-label" for="${q.id}_${i}">${opt}</label>
+            <input class="form-check-input" type="radio" name="${escapeHtml(q.id)}" id="${escapeHtml(q.id)}_${i}" value="${i}">
+            <label class="form-check-label" for="${escapeHtml(q.id)}_${i}">${escapeHtml(opt)}</label>
           </div>
         `).join('')}
-        <div id="feedback_${q.id}" class="mt-2 small"></div>
+        <div id="feedback_${escapeHtml(q.id)}" class="mt-2 small"></div>
       `;
       container.appendChild(block);
     });

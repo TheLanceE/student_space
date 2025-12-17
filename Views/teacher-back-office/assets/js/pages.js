@@ -289,13 +289,13 @@
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-start">
               <div>
-                <h3 class="h5">${e.title}</h3>
-                <p class="mb-1"><strong>Date:</strong> ${e.date} | <strong>Time:</strong> ${e.startTime} - ${e.endTime}</p>
-                <p class="mb-1"><strong>Type:</strong> ${e.type} | <strong>Course:</strong> ${e.course}</p>
-                ${e.location ? `<p class="mb-1"><strong>Location:</strong> ${e.location}</p>` : ''}
-                <p class="mb-0 text-muted">${e.description || 'No description'}</p>
+                <h3 class="h5">${escapeHtml(e.title)}</h3>
+                <p class="mb-1"><strong>Date:</strong> ${escapeHtml(e.date)} | <strong>Time:</strong> ${escapeHtml(e.startTime)} - ${escapeHtml(e.endTime)}</p>
+                <p class="mb-1"><strong>Type:</strong> ${escapeHtml(e.type)} | <strong>Course:</strong> ${escapeHtml(e.course)}</p>
+                ${e.location ? `<p class="mb-1"><strong>Location:</strong> ${escapeHtml(e.location)}</p>` : ''}
+                <p class="mb-0 text-muted">${escapeHtml(e.description || 'No description')}</p>
               </div>
-              <button class="btn btn-danger btn-sm" onclick="deleteEvent('${e.id}')">Delete</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteEvent('${escapeHtml(e.id)}')">Delete</button>
             </div>
           </div>
         </div>
@@ -368,17 +368,17 @@
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-start">
               <div class="flex-grow-1">
-                <h3 class="h6 mb-2">${quizzes[r.quizId] || 'Unknown Quiz'} - Question ${(r.questionId || '').substring(0,6)}</h3>
-                <p class="mb-1 small"><strong>Type:</strong> ${typeLabel(r.reportType)}</p>
-                <p class="mb-1 small"><strong>Student:</strong> ${students[r.reportedBy] || 'Unknown'}</p>
-                <p class="mb-1 small"><strong>Description:</strong> ${r.description || 'No details'}</p>
-                <p class="mb-1 small text-muted">Reported: ${new Date(r.createdAt).toLocaleString()}</p>
+                <h3 class="h6 mb-2">${escapeHtml(quizzes[r.quizId] || 'Unknown Quiz')} - Question ${escapeHtml((r.questionId || '').substring(0,6))}</h3>
+                <p class="mb-1 small"><strong>Type:</strong> ${escapeHtml(typeLabel(r.reportType))}</p>
+                <p class="mb-1 small"><strong>Student:</strong> ${escapeHtml(students[r.reportedBy] || 'Unknown')}</p>
+                <p class="mb-1 small"><strong>Description:</strong> ${escapeHtml(r.description || 'No details')}</p>
+                <p class="mb-1 small text-muted">Reported: ${escapeHtml(new Date(r.createdAt).toLocaleString())}</p>
                 <div class="mt-2">${statusBadge(r.status)}</div>
               </div>
               <div class="btn-group-vertical ms-3">
-                ${r.status === 'pending' ? `<button class="btn btn-sm btn-info" onclick="updateReportStatus('${r.id}', 'reviewed')">Mark Reviewed</button>` : ''}
-                ${r.status !== 'resolved' ? `<button class="btn btn-sm btn-success" onclick="updateReportStatus('${r.id}', 'resolved')">Resolve</button>` : ''}
-                ${r.status !== 'dismissed' ? `<button class="btn btn-sm btn-secondary" onclick="updateReportStatus('${r.id}', 'dismissed')">Dismiss</button>` : ''}
+                ${r.status === 'pending' ? `<button class="btn btn-sm btn-info" onclick="updateReportStatus('${escapeHtml(r.id)}', 'reviewed')">Mark Reviewed</button>` : ''}
+                ${r.status !== 'resolved' ? `<button class="btn btn-sm btn-success" onclick="updateReportStatus('${escapeHtml(r.id)}', 'resolved')">Resolve</button>` : ''}
+                ${r.status !== 'dismissed' ? `<button class="btn btn-sm btn-secondary" onclick="updateReportStatus('${escapeHtml(r.id)}', 'dismissed')">Dismiss</button>` : ''}
               </div>
             </div>
           </div>

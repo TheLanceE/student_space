@@ -193,9 +193,10 @@ CREATE TABLE IF NOT EXISTS tasks (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Insert default admin account (password: admin123)
+-- Hash generated with: password_hash('admin123', PASSWORD_DEFAULT)
 INSERT INTO admins (id, username, password, name, createdAt, lastLoginAt) 
-VALUES ('admin_root', 'admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Admin', DATE_SUB(NOW(), INTERVAL 90 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY))
-ON DUPLICATE KEY UPDATE username=username;
+VALUES ('admin_root', 'admin', '$2y$10$pUm1WIjYDvm2pmsHDvpSE.rH7SOQ0O2ApKKyO02.d/aL8EldYNaC6', 'Admin', DATE_SUB(NOW(), INTERVAL 90 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY))
+ON DUPLICATE KEY UPDATE password='$2y$10$pUm1WIjYDvm2pmsHDvpSE.rH7SOQ0O2ApKKyO02.d/aL8EldYNaC6';
 
 -- Insert sample students (password: password123)
 INSERT INTO students (id, username, password, fullName, email, mobile, address, gradeLevel, createdAt, lastLoginAt) VALUES
