@@ -5,7 +5,7 @@ require_once __DIR__ . '/../../Models/Challenges.php';
 require_once __DIR__ . '/../../Models/Rewards.php';
 require_once __DIR__ . '/../../Models/Points.php';
 
-$studentID = $_SESSION['userID'] ?? 3;
+$studentID = 1;
 
 // Get ALL challenges to display
 $allChallenges = Challenges::getAll($pdo);
@@ -1310,7 +1310,7 @@ document.getElementById('confirmYes').addEventListener('click', function() {
         return;
     }
     
-    // Disable both buttons immediately to prevent double-clicks
+    // Disable both buttons immediately
     const confirmYesBtn = document.getElementById('confirmYes');
     const confirmNoBtn = document.getElementById('confirmNo');
     confirmYesBtn.disabled = true;
@@ -1318,24 +1318,23 @@ document.getElementById('confirmYes').addEventListener('click', function() {
     
     // Show loading state - keep modal visible with loading message
     const confirmBox = document.querySelector('#challengeConfirm .confirm-box');
+    const originalContent = confirmBox.innerHTML;
     confirmBox.innerHTML = `
         <div class="text-center" style="padding: 40px;">
-            <i class="fas fa-spinner fa-spin" style="font-size: 3rem; color: #2563eb; margin-bottom: 20px;"></i>
+            <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
             <h4 style="color: #2563eb; margin-bottom: 10px;">Processing Challenge...</h4>
             <p style="color: #6b7280;">Please wait while we complete your challenge.</p>
         </div>
     `;
     
-    // Build the URL - check if we're in a subdirectory
-    let basePath = '../../Controllers/ChallengesController.php';
-    // If the path doesn't work, try alternative paths
-    const url = basePath + '?action=complete&id=' + currentChallenge.id;
+    // Redirect immediately
+    const url = '../../Controllers/ChallengesController.php?action=complete&id=' + currentChallenge.id;
+    console.log('Redirecting to: ' + url);
     
-    console.log('Attempting to complete challenge:', currentChallenge.id);
-    console.log('Redirect URL:', url);
-    
-    // Redirect immediately - the controller will handle the redirect back
-    window.location.href = url;
+    // Use window.location.replace to prevent back button issues
+    window.location.replace(url);
 });
 
 document.getElementById('confirmNo').addEventListener('click', function() {

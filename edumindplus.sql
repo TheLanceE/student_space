@@ -130,9 +130,10 @@ CREATE TABLE challenge_ratings (
 
 -- Users (admins, teachers, students)
 INSERT INTO users (name, email, password, role, points) VALUES 
-('Admin User', 'admin@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 0),
-('Demo Teacher', 'teacher@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'teacher', 0),
+
 ('Test Student', 'student@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student', 100), -- CHANGED TO 100 POINTS FOR TESTING
+('Demo Teacher', 'teacher@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'teacher', 0),
+('Admin User', 'admin@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 0),
 ('John Doe', 'john@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student', 75),
 ('Jane Smith', 'jane@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student', 220),
 ('Mike Johnson', 'mike@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student', 350);
@@ -320,3 +321,20 @@ INSERT INTO bundle_items (bundle_id, reward_id, quantity) VALUES
 (3, 5, 1),  -- Master Scholar Badge
 (3, 10, 1), -- Honor Roll Certificate
 (3, 13, 1); -- Early Exam Access 
+
+
+-- FEEDBACK SAVED TABLE
+CREATE TABLE IF NOT EXISTS feedback_saved (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    admin_id INT NOT NULL,
+    feedback_text TEXT NOT NULL,
+    pattern_type VARCHAR(50),
+    confidence_score DECIMAL(3,2),
+    admin_notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (student_id) REFERENCES users(id),
+    FOREIGN KEY (admin_id) REFERENCES users(id),
+    INDEX idx_student (student_id),
+    INDEX idx_created (created_at)
+);

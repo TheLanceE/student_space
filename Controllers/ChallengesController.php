@@ -8,7 +8,8 @@ require_once __DIR__ . '/../Models/Points.php';
 class ChallengesController {
     public static function handle($pdo) {
         $action = $_GET['action'] ?? '';
-        $studentID = $_SESSION['userID'] ?? 1;
+        // CRITICAL FIX: Always get studentID from session, default to test student ID 1
+        $studentID = $_SESSION['userID'] ?? 1; // Changed back to default 1 (test student)
 
         switch ($action) {
             case 'all': self::showAll($pdo); break;
@@ -410,66 +411,55 @@ class ChallengesController {
             exit;
         }
         
+        // CRITICAL FIX: Use the studentID passed to the method (already defaults to 1 if no session)
+        // Don't override it with admin's ID
+        if (!$studentID) {
+            $studentID = 1; // Default to test student
+        }
+        
+        // Check if already completed
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM activity_log WHERE user_id = ? AND activity_type = 'challenge_complete' AND target_id = ?");
+        $stmt->execute([$studentID, $id]);
+        if ($stmt->fetchColumn() > 0) {
+            $_SESSION['error_message'] = 'You have already completed this challenge!';
+            self::redirectBack();
+            exit;
+        }
+        
+        // Get challenge info
+        $stmt = $pdo->prepare("SELECT tree_level, points, status FROM challenges WHERE id = ?");
+        $stmt->execute([$id]);
+        $challenge = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$challenge) {
+            $_SESSION['error_message'] = 'Challenge not found';
+            self::redirectBack();
+            exit;
+        }
+        
+        $treeLevel = (int)$challenge['tree_level'];
+        
+        // For non-level-0 challenges, check status first
+        if ($treeLevel > 0 && $challenge['status'] !== 'Active') {
+            $_SESSION['error_message'] = 'This challenge is not currently active';
+            self::redirectBack();
+            exit;
+        }
+        
+        // Use the model method for ALL challenges (it now handles level 0 correctly)
         try {
-            // Check if challenge exists
-            $stmt = $pdo->prepare("SELECT id, title, tree_level, status, prerequisite_id, points FROM challenges WHERE id = ?");
-            $stmt->execute([$id]);
-            $challengeInfo = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            if (!$challengeInfo) {
-                $_SESSION['error_message'] = 'Challenge not found';
-                self::redirectBack();
-                exit;
-            }
-            
-            // Check if already completed
-            $stmt = $pdo->prepare("SELECT COUNT(*) FROM activity_log WHERE user_id = ? AND activity_type = 'challenge_complete' AND target_id = ?");
-            $stmt->execute([$studentID, $id]);
-            if ($stmt->fetchColumn() > 0) {
-                $_SESSION['error_message'] = 'You have already completed this challenge!';
-                self::redirectBack();
-                exit;
-            }
-            
-            // For level 0 challenges, allow completion regardless of status
-            // For other levels, check status and prerequisites
-            $treeLevel = (int)$challengeInfo['tree_level'];
-            
-            if ($treeLevel > 0) {
-                if ($challengeInfo['status'] !== 'Active') {
-                    $_SESSION['error_message'] = 'This challenge is not currently active';
-                    self::redirectBack();
-                    exit;
-                }
-                
-                // Check prerequisite for non-level-0 challenges
-                if (!empty($challengeInfo['prerequisite_id'])) {
-                    $stmt = $pdo->prepare("SELECT COUNT(*) FROM activity_log WHERE user_id = ? AND activity_type = 'challenge_complete' AND target_id = ?");
-                    $stmt->execute([$studentID, $challengeInfo['prerequisite_id']]);
-                    if ($stmt->fetchColumn() == 0) {
-                        $_SESSION['error_message'] = 'Please complete the prerequisite challenge first';
-                        self::redirectBack();
-                        exit;
-                    }
-                }
-            }
-            
-            // Use the Challenges::complete method which handles everything
             $result = Challenges::complete($pdo, $id, $studentID);
             
             if ($result === false) {
-                $_SESSION['error_message'] = 'Maybe later !';
+                // More specific error message
+                $_SESSION['error_message'] = 'Unable to complete challenge. Please try again.';
                 self::redirectBack();
                 exit;
             }
             
-            // Get updated points balance - use the Points model
+            // Success!
             $newBalance = Points::getBalance($pdo, $studentID);
-            
-            // Store success message with green styling - user requested "Challenge Completed"
             $_SESSION['success_message'] = '<span style="color: #059669; font-weight: bold;">Challenge Completed!</span><br>Points awarded: <strong>' . $result . '</strong> (Total: <strong>' . $newBalance . '</strong>)';
-            
-            // Also store the points awarded for potential confetti animation
             $_SESSION['points_awarded'] = $result;
             
             self::redirectBack();

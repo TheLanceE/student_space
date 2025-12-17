@@ -51,19 +51,10 @@ class Challenges {
     }
 
     public static function complete($pdo, $challengeID, $studentID) {
-    // DEBUG: Log the attempt
-    error_log("=== Challenge Completion Attempt ===");
-    error_log("Challenge ID: " . $challengeID);
-    error_log("Student ID: " . $studentID);
-    
     // Check if already completed FIRST
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM activity_log WHERE user_id = ? AND activity_type = 'challenge_complete' AND target_id = ?");
     $stmt->execute([$studentID, $challengeID]);
-    $alreadyCompleted = $stmt->fetchColumn() > 0;
-    error_log("Already completed: " . ($alreadyCompleted ? 'YES' : 'NO'));
-    
-    if ($alreadyCompleted) {
-        error_log("RETURNING FALSE: Already completed");
+    if ($stmt->fetchColumn() > 0) {
         return false; // Already completed
     }
     
@@ -72,88 +63,87 @@ class Challenges {
     $stmt->execute([$challengeID]);
     $challenge = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    error_log("Challenge found: " . ($challenge ? 'YES' : 'NO'));
-    if ($challenge) {
-        error_log("Challenge status: " . $challenge['status']);
-        error_log("Challenge tree_level: " . $challenge['tree_level']);
-        error_log("Challenge prerequisite_id: " . ($challenge['prerequisite_id'] ?? 'NULL'));
-        error_log("Challenge points: " . $challenge['points']);
-    }
-    
     if (!$challenge) {
-        error_log("RETURNING FALSE: Challenge not found");
         return false;
     }
     
-    // CRITICAL FIX: Level 0 challenges should ALWAYS be completable - no prerequisite check
-    // Cast to int to ensure proper comparison
+    // CRITICAL: Level 0 challenges - NO RESTRICTIONS AT ALL
     $treeLevel = (int)$challenge['tree_level'];
-    error_log("Tree level (cast to int): " . $treeLevel);
     
-    // For level 0 challenges, allow completion even if status is not Active
-    // For other levels, check status
-    if ($treeLevel > 0 && $challenge['status'] !== 'Active') {
-        error_log("RETURNING FALSE: Challenge status is not Active (status: " . $challenge['status'] . ")");
+    // For level 0 challenges, skip ALL checks - just complete it
+    if ($treeLevel == 0) {
+        // Level 0 - no status check, no prerequisite check, just complete it
+        $pointsAwarded = (int)($challenge['points'] ?? 0);
+        if ($pointsAwarded < 0) {
+            $pointsAwarded = 0;
+        }
+        
+        $pdo->beginTransaction();
+        try {
+            // Award points
+            $stmt = $pdo->prepare("UPDATE users SET points = COALESCE(points, 0) + ? WHERE id = ?");
+            if (!$stmt->execute([$pointsAwarded, $studentID])) {
+                throw new Exception("Failed to update user points");
+            }
+            
+            // Log completion
+            $stmt = $pdo->prepare("INSERT INTO activity_log (user_id, activity_type, target_id, points_amount, details) VALUES (?, 'challenge_complete', ?, ?, 'Challenge completed')");
+            if (!$stmt->execute([$studentID, $challengeID, $pointsAwarded])) {
+                throw new Exception("Failed to log challenge completion");
+            }
+            
+            // Check for tier achievements
+            self::checkTierAchievements($pdo, $studentID);
+            
+            $pdo->commit();
+            return $pointsAwarded;
+        } catch (Exception $e) {
+            $pdo->rollBack();
+            error_log("Error completing level 0 challenge: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    // For non-level-0 challenges, check status and prerequisites
+    if ($challenge['status'] !== 'Active') {
         return false;
     }
     
-    // Only check prerequisites for challenges above level 0
-    if ($treeLevel == 0) {
-        // Level 0 challenges are always allowed - skip prerequisite check entirely
-        error_log("Level 0 challenge - skipping prerequisite check");
-    } else if ($treeLevel > 0 && !empty($challenge['prerequisite_id'])) {
-        // For levels above 0, check if prerequisite is completed
-        error_log("Checking prerequisite for level " . $treeLevel);
+    if (!empty($challenge['prerequisite_id'])) {
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM activity_log WHERE user_id = ? AND activity_type = 'challenge_complete' AND target_id = ?");
         $stmt->execute([$studentID, $challenge['prerequisite_id']]);
-        $prereqCompleted = $stmt->fetchColumn() > 0;
-        error_log("Prerequisite completed: " . ($prereqCompleted ? 'YES' : 'NO'));
-        if (!$prereqCompleted) {
-            error_log("RETURNING FALSE: Prerequisite not completed");
+        if ($stmt->fetchColumn() == 0) {
             return false; // Prerequisite not completed
         }
     }
     
     $pointsAwarded = (int)($challenge['points'] ?? 0);
-    error_log("Points to award: " . $pointsAwarded);
-    
-    // Ensure we have valid points to award
     if ($pointsAwarded < 0) {
         $pointsAwarded = 0;
     }
     
-    error_log("Starting transaction...");
     $pdo->beginTransaction();
     try {
-        // Award points - use the 'points' column directly (from database schema)
-        error_log("Updating user points...");
+        // Award points
         $stmt = $pdo->prepare("UPDATE users SET points = COALESCE(points, 0) + ? WHERE id = ?");
         if (!$stmt->execute([$pointsAwarded, $studentID])) {
             throw new Exception("Failed to update user points");
         }
-        error_log("User points updated successfully");
         
-        // Log completion - FIXED: use 'created_at' instead of 'timestamp' (or let it use default)
-        error_log("Inserting into activity_log...");
+        // Log completion
         $stmt = $pdo->prepare("INSERT INTO activity_log (user_id, activity_type, target_id, points_amount, details) VALUES (?, 'challenge_complete', ?, ?, 'Challenge completed')");
         if (!$stmt->execute([$studentID, $challengeID, $pointsAwarded])) {
             throw new Exception("Failed to log challenge completion");
         }
-        error_log("Activity log inserted successfully");
         
         // Check for tier achievements
-        error_log("Checking tier achievements...");
         self::checkTierAchievements($pdo, $studentID);
         
-        error_log("Committing transaction...");
         $pdo->commit();
-        error_log("Transaction committed successfully. Returning points: " . $pointsAwarded);
         return $pointsAwarded;
     } catch (Exception $e) {
-        error_log("EXCEPTION CAUGHT: " . $e->getMessage());
-        error_log("Exception trace: " . $e->getTraceAsString());
         $pdo->rollBack();
-        error_log("Transaction rolled back");
+        error_log("Error completing challenge: " . $e->getMessage());
         return false;
     }
 }
@@ -178,8 +168,8 @@ class Challenges {
                 $stmt = $pdo->prepare("SELECT COUNT(*) FROM activity_log WHERE user_id = ? AND activity_type = 'tier_achievement' AND target_id = ?");
                 $stmt->execute([$studentID, $tier['id']]);
                 if ($stmt->fetchColumn() == 0) {
-                    // Log tier achievement - Keep your existing column names
-                    $stmt = $pdo->prepare("INSERT INTO activity_log (user_id, activity_type, target_id, points_amount, details, timestamp) VALUES (?, 'tier_achievement', ?, 0, ?, NOW())");
+                    // Log tier achievement - FIXED: removed 'timestamp' column, use default created_at
+                    $stmt = $pdo->prepare("INSERT INTO activity_log (user_id, activity_type, target_id, points_amount, details) VALUES (?, 'tier_achievement', ?, 0, ?)");
                     $stmt->execute([$studentID, $tier['id'], "Reached {$tier['name']} Tier at {$points} points"]);
                 }
             }
