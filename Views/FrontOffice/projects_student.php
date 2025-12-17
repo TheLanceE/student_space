@@ -55,7 +55,7 @@ if (!empty($_SESSION['flash_success']) || !empty($_SESSION['flash_error'])) {
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h1 class="h3">My Projects</h1>
       <div>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#projectModal" onclick="ProjectDebug.openProjectModal()">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#projectModal">
           <i class="bi bi-plus"></i> New Project
         </button>
       </div>
@@ -419,6 +419,26 @@ if (!empty($_SESSION['flash_success']) || !empty($_SESSION['flash_error'])) {
       } else if (projectDescVoiceBtn && !('webkitSpeechRecognition' in window)) {
         projectDescVoiceBtn.disabled = true;
         projectDescVoiceBtn.title = 'Voice input not supported in this browser';
+      }
+
+      // Clean up modal backdrop and reset form on close
+      const projectModal = document.getElementById('projectModal');
+      if (projectModal) {
+        projectModal.addEventListener('hidden.bs.modal', function() {
+          // Remove any lingering backdrops
+          const backdrops = document.querySelectorAll('.modal-backdrop');
+          backdrops.forEach(backdrop => backdrop.remove());
+          
+          // Remove modal-open class from body
+          document.body.classList.remove('modal-open');
+          document.body.style.overflow = '';
+          document.body.style.paddingRight = '';
+          
+          // Reset form
+          if (projectForm) {
+            projectForm.reset();
+          }
+        });
       }
     });
   </script>
