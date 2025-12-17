@@ -418,8 +418,8 @@ class SessionManager {
         $csp = [
             "default-src 'self'",
             "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://apis.google.com",
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-            "font-src 'self' https://fonts.gstatic.com",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
+            "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net",
             "img-src 'self' data: https:",
             "connect-src 'self' https://accounts.google.com",
             "frame-src 'self' https://accounts.google.com",
