@@ -106,5 +106,3 @@ Handles all core logic:
 * Student leave event
 
 ---
-
-*That’s it. Simple. Clean. Works.*
