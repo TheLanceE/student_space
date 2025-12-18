@@ -1,85 +1,130 @@
+/* Front Office Specific Styles */
+
+/* Subtle Background Pattern - Very soft colors */
 body {
-	background-color: var(--surface-1);
-	color: var(--text-primary);
-	background-image:
-		radial-gradient(circle at 12% 20%, rgba(102,126,234,0.08), transparent 32%),
-		radial-gradient(circle at 88% 10%, rgba(17,153,142,0.09), transparent 30%),
-		radial-gradient(circle at 50% 80%, rgba(118,75,162,0.06), transparent 35%);
+  background-color: var(--bg-body);
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(79, 70, 229, 0.03), transparent 30%),
+    radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.03), transparent 30%);
+  background-attachment: fixed;
 }
 
-.navbar-brand { font-weight: 700; }
+/* Dark mode body background */
+:root[data-theme="dark"] body {
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(129, 140, 248, 0.08), transparent 30%),
+    radial-gradient(circle at 85% 30%, rgba(52, 211, 153, 0.06), transparent 30%) !important;
+}
 
+/* Enhanced Card Styles for Front Office */
 .card {
-	border-radius: .9rem;
-	box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
-	transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
-	border: 1px solid var(--border-color);
+  border: 1px solid var(--border-color);
+  background: var(--surface-1);
+  box-shadow: var(--shadow-sm);
 }
 
-.card:hover { transform: translateY(-6px); box-shadow: 0 24px 60px rgba(15,23,42,0.14); border-color: rgba(102,126,234,0.3); }
+.card:hover {
+  box-shadow: var(--shadow-xl);
+  transform: translateY(-4px);
+}
 
-.list-group-flush .list-group-item { border-left: 0; border-right: 0; }
-.list-group-item { transition: background-color 0.25s ease, transform 0.2s ease; }
-.list-group-item:hover { background: var(--surface-3); transform: translateX(2px); }
-
-.badge-timer { font-size: .9rem; }
-.quiz-correct { background: #e6ffed; border-left: 4px solid #22c55e; }
-.quiz-incorrect { background: #fff1f2; border-left: 4px solid #ef4444; }
-.table td, .table th { vertical-align: middle; }
-.placeholder-text { color: #6c757d; font-style: italic; }
-
+/* Profile Card - Special Gradient */
 .profile-card {
-	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-	color: #fff;
-	border: none;
-	box-shadow: 0 20px 60px rgba(102,126,234,0.35);
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  box-shadow: var(--shadow-lg);
 }
 
+.profile-card .text-muted {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.profile-card h2, .profile-card h5 {
+  color: white;
+}
+
+/* List Groups */
+.list-group-item {
+  background-color: var(--surface-1);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.list-group-item:hover {
+  background-color: var(--surface-2);
+  transform: translateX(4px);
+}
+
+/* Quiz Styles */
+.quiz-correct {
+  background-color: rgba(16, 185, 129, 0.1);
+  border-left: 4px solid var(--success-color);
+}
+
+.quiz-incorrect {
+  background-color: rgba(239, 68, 68, 0.1);
+  border-left: 4px solid var(--danger-color);
+}
+
+/* Pill Links */
 .pill-link {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.35rem;
-	padding: 0.45rem 0.75rem;
-	border-radius: 999px;
-	background: var(--surface-3);
-	color: var(--text-primary);
-	text-decoration: none;
-	font-weight: 600;
-	transition: transform 0.25s ease, box-shadow 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  background-color: var(--surface-2);
+  color: var(--text-primary);
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
-.pill-link:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,0.08); }
-
-.stagger > * { opacity: 0; animation: fadeUp 0.6s ease forwards; }
-.stagger > *:nth-child(1) { animation-delay: 0.05s; }
-.stagger > *:nth-child(2) { animation-delay: 0.15s; }
-.stagger > *:nth-child(3) { animation-delay: 0.25s; }
-.stagger > *:nth-child(4) { animation-delay: 0.35s; }
-
-@keyframes fadeUp {
-	from { opacity: 0; transform: translateY(14px); }
-	to { opacity: 1; transform: translateY(0); }
+.pill-link:hover {
+  background-color: var(--surface-3);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  color: var(--primary-color);
 }
 
+/* Glassmorphism Panel */
 .glass-panel {
-	background: rgba(255,255,255,0.6);
-	-webkit-backdrop-filter: blur(10px);
-	backdrop-filter: blur(10px);
-	border: 1px solid rgba(255,255,255,0.4);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 :root[data-theme="dark"] .glass-panel {
-	background: rgba(15,23,42,0.65);
-	border-color: rgba(255,255,255,0.08);
+  background: rgba(30, 41, 59, 0.7);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
-:root[data-theme="dark"] .card {
-	background: var(--surface-2);
-	color: var(--text-primary);
-	box-shadow: 0 16px 40px rgba(0,0,0,0.35);
-	border-color: var(--border-color);
+/* Staggered Animation */
+.stagger > * {
+  opacity: 0;
+  animation: fadeInUp 0.5s ease-out forwards;
 }
 
-:root[data-theme="dark"] .pill-link { background: var(--surface-2); color: var(--text-primary); }
+.stagger > *:nth-child(1) { animation-delay: 0.1s; }
+.stagger > *:nth-child(2) { animation-delay: 0.2s; }
+.stagger > *:nth-child(3) { animation-delay: 0.3s; }
+.stagger > *:nth-child(4) { animation-delay: 0.4s; }
+.stagger > *:nth-child(5) { animation-delay: 0.5s; }
 
-.progress-sm { height: 0.5rem; border-radius: 999px; overflow: hidden; }
+/* Progress Bars */
+.progress {
+  background-color: var(--surface-3);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  background: var(--gradient-primary);
+}
+
+.progress-sm {
+  height: 0.5rem;
+}
+

@@ -2,7 +2,7 @@
 
 class Event
 {    
-    public ?int $eventID;
+    public ?string $id;
     public string $title;
     public string $date;
     public string $startTime;
@@ -13,7 +13,7 @@ class Event
     public string $type;
     public string $location;
     public string $description;
-    public int $teacherID;
+    public string $teacherId;
 
     public function __construct(
         string $title, 
@@ -26,8 +26,8 @@ class Event
         string $type, 
         string $location, 
         string $description, 
-        int $teacherID,
-        ?int $eventID = null
+        $teacherId,
+        ?string $id = null
     ) {
         $this->title = $title;
         $this->date = $date;
@@ -39,18 +39,19 @@ class Event
         $this->type = $type;
         $this->location = $location;
         $this->description = $description;  
-        $this->teacherID = $teacherID;
-        $this->eventID = $eventID;
+        $this->teacherId = $teacherId;
+        $this->id = $id ?? 'evt_' . bin2hex(random_bytes(8));
     }
 
     public function create($pdo)
     {
         $statement = $pdo->prepare("
             INSERT INTO events 
-            (title, date, startTime, endTime, maxParticipants, nbrParticipants, course, type, location, description, teacherID) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            (id, title, date, startTime, endTime, maxParticipants, nbrParticipants, course, type, location, description, teacherId) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
         return $statement->execute([
+            $this->id,
             $this->title,
             $this->date,
             $this->startTime,
@@ -61,7 +62,7 @@ class Event
             $this->type,
             $this->location,
             $this->description,
-            $this->teacherID
+            $this->teacherId
         ]);
     }
 
@@ -72,16 +73,16 @@ class Event
         return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    static public function getByTeacher($pdo, int $teacherID)
+    static public function getByTeacher($pdo, $teacherId)
     {
-        $statement = $pdo->prepare("SELECT * FROM events WHERE teacherID = ? ORDER BY date ASC, startTime ASC");
-        $statement->execute([$teacherID]);
+        $statement = $pdo->prepare("SELECT * FROM events WHERE teacherId = ? ORDER BY date ASC, startTime ASC");
+        $statement->execute([$teacherId]);
         return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    static public function delete($pdo, int $id)
+    static public function delete($pdo, $id)
     {
-        $statement = $pdo->prepare("DELETE FROM events WHERE eventID = ?");
+        $statement = $pdo->prepare("DELETE FROM events WHERE id = ?");
         return $statement->execute([$id]);
     }
 }

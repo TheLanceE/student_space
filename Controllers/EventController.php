@@ -72,9 +72,9 @@ class EventController
             $location = "";
         }
 
-        // Get teacher ID from session (fallback to 0 for now)
+        // Get teacher ID from session (string format like 'teach_jane')
         // Session already initialized by config.php
-        $teacherID = $_SESSION['teacher_id'] ?? $_SESSION['user_id'] ?? 0;
+        $teacherID = (string)($_SESSION['teacher_id'] ?? $_SESSION['user_id'] ?? '');
 
         $event = new Event(
             $title, 
@@ -104,7 +104,7 @@ class EventController
             return false;
         }
 
-        $id = intval($_POST['deleteID']);
+        $id = $_POST['deleteID'];
         return Event::delete($this->pdo, $id);
     }
 

@@ -1,554 +1,237 @@
 <?php
 /**
- * ProjectController - Handles project and task operations
+ * ProjectController - FINAL (single clean implementation)
+ * Uses config::getConnexion(), handles only form POST actions (no JSON)
  */
-require_once __DIR__ . '/config.php';
+
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
+include_once(__DIR__ . '/../config.php');
 
 class ProjectController {
     private $db;
+    private $defaultRedirect;
 
     public function __construct() {
-        global $db_connection;
-        $this->db = $db_connection;
+        $this->db = config::getConnexion();
+        $this->defaultRedirect = $_SERVER['HTTP_REFERER'] ?? '../Views/projects_student.php';
     }
 
-    public static function getSessionUser(): ?array
-    {
-        // Prefer SessionManager user shape
-        if (isset($_SESSION['user']) && is_array($_SESSION['user']) && isset($_SESSION['user']['id'])) {
-            return [
-                'id' => (string)($_SESSION['user']['id'] ?? ''),
-                'role' => (string)($_SESSION['user']['role'] ?? ''),
-                'username' => (string)($_SESSION['user']['username'] ?? ''),
-            ];
-        }
+    private function respond($success, $message = '', $redirect = null) {
+        if ($success) $_SESSION['flash_success'] = $message ?: 'Operation completed';
+        else $_SESSION['flash_error'] = $message ?: 'Operation failed';
 
-        // Legacy fallback
-        if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
-            return [
-                'id' => (string)$_SESSION['user_id'],
-                'role' => (string)$_SESSION['role'],
-                'username' => (string)($_SESSION['username'] ?? ''),
-            ];
-        }
-
-        // Some flows store teacher_id/student_id
-        $role = (string)($_SESSION['role'] ?? '');
-        if ($role === 'teacher' && isset($_SESSION['teacher_id'])) {
-            return ['id' => (string)$_SESSION['teacher_id'], 'role' => 'teacher', 'username' => (string)($_SESSION['username'] ?? '')];
-        }
-        if ($role === 'student' && isset($_SESSION['student_id'])) {
-            return ['id' => (string)$_SESSION['student_id'], 'role' => 'student', 'username' => (string)($_SESSION['username'] ?? '')];
-        }
-
-        return null;
-    }
-
-    public static function requireAuthJson(): array
-    {
-        $user = self::getSessionUser();
-        if (!$user || empty($user['id']) || empty($user['role'])) {
-            http_response_code(401);
-            echo json_encode(['success' => false, 'error' => 'Not authenticated']);
+        $target = $redirect ?? $this->defaultRedirect;
+        if ($target) {
+            header('Location: ' . $target);
             exit;
         }
-        return $user;
+
+        echo $success ? '<p>' . htmlspecialchars($message) . '</p>' : '<p>Error: ' . htmlspecialchars($message) . '</p>';
     }
 
-    public static function validateCsrfJson(array $input): bool
-    {
-        $posted = $input['csrf_token'] ?? ($_POST['csrf_token'] ?? '');
-        $header = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
-        $token = is_string($header) && $header !== '' ? $header : $posted;
-        $sessionToken = $_SESSION['csrf_token'] ?? '';
+    public function getCurrentUserId() { return $_SESSION['user']['id'] ?? 'stu_debug'; }
 
-        if (!is_string($token) || $token === '' || !is_string($sessionToken) || $sessionToken === '') {
-            return false;
+    private function requireTeacher() {
+        $role = $_SESSION['user']['role'] ?? '';
+        if ($role !== 'teacher') {
+            throw new Exception('Only teachers can react');
         }
-
-        return hash_equals($sessionToken, $token);
     }
 
-    /**
-     * Get all projects (optionally filtered by user)
-     */
-    public function getAllProjects($userId = null, $role = null) {
+    public function listProjectMembers($projectId){
+        if (!$projectId) return [];
+        try{
+            // ensure mapping table exists before querying
+            $check = $this->db->prepare("SELECT 1 FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name=:tbl LIMIT 1");
+            $check->execute([':tbl' => 'project_members']);
+            if ($check->fetch() === false) return [];
+
+            $stmt = $this->db->prepare("SELECT pm.userId, pm.role, pm.addedAt,
+                (SELECT COUNT(*) FROM tasks t WHERE t.projectId=pm.projectId AND t.assignedTo=pm.userId AND t.isComplete=1) as submittedCount
+                FROM project_members pm WHERE pm.projectId=:projectId");
+            $stmt->execute([':projectId'=>$projectId]);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($rows as &$r){ $r['submitted'] = ((int)($r['submittedCount'] ?? 0)) > 0; }
+            return $rows;
+        } catch (PDOException $e) {
+            // table may not exist; return empty member list so UI can fall back
+            return [];
+        }
+    }
+
+    public function listProjects() {
         try {
-            $sql = "SELECT p.*, 
-                    (SELECT COUNT(*) FROM tasks WHERE projectId = p.id) as taskCount,
-                    (SELECT COUNT(*) FROM tasks WHERE projectId = p.id AND isComplete = 1) as completedTasks
-                    FROM projects p";
-            
-            if ($userId && $role !== 'admin') {
-                // PDO MySQL does not allow reusing the same named placeholder when emulated prepares are disabled
-                $sql .= " WHERE p.createdBy = :userIdCreated OR p.assignedTo = :userIdAssigned";
-            }
-            
-            $sql .= " ORDER BY p.createdAt DESC";
-            
-            $stmt = $this->db->prepare($sql);
-            if ($userId && $role !== 'admin') {
-                $stmt->execute([':userIdCreated' => $userId, ':userIdAssigned' => $userId]);
+            $userId = $this->getCurrentUserId();
+            $role = $_SESSION['user']['role'] ?? 'student';
+
+            // Teachers/admins see all projects; students see only theirs
+            $baseSql = "SELECT p.*, COUNT(t.id) as taskCount, SUM(CASE WHEN t.status = 'completed' THEN 1 ELSE 0 END) as completedTasks,
+                (SELECT r.type FROM reactions r JOIN users u ON u.id = r.userId WHERE r.projectId = p.id AND r.userId = :userId AND u.role = 'teacher' ORDER BY r.updatedAt DESC LIMIT 1) AS myReaction,
+                (SELECT r.type FROM reactions r JOIN users u ON u.id = r.userId WHERE r.projectId = p.id AND u.role = 'teacher' ORDER BY r.updatedAt DESC LIMIT 1) AS latestReaction
+                FROM projects p LEFT JOIN tasks t ON p.id=t.projectId";
+
+            if (in_array($role, ['teacher','admin'])) {
+                $sql = $baseSql . " GROUP BY p.id ORDER BY p.createdAt DESC";
+                $stmt = $this->db->prepare($sql);
+                $stmt->execute([':userId' => $userId]);
             } else {
-                $stmt->execute();
+                $sql = $baseSql . " WHERE p.createdBy=:userId OR p.assignedTo=:userId GROUP BY p.id ORDER BY p.createdAt DESC";
+                $stmt = $this->db->prepare($sql);
+                $stmt->execute([':userId' => $userId]);
             }
-            
-            return ['success' => true, 'projects' => $stmt->fetchAll(PDO::FETCH_ASSOC)];
-        } catch (PDOException $e) {
-            return ['success' => false, 'error' => $e->getMessage()];
-        }
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) { die('Error: ' . $e->getMessage()); }
     }
 
-    /**
-     * Get a single project by ID
-     */
-    public function getProject($projectId) {
+    public function showProject($id) {
+        if (!$id) throw new Exception('Project ID is required');
+        $stmt = $this->db->prepare("SELECT * FROM projects WHERE id=:id"); $stmt->execute([':id'=>$id]);
+        $project = $stmt->fetch(PDO::FETCH_ASSOC); if (!$project) throw new Exception('Not found');
+        $stmt = $this->db->prepare("SELECT * FROM tasks WHERE projectId=:projectId ORDER BY createdAt DESC"); $stmt->execute([':projectId'=>$id]);
+        $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Compute progress based on task status
+        $expected = (int)($project['expectedTaskCount'] ?? 0);
+        $createdCount = count($tasks);
+        $completedCount = 0;
+        foreach ($tasks as $t) { if (($t['status'] ?? 'not_started') === 'completed') { $completedCount++; } }
+        $totalForProgress = $expected > 0 ? $expected : ($createdCount > 0 ? $createdCount : 0);
+        $project['completionPercentage'] = $totalForProgress>0 ? min(100, round(($completedCount/$totalForProgress)*100)) : 0;
+        $project['memberCount'] = 0;
+        $project['completedMemberCount'] = $completedCount;
+        // attach reaction info: latest and current user's reaction
         try {
-            $stmt = $this->db->prepare("SELECT * FROM projects WHERE id = :id LIMIT 1");
-            $stmt->execute([':id' => $projectId]);
-            $project = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            if ($project) {
-                // Get tasks for this project
-                $taskStmt = $this->db->prepare("SELECT * FROM tasks WHERE projectId = :projectId ORDER BY createdAt ASC");
-                $taskStmt->execute([':projectId' => $projectId]);
-                $project['tasks'] = $taskStmt->fetchAll(PDO::FETCH_ASSOC);
-
-                $taskCount = count($project['tasks']);
-                $completed = 0;
-                foreach ($project['tasks'] as $t) {
-                    if (!empty($t['isComplete'])) {
-                        $completed++;
-                    }
-                }
-                $project['taskCount'] = $taskCount;
-                $project['completedTasks'] = $completed;
-                $project['completionPercentage'] = $taskCount > 0 ? (int)round(($completed / $taskCount) * 100) : 0;
-                
-                return ['success' => true, 'project' => $project];
-            } else {
-                return ['success' => false, 'error' => 'Project not found'];
-            }
-        } catch (PDOException $e) {
-            return ['success' => false, 'error' => $e->getMessage()];
+            $stmtR = $this->db->prepare("SELECT r.type, r.userId FROM reactions r JOIN users u ON u.id = r.userId WHERE r.projectId = :pid AND u.role = 'teacher' ORDER BY r.updatedAt DESC LIMIT 1");
+            $stmtR->execute([':pid' => $id]);
+            $rowR = $stmtR->fetch(PDO::FETCH_ASSOC);
+            $project['latestReaction'] = $rowR['type'] ?? null;
+            $project['latestReactionBy'] = $rowR['userId'] ?? null;
+            $uid = $this->getCurrentUserId();
+            $stmtUR = $this->db->prepare("SELECT r.type FROM reactions r JOIN users u ON u.id = r.userId WHERE r.projectId = :pid AND r.userId = :uid AND u.role = 'teacher' ORDER BY r.updatedAt DESC LIMIT 1");
+            $stmtUR->execute([':pid' => $id, ':uid' => $uid]);
+            $project['myReaction'] = $stmtUR->fetchColumn() ?: null;
+        } catch (Exception $e) {
+            // ignore reaction fetch errors
         }
+        return ['project'=>$project,'tasks'=>$tasks];
     }
 
-    /**
-     * Create a new project
-     */
-    public function createProject($data) {
+    public function addProject($data) {
+        if (!$data || !isset($data['projectName'])) throw new Exception('Project data required');
+        $id = 'proj_'.bin2hex(random_bytes(8)); $user = $this->getCurrentUserId();
+        $expectedTaskCount = (int)($data['expectedTaskCount'] ?? 0);
+        if ($expectedTaskCount < 1) throw new Exception('Expected task count must be at least 1');
+        $stmt = $this->db->prepare("INSERT INTO projects (id,projectName,description,createdBy,assignedTo,status,dueDate,expectedTaskCount,createdAt) VALUES (:id,:name,:desc,:createdBy,:assignedTo,:status,:dueDate,:expectedTaskCount,NOW())");
+        $stmt->execute([':id'=>$id,':name'=>$data['projectName'],':desc'=>$data['description']??'',':createdBy'=>$user,':assignedTo'=>$user,':status'=>$data['status']??'not_started',':dueDate'=>$data['dueDate']??null,':expectedTaskCount'=>$expectedTaskCount]);
+        return $id;
+    }
+
+    public function updateExistingProject($id,$data) {
+        if (!$id || !$data) throw new Exception('Project ID & data required');
+        $expectedTaskCount = (int)($data['expectedTaskCount'] ?? null);
+        if ($expectedTaskCount !== null && $expectedTaskCount < 1) throw new Exception('Expected task count must be at least 1');
+        
+        if ($expectedTaskCount !== null) {
+            $stmt = $this->db->prepare("UPDATE projects SET projectName=:name,description=:desc,status=:status,dueDate=:dueDate,expectedTaskCount=:expectedTaskCount,updatedAt=NOW() WHERE id=:id");
+            $stmt->execute([':id'=>$id,':name'=>$data['projectName'],':desc'=>$data['description']??'',':status'=>$data['status']??'not_started',':dueDate'=>$data['dueDate']??null,':expectedTaskCount'=>$expectedTaskCount]);
+        } else {
+            $stmt = $this->db->prepare("UPDATE projects SET projectName=:name,description=:desc,status=:status,dueDate=:dueDate,updatedAt=NOW() WHERE id=:id");
+            $stmt->execute([':id'=>$id,':name'=>$data['projectName'],':desc'=>$data['description']??'',':status'=>$data['status']??'not_started',':dueDate'=>$data['dueDate']??null]);
+        }
+        return true;
+    }
+
+    public function deleteExistingProject($id){
+        if (!$id) throw new Exception('Project ID required');
+        // delete reactions linked to this project if the table exists
         try {
-            $id = 'proj_' . bin2hex(random_bytes(8));
-            $stmt = $this->db->prepare("
-                INSERT INTO projects (id, projectName, description, createdBy, assignedTo, status, dueDate, createdAt)
-                VALUES (:id, :projectName, :description, :createdBy, :assignedTo, :status, :dueDate, NOW())
-            ");
-            
-            $stmt->execute([
-                ':id' => $id,
-                ':projectName' => $data['projectName'],
-                ':description' => $data['description'] ?? '',
-                ':createdBy' => $data['createdBy'],
-                ':assignedTo' => $data['assignedTo'] ?? null,
-                ':status' => $data['status'] ?? 'not_started',
-                ':dueDate' => $data['dueDate'] ?? null
-            ]);
-
-            return ['success' => true, 'id' => $id];
-        } catch (PDOException $e) {
-            return ['success' => false, 'error' => $e->getMessage()];
-        }
+            $stmt = $this->db->prepare("DELETE FROM reactions WHERE projectId=:projectId");
+            $stmt->execute([':projectId'=>$id]);
+        } catch (Exception $e) {}
+        $stmt = $this->db->prepare("DELETE FROM tasks WHERE projectId=:projectId"); $stmt->execute([':projectId'=>$id]);
+        $stmt = $this->db->prepare("DELETE FROM projects WHERE id=:id"); $stmt->execute([':id'=>$id]);
+        return true;
     }
 
-    /**
-     * Update an existing project
-     */
-    public function updateProject($projectId, $data) {
+    public function updateReaction($projectId, $reaction) {
+        if (!$projectId) throw new Exception('Project ID required');
+        $this->requireTeacher();
+        $userId = $this->getCurrentUserId();
+
+        // remove reaction for current user
+        if (empty($reaction)) {
+            $stmt = $this->db->prepare("DELETE FROM reactions WHERE projectId = :pid AND userId = :uid");
+            $stmt->execute([':pid' => $projectId, ':uid' => $userId]);
+            return 'removed';
+        }
+
+        // check if reaction exists to tailor message
+        $stmtCheck = $this->db->prepare("SELECT 1 FROM reactions WHERE projectId = :pid AND userId = :uid LIMIT 1");
+        $stmtCheck->execute([':pid' => $projectId, ':uid' => $userId]);
+        $exists = (bool)$stmtCheck->fetchColumn();
+
+        // upsert reaction (prevent duplicates per user/project)
+        $id = 'react_' . bin2hex(random_bytes(8));
+        $sql = "INSERT INTO reactions (id, projectId, userId, type, createdAt, updatedAt)
+                VALUES (:id, :pid, :uid, :type, NOW(), NOW())
+                ON DUPLICATE KEY UPDATE type = VALUES(type), updatedAt = NOW()";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':id' => $id, ':pid' => $projectId, ':uid' => $userId, ':type' => $reaction]);
+        return $exists ? 'updated' : 'created';
+    }
+
+    // handlers
+    public function handleCreate(){
+        $this->addProject($_POST['data'] ?? null);
+        $redirect = $_POST['redirect'] ?? null;
+        $this->respond(true,'Project created',$redirect);
+    }
+    public function handleUpdate(){
+        $this->updateExistingProject($_POST['projectId'] ?? null, $_POST['data'] ?? null);
+        $redirect = $_POST['redirect'] ?? null;
+        $this->respond(true,'Project updated',$redirect);
+    }
+    public function handleDelete(){
+        $this->deleteExistingProject($_POST['projectId'] ?? null);
+        $redirect = $_POST['redirect'] ?? null;
+        $this->respond(true,'Project deleted',$redirect);
+    }
+    public function handleReaction(){
         try {
-            $stmt = $this->db->prepare("
-                UPDATE projects 
-                SET projectName = :projectName, 
-                    description = :description,
-                    assignedTo = :assignedTo,
-                    status = :status,
-                    dueDate = :dueDate
-                WHERE id = :id
-            ");
-            
-            $stmt->execute([
-                ':id' => $projectId,
-                ':projectName' => $data['projectName'],
-                ':description' => $data['description'] ?? '',
-                ':assignedTo' => $data['assignedTo'] ?? null,
-                ':status' => $data['status'] ?? 'not_started',
-                ':dueDate' => $data['dueDate'] ?? null
-            ]);
-
-            return ['success' => true];
-        } catch (PDOException $e) {
-            return ['success' => false, 'error' => $e->getMessage()];
+            $projectId = $_POST['projectId'] ?? null;
+            $reaction = $_POST['reaction'] ?? null;
+            $result = $this->updateReaction($projectId, $reaction);
+            $msg = 'Reaction saved';
+            if ($result === 'removed') $msg = 'Reaction removed';
+            elseif ($result === 'updated') $msg = 'Reaction updated';
+            elseif ($result === 'created') $msg = 'Reaction saved';
+            $this->respond(true, $msg);
+        } catch (Exception $e) {
+            $this->respond(false, $e->getMessage());
         }
     }
 
-    /**
-     * Delete a project
-     */
-    public function deleteProject($projectId) {
-        try {
-            $stmt = $this->db->prepare("DELETE FROM projects WHERE id = :id");
-            $stmt->execute([':id' => $projectId]);
-            return ['success' => true];
-        } catch (PDOException $e) {
-            return ['success' => false, 'error' => $e->getMessage()];
-        }
-    }
-
-    /**
-     * Get all tasks for a project
-     */
-    public function getTasksForProject($projectId) {
-        try {
-            $stmt = $this->db->prepare("SELECT * FROM tasks WHERE projectId = :projectId ORDER BY createdAt ASC");
-            $stmt->execute([':projectId' => $projectId]);
-            return ['success' => true, 'tasks' => $stmt->fetchAll(PDO::FETCH_ASSOC)];
-        } catch (PDOException $e) {
-            return ['success' => false, 'error' => $e->getMessage()];
-        }
-    }
-
-    /**
-     * Create a new task
-     */
-    public function createTask($data) {
-        try {
-            $id = 'task_' . bin2hex(random_bytes(8));
-            $stmt = $this->db->prepare("
-                INSERT INTO tasks (id, projectId, taskName, description, isComplete, priority, dueDate, createdAt)
-                VALUES (:id, :projectId, :taskName, :description, :isComplete, :priority, :dueDate, NOW())
-            ");
-            
-            $stmt->execute([
-                ':id' => $id,
-                ':projectId' => $data['projectId'],
-                ':taskName' => $data['taskName'],
-                ':description' => $data['description'] ?? '',
-                ':isComplete' => $data['isComplete'] ?? false,
-                ':priority' => $data['priority'] ?? 'medium',
-                ':dueDate' => $data['dueDate'] ?? null
-            ]);
-
-            return ['success' => true, 'id' => $id];
-        } catch (PDOException $e) {
-            return ['success' => false, 'error' => $e->getMessage()];
-        }
-    }
-
-    /**
-     * Update a task
-     */
-    public function updateTask($taskId, $data) {
-        try {
-            $stmt = $this->db->prepare("
-                UPDATE tasks 
-                SET taskName = :taskName,
-                    description = :description,
-                    isComplete = :isComplete,
-                    priority = :priority,
-                    dueDate = :dueDate,
-                    completedAt = :completedAt
-                WHERE id = :id
-            ");
-            
-            $completedAt = ($data['isComplete'] ?? false) ? date('Y-m-d H:i:s') : null;
-            
-            $stmt->execute([
-                ':id' => $taskId,
-                ':taskName' => $data['taskName'],
-                ':description' => $data['description'] ?? '',
-                ':isComplete' => $data['isComplete'] ?? false,
-                ':priority' => $data['priority'] ?? 'medium',
-                ':dueDate' => $data['dueDate'] ?? null,
-                ':completedAt' => $completedAt
-            ]);
-
-            return ['success' => true];
-        } catch (PDOException $e) {
-            return ['success' => false, 'error' => $e->getMessage()];
-        }
-    }
-
-    /**
-     * Toggle task completion
-     */
-    public function toggleTaskComplete($taskId) {
-        try {
-            $stmt = $this->db->prepare("
-                UPDATE tasks 
-                SET isComplete = NOT isComplete,
-                    completedAt = CASE WHEN isComplete = 0 THEN NOW() ELSE NULL END
-                WHERE id = :id
-            ");
-            $stmt->execute([':id' => $taskId]);
-            return ['success' => true];
-        } catch (PDOException $e) {
-            return ['success' => false, 'error' => $e->getMessage()];
-        }
-    }
-
-    /**
-     * Delete a task
-     */
-    public function deleteTask($taskId) {
-        try {
-            $stmt = $this->db->prepare("DELETE FROM tasks WHERE id = :id");
-            $stmt->execute([':id' => $taskId]);
-            return ['success' => true];
-        } catch (PDOException $e) {
-            return ['success' => false, 'error' => $e->getMessage()];
-        }
-    }
-
-    /**
-     * Get task with owning project creator for authorization
-     */
-    public function getTaskWithProjectOwner($taskId) {
-        try {
-            $stmt = $this->db->prepare(
-                "SELECT t.*, p.createdBy AS projectCreatedBy FROM tasks t JOIN projects p ON p.id = t.projectId WHERE t.id = :id LIMIT 1"
-            );
-            $stmt->execute([':id' => $taskId]);
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            if (!$row) {
-                return ['success' => false, 'error' => 'Task not found'];
-            }
-            return ['success' => true, 'task' => $row];
-        } catch (PDOException $e) {
-            return ['success' => false, 'error' => $e->getMessage()];
-        }
-    }
 }
 
-// API endpoint handler
-if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' || ($_SERVER['REQUEST_METHOD'] ?? '') === 'GET') {
-    header('Content-Type: application/json');
-    
-    $controller = new ProjectController();
-    $input = json_decode(file_get_contents('php://input'), true);
-    if (!is_array($input)) {
-        $input = [];
+// POST/Direct entrypoint: only run this block when this file is requested directly
+if (realpath(__FILE__) === realpath($_SERVER['SCRIPT_FILENAME'])) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST'){
+        $c = new ProjectController(); $action = $_POST['action'] ?? '';
+        switch($action){
+            case 'create_project': $c->handleCreate(); break;
+            case 'update_project': $c->handleUpdate(); break;
+            case 'delete_project': $c->handleDelete(); break;
+            case 'update_reaction': $c->handleReaction(); break;
+            default: $_SESSION['flash_error']='Invalid action: '.htmlspecialchars($action); header('Location:'.($_SERVER['HTTP_REFERER']??'../Views/projects_student.php')); break;
+        }
+    } elseif (!empty($_GET['action']) && $_GET['action']==='test'){
+        echo '<p>ProjectController is working. User: '.htmlspecialchars((new ProjectController())->getCurrentUserId()).'</p>';
     }
-    $action = $input['action'] ?? $_POST['action'] ?? $_GET['action'] ?? '';
-
-    $user = ProjectController::requireAuthJson();
-    $userId = $user['id'];
-    $role = $user['role'];
-
-    $csrfRequiredActions = ['create_project', 'update_project', 'delete_project', 'create_task', 'update_task', 'toggle_task', 'delete_task'];
-    if (in_array($action, $csrfRequiredActions, true) && !ProjectController::validateCsrfJson($input)) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
-        exit;
-    }
-
-    switch ($action) {
-        case 'get_all_projects':
-            if ($role === 'student') {
-                echo json_encode($controller->getAllProjects($userId, $role));
-            } else {
-                echo json_encode($controller->getAllProjects(null, $role));
-            }
-            break;
-        
-        case 'get_project':
-            $projectId = (string)($input['projectId'] ?? '');
-            if ($projectId === '') {
-                echo json_encode(['success' => false, 'error' => 'Missing projectId']);
-                break;
-            }
-
-            $res = $controller->getProject($projectId);
-            if (!($res['success'] ?? false)) {
-                echo json_encode($res);
-                break;
-            }
-
-            $project = $res['project'];
-            $owner = (string)($project['createdBy'] ?? '');
-            $assignedTo = (string)($project['assignedTo'] ?? '');
-            $canView = ($role === 'admin' || $role === 'teacher' || $owner === $userId || $assignedTo === $userId);
-            if (!$canView) {
-                http_response_code(403);
-                echo json_encode(['success' => false, 'error' => 'Forbidden']);
-                break;
-            }
-
-            // Backwards-compatible shape
-            echo json_encode(['success' => true, 'project' => $project, 'tasks' => $project['tasks'] ?? []]);
-            break;
-        
-        case 'create_project':
-            if ($role !== 'student') {
-                http_response_code(403);
-                echo json_encode(['success' => false, 'error' => 'Only students can create projects']);
-                break;
-            }
-
-            $data = $input['data'] ?? [];
-            if (!is_array($data)) {
-                $data = [];
-            }
-            $data['createdBy'] = $userId;
-            echo json_encode($controller->createProject($data));
-            break;
-        
-        case 'update_project':
-            if ($role !== 'student' && $role !== 'admin') {
-                http_response_code(403);
-                echo json_encode(['success' => false, 'error' => 'Forbidden']);
-                break;
-            }
-            $projectId = (string)($input['projectId'] ?? '');
-            $existing = $controller->getProject($projectId);
-            if (!($existing['success'] ?? false)) {
-                echo json_encode($existing);
-                break;
-            }
-            $owner = (string)($existing['project']['createdBy'] ?? '');
-            if ($role !== 'admin' && $owner !== $userId) {
-                http_response_code(403);
-                echo json_encode(['success' => false, 'error' => 'Forbidden']);
-                break;
-            }
-            echo json_encode($controller->updateProject($projectId, $input['data'] ?? []));
-            break;
-        
-        case 'delete_project':
-            if ($role !== 'student' && $role !== 'admin') {
-                http_response_code(403);
-                echo json_encode(['success' => false, 'error' => 'Forbidden']);
-                break;
-            }
-            $projectId = (string)($input['projectId'] ?? '');
-            $existing = $controller->getProject($projectId);
-            if (!($existing['success'] ?? false)) {
-                echo json_encode($existing);
-                break;
-            }
-            $owner = (string)($existing['project']['createdBy'] ?? '');
-            if ($role !== 'admin' && $owner !== $userId) {
-                http_response_code(403);
-                echo json_encode(['success' => false, 'error' => 'Forbidden']);
-                break;
-            }
-            echo json_encode($controller->deleteProject($projectId));
-            break;
-        
-        case 'get_tasks':
-            $projectId = (string)($input['projectId'] ?? '');
-            $existing = $controller->getProject($projectId);
-            if (!($existing['success'] ?? false)) {
-                echo json_encode($existing);
-                break;
-            }
-            $owner = (string)($existing['project']['createdBy'] ?? '');
-            $assignedTo = (string)($existing['project']['assignedTo'] ?? '');
-            if (!($role === 'admin' || $role === 'teacher' || $owner === $userId || $assignedTo === $userId)) {
-                http_response_code(403);
-                echo json_encode(['success' => false, 'error' => 'Forbidden']);
-                break;
-            }
-            echo json_encode($controller->getTasksForProject($projectId));
-            break;
-        
-        case 'create_task':
-            if ($role !== 'student' && $role !== 'admin') {
-                http_response_code(403);
-                echo json_encode(['success' => false, 'error' => 'Forbidden']);
-                break;
-            }
-            $data = $input['data'] ?? [];
-            if (!is_array($data)) {
-                $data = [];
-            }
-            $projectId = (string)($data['projectId'] ?? '');
-            $existing = $controller->getProject($projectId);
-            if (!($existing['success'] ?? false)) {
-                echo json_encode($existing);
-                break;
-            }
-            $owner = (string)($existing['project']['createdBy'] ?? '');
-            if ($role !== 'admin' && $owner !== $userId) {
-                http_response_code(403);
-                echo json_encode(['success' => false, 'error' => 'Forbidden']);
-                break;
-            }
-            echo json_encode($controller->createTask($data));
-            break;
-        
-        case 'update_task':
-            if ($role !== 'student' && $role !== 'admin') {
-                http_response_code(403);
-                echo json_encode(['success' => false, 'error' => 'Forbidden']);
-                break;
-            }
-            $taskId = (string)($input['taskId'] ?? '');
-            $taskRow = $controller->getTaskWithProjectOwner($taskId);
-            if (!($taskRow['success'] ?? false)) {
-                echo json_encode($taskRow);
-                break;
-            }
-            if ($role !== 'admin' && (string)($taskRow['task']['projectCreatedBy'] ?? '') !== $userId) {
-                http_response_code(403);
-                echo json_encode(['success' => false, 'error' => 'Forbidden']);
-                break;
-            }
-            echo json_encode($controller->updateTask($taskId, $input['data'] ?? []));
-            break;
-        
-        case 'toggle_task':
-            if ($role !== 'student' && $role !== 'admin') {
-                http_response_code(403);
-                echo json_encode(['success' => false, 'error' => 'Forbidden']);
-                break;
-            }
-            $taskId = (string)($input['taskId'] ?? '');
-            $taskRow = $controller->getTaskWithProjectOwner($taskId);
-            if (!($taskRow['success'] ?? false)) {
-                echo json_encode($taskRow);
-                break;
-            }
-            if ($role !== 'admin' && (string)($taskRow['task']['projectCreatedBy'] ?? '') !== $userId) {
-                http_response_code(403);
-                echo json_encode(['success' => false, 'error' => 'Forbidden']);
-                break;
-            }
-            echo json_encode($controller->toggleTaskComplete($taskId));
-            break;
-        
-        case 'delete_task':
-            if ($role !== 'student' && $role !== 'admin') {
-                http_response_code(403);
-                echo json_encode(['success' => false, 'error' => 'Forbidden']);
-                break;
-            }
-            $taskId = (string)($input['taskId'] ?? '');
-            $taskRow = $controller->getTaskWithProjectOwner($taskId);
-            if (!($taskRow['success'] ?? false)) {
-                echo json_encode($taskRow);
-                break;
-            }
-            if ($role !== 'admin' && (string)($taskRow['task']['projectCreatedBy'] ?? '') !== $userId) {
-                http_response_code(403);
-                echo json_encode(['success' => false, 'error' => 'Forbidden']);
-                break;
-            }
-            echo json_encode($controller->deleteTask($taskId));
-            break;
-        
-        default:
-            echo json_encode(['success' => false, 'error' => 'Invalid action']);
-    }
-    exit;
 }
-?>

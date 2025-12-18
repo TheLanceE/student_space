@@ -3,12 +3,14 @@
 const ProjectDebug = (function() {
   'use strict';
 
-  const API_URL = '../../Controllers/ProjectController.php';
+  // Use ProjectApiController for JSON responses
+  const API_URL = '../../Controllers/ProjectApiController.php';
   const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
   let currentProjects = [];
 
   // Utility Functions
   function escapeHtml(text) {
+    if (!text) return '';
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
@@ -149,6 +151,7 @@ const ProjectDebug = (function() {
     }
 
     const data = {
+      projectId: projectId || undefined,
       projectName: projectName,
       description: document.getElementById('projectDesc').value.trim(),
       status: document.getElementById('projectStatus').value,
@@ -157,7 +160,7 @@ const ProjectDebug = (function() {
 
     try {
       const action = projectId ? 'update_project' : 'create_project';
-      await apiRequest(action, projectId ? { projectId, data } : { data });
+      await apiRequest(action, data);
       
       const modalElement = document.getElementById('projectModal');
       const modal = bootstrap.Modal.getInstance(modalElement);
@@ -301,12 +304,11 @@ const ProjectDebug = (function() {
       taskName,
       description: document.getElementById('taskDesc').value.trim(),
       priority: document.getElementById('taskPriority').value,
-      dueDate: document.getElementById('taskDueDate').value || null,
-      isComplete: false
+      dueDate: document.getElementById('taskDueDate').value || null
     };
 
     try {
-      await apiRequest('create_task', { data });
+      await apiRequest('create_task', data);
 
       const modalElement = document.getElementById('taskModal');
       const modal = bootstrap.Modal.getInstance(modalElement);

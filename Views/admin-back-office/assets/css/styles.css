@@ -1,6 +1,35 @@
-body { background-color: var(--surface-1); color: var(--text-primary); }
+/* Admin Back Office Specific Styles */
+
+body { 
+  background-color: var(--bg-body); 
+  color: var(--text-primary); 
+}
+
 .navbar-brand { font-weight: 700; }
-.card { border-radius: .75rem; }
+
+.card { 
+  border-radius: .75rem; 
+  background: var(--surface-1);
+  border-color: var(--border-color);
+}
+
 .table td, .table th { vertical-align: middle; }
-.placeholder-text { color: #6c757d; font-style: italic; }
-.stat { background:#fff; border-radius:.75rem; padding:1rem; box-shadow:0 1px 2px rgba(0,0,0,.05);}
+
+.placeholder-text { 
+  color: var(--text-muted); 
+  font-style: italic; 
+}
+
+.stat { 
+  background: var(--surface-1); 
+  border-radius: .75rem; 
+  padding: 1rem; 
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+}
+
+/* Dark mode admin overrides */
+:root[data-theme="dark"] .stat {
+  background: var(--surface-1) !important;
+  border-color: var(--border-color) !important;
+}

@@ -18,56 +18,17 @@ if ($role !== 'admin') {
  <link href="../../shared-assets/css/navbar-styles.css" rel="stylesheet">
  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
  <style>
-   body {
-     background: #f8f9fa;
-     min-height: 100vh;
-   }
+   /* Admin Dashboard Specific Styles */
    
-   .navbar {
-     background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
-     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-     border-bottom: 3px solid #1e3c72;
-   }
-   
-   .navbar-brand {
-     font-weight: 700;
-     font-size: 1.2rem;
-     display: flex;
-     align-items: center;
-     gap: 0.5rem;
-     letter-spacing: 0.5px;
-   }
-   
-   .nav-link {
-     position: relative;
-     transition: all 0.2s ease;
-     font-weight: 500;
-   }
-   
-   .nav-link::after {
-     content: '';
-     position: absolute;
-     bottom: 0;
-     left: 50%;
-     width: 0;
-     height: 2px;
-     background: white;
-     transition: all 0.2s ease;
-     transform: translateX(-50%);
-   }
-   
-   .nav-link:hover::after,
-   .nav-link.active::after {
-     width: 70%;
-   }
-   
+   /* Stat Cards - Enhanced for Admin */
    .stat {
-     background: white;
+     background: var(--surface-1);
      padding: 1.5rem;
-     border-radius: 10px;
-     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+     border-radius: 1rem;
+     box-shadow: var(--shadow-sm);
      transition: all 0.3s ease;
-     border-left: 4px solid #1e3c72;
+     border: 1px solid var(--border-color);
+     border-left: 4px solid var(--primary-color);
      position: relative;
      overflow: hidden;
    }
@@ -77,34 +38,35 @@ if ($role !== 'admin') {
      position: absolute;
      top: 0;
      right: 0;
-     width: 60px;
-     height: 60px;
-     background: linear-gradient(135deg, rgba(30, 60, 114, 0.1), transparent);
-     border-radius: 0 10px 0 100%;
+     width: 80px;
+     height: 80px;
+     background: linear-gradient(135deg, rgba(79, 70, 229, 0.05), transparent);
+     border-radius: 0 1rem 0 100%;
    }
    
    .stat:hover {
-     transform: translateY(-3px);
-     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+     transform: translateY(-4px);
+     box-shadow: var(--shadow-lg);
    }
    
-   .col-6:nth-child(1) .stat { border-left-color: #007bff; animation: fadeInUp 0.4s ease-out; }
-   .col-6:nth-child(2) .stat { border-left-color: #28a745; animation: fadeInUp 0.5s ease-out; }
-   .col-6:nth-child(3) .stat { border-left-color: #ffc107; animation: fadeInUp 0.6s ease-out; }
-   .col-6:nth-child(4) .stat { border-left-color: #dc3545; animation: fadeInUp 0.7s ease-out; }
+   .col-6:nth-child(1) .stat { border-left-color: var(--info-color); animation: fadeInUp 0.4s ease-out; }
+   .col-6:nth-child(2) .stat { border-left-color: var(--success-color); animation: fadeInUp 0.5s ease-out; }
+   .col-6:nth-child(3) .stat { border-left-color: var(--warning-color); animation: fadeInUp 0.6s ease-out; }
+   .col-6:nth-child(4) .stat { border-left-color: var(--danger-color); animation: fadeInUp 0.7s ease-out; }
    
    .stat .text-muted {
-     font-size: 0.85rem;
+     font-size: 0.75rem;
      font-weight: 600;
      text-transform: uppercase;
-     letter-spacing: 0.5px;
-     margin-bottom: 0.5rem;
+     letter-spacing: 0.05em;
+     color: var(--text-secondary) !important;
    }
    
-   .stat .h4 {
-     font-weight: 700;
-     color: #2c3e50;
+   .stat h2 {
      font-size: 2rem;
+     font-weight: 700;
+     margin-bottom: 0;
+     color: var(--text-primary);
    }
    
    .btn-outline-light {
@@ -136,29 +98,30 @@ if ($role !== 'admin') {
      display: flex;
      align-items: center;
      padding: 0.75rem 1rem;
-     background: white;
+     background: var(--surface-1);
      border-radius: 8px;
      text-decoration: none;
-     color: #2c3e50;
-     border: 1px solid #e9ecef;
+     color: var(--text-primary);
+     border: 1px solid var(--border-color);
      transition: all 0.2s ease;
    }
    
    .quick-links a:hover {
-     background: #f8f9fa;
-     border-color: #1e3c72;
+     background: var(--surface-2);
+     border-color: var(--primary-color);
      transform: translateX(5px);
    }
    
    .quick-links .bi {
      font-size: 1.25rem;
      margin-right: 0.75rem;
-     color: #1e3c72;
+     color: var(--primary-color);
    }
    
    .activity-item {
      padding: 0.5rem 0;
-     border-bottom: 1px solid #f0f0f0;
+     border-bottom: 1px solid var(--border-color);
+     color: var(--text-primary);
    }
    
    .activity-item:last-child {
