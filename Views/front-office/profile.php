@@ -126,7 +126,7 @@ try {
  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
  <style>
    .profile-header {
-     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+     background: linear-gradient(135deg, #5b6fd8 0%, #6b4b9a 100%);
      color: white;
      padding: 3rem 0;
      margin-bottom: 2rem;
@@ -156,7 +156,7 @@ try {
      justify-content: center;
      font-size: 3rem;
      font-weight: bold;
-     color: #667eea;
+     color: var(--primary-color);
      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
      margin: 0 auto 1rem;
      animation: bounceIn 0.8s ease-out;
@@ -177,12 +177,12 @@ try {
    }
    
    .stat-card {
-     background: white;
+     background: var(--surface-1);
      border-radius: 1rem;
      padding: 1.5rem;
-     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+     box-shadow: var(--shadow-sm);
      transition: all 0.3s ease;
-     border: none;
+     border: 1px solid var(--border-color);
      position: relative;
      overflow: hidden;
    }
@@ -194,12 +194,12 @@ try {
      left: 0;
      width: 4px;
      height: 100%;
-     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+     background: var(--gradient-primary);
    }
    
    .stat-card:hover {
-     transform: translateY(-5px) scale(1.02);
-     box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+     transform: translateY(-5px);
+     box-shadow: var(--shadow-lg);
    }
    
    .stat-icon {
@@ -216,29 +216,30 @@ try {
    .stat-value {
      font-size: 2rem;
      font-weight: 700;
-     color: #212529;
+     color: var(--text-primary);
      margin: 0.5rem 0;
    }
    
    .stat-label {
-     color: #6c757d;
+     color: var(--text-secondary);
      font-size: 0.9rem;
      text-transform: uppercase;
      letter-spacing: 0.5px;
    }
    
    .info-card {
-     background: white;
+     background: var(--surface-1);
      border-radius: 1rem;
      padding: 2rem;
-     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+     box-shadow: var(--shadow-sm);
      margin-bottom: 2rem;
+     border: 1px solid var(--border-color);
    }
    
    .info-row {
      display: flex;
      padding: 1rem 0;
-     border-bottom: 1px solid #e9ecef;
+     border-bottom: 1px solid var(--border-color);
      align-items: center;
    }
    
@@ -250,7 +251,7 @@ try {
      width: 40px;
      height: 40px;
      border-radius: 10px;
-     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+     background: var(--gradient-primary);
      color: white;
      display: flex;
      align-items: center;
@@ -261,12 +262,12 @@ try {
    
    .info-label {
      font-weight: 600;
-     color: #495057;
+     color: var(--text-primary);
      margin-bottom: 0.25rem;
    }
    
    .info-value {
-     color: #6c757d;
+     color: var(--text-secondary);
    }
    
    .badge-custom {

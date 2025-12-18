@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	}
 }
 
-$teacherId = (int)($_SESSION['teacher_id'] ?? $_SESSION['user_id'] ?? 0);
+$teacherId = (string)($_SESSION['teacher_id'] ?? $_SESSION['user_id'] ?? '');
 $events = $controller->getByTeacher($teacherId);
 ?>
 
@@ -159,7 +159,7 @@ $events = $controller->getByTeacher($teacherId);
 											<form method="post" class="d-inline" onsubmit="return confirm('Delete this event?');">
 												<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
 												<input type="hidden" name="action" value="delete">
-												<input type="hidden" name="deleteID" value="<?= (int)($event['eventID'] ?? 0) ?>">
+												<input type="hidden" name="deleteID" value="<?= htmlspecialchars($event['id'] ?? '') ?>">
 												<button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
 											</form>
 										</td>

@@ -9,18 +9,30 @@
   <link href="../shared-assets/css/navbar-styles.css" rel="stylesheet">
   <style>
     body.launchpad {
-      background: radial-gradient(circle at 10% 20%, rgba(13,110,253,0.08), transparent 30%),
-                  radial-gradient(circle at 80% 0%, rgba(17,153,142,0.1), transparent 28%),
-                  radial-gradient(circle at 50% 80%, rgba(117,81,255,0.08), transparent 32%),
-                  var(--surface-1);
+      background: 
+        radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.02), transparent 35%),
+        radial-gradient(circle at 80% 0%, rgba(16, 185, 129, 0.02), transparent 30%),
+        radial-gradient(circle at 50% 80%, rgba(124, 58, 237, 0.02), transparent 35%),
+        var(--bg-body);
       color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    /* Dark mode launchpad background */
+    :root[data-theme="dark"] body.launchpad,
+    body.launchpad[data-theme="dark"] {
+      background: 
+        radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.12), transparent 35%),
+        radial-gradient(circle at 80% 0%, rgba(52, 211, 153, 0.1), transparent 30%),
+        radial-gradient(circle at 50% 80%, rgba(139, 92, 246, 0.08), transparent 35%),
+        var(--bg-body) !important;
     }
 
     .hero {
       position: relative;
       overflow: hidden;
       padding: 4rem 0 3rem;
-      background: var(--hero-gradient);
+      background: var(--gradient-primary);
       color: #fff;
       isolation: isolate;
     }
@@ -30,7 +42,7 @@
       content: '';
       position: absolute;
       inset: 0;
-      background: var(--hero-overlay);
+      background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1), transparent 60%);
       opacity: 0.85;
       z-index: 0;
     }
@@ -47,7 +59,7 @@
     }
 
     .hero .shape.one { background: rgba(255,255,255,0.25); top: -60px; left: -40px; animation-delay: 0s; }
-    .hero .shape.two { background: rgba(17,153,142,0.28); bottom: -80px; right: -40px; animation-delay: 4s; }
+    .hero .shape.two { background: rgba(16, 185, 129, 0.28); bottom: -80px; right: -40px; animation-delay: 4s; }
     .hero .shape.three { background: rgba(255,255,255,0.18); top: 20%; right: 18%; animation-delay: 2s; }
 
     @keyframes floaty {
@@ -95,11 +107,16 @@
 
     .card.tile {
       border: 1px solid var(--border-color);
-      box-shadow: 0 20px 48px rgba(15,23,42,0.08);
-      transition: transform 0.45s ease, box-shadow 0.45s ease;
+      background: var(--surface-1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transition: transform 0.35s ease, box-shadow 0.35s ease;
     }
 
-    .card.tile:hover { transform: translateY(-10px) scale(1.01); box-shadow: 0 26px 60px rgba(15,23,42,0.15); }
+    .card.tile:hover { 
+      transform: translateY(-6px); 
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+      border-color: var(--primary-color);
+    }
 
     .stagger > * { opacity: 0; animation: fadeUp 0.7s ease forwards; }
     .stagger > *:nth-child(1) { animation-delay: 0.05s; }
@@ -114,15 +131,50 @@
 
     .section-heading small { letter-spacing: 0.12em; text-transform: uppercase; }
 
-    footer { background: var(--surface-2); border-top: 1px solid var(--border-color); }
+    footer { background: var(--surface-1); border-top: 1px solid var(--border-color); }
 
-    /* Dark-mode friendly overrides */
+    /* Dark-mode specific overrides for launchpad */
+    :root[data-theme="dark"] .launchpad .card.tile,
+    .launchpad[data-theme="dark"] .card.tile {
+      background: var(--surface-1) !important;
+      border-color: var(--border-color) !important;
+    }
+    
+    /* Fix white cards in dark mode - get started section and trusted by section */
+    :root[data-theme="dark"] .launchpad .bg-white,
+    .launchpad[data-theme="dark"] .bg-white {
+      background: var(--surface-1) !important;
+      color: var(--text-primary) !important;
+    }
+    
+    :root[data-theme="dark"] .launchpad .bg-white .text-muted,
+    .launchpad[data-theme="dark"] .bg-white .text-muted {
+      color: var(--text-muted) !important;
+    }
+    
+    :root[data-theme="dark"] .launchpad .badge.bg-light,
+    .launchpad[data-theme="dark"] .badge.bg-light {
+      background: var(--surface-2) !important;
+      color: var(--text-primary) !important;
+    }
+    
     .launchpad .text-muted { color: var(--text-secondary) !important; }
-    .launchpad .card { background: var(--surface-2); color: var(--text-primary); }
-    .launchpad .card.border-0 { border: 1px solid var(--border-color); }
-    .launchpad .ad-tile { background: var(--surface-2); color: var(--text-primary); }
+    .launchpad .card { 
+      background: var(--surface-1) !important; 
+      color: var(--text-primary) !important;
+      border: 1px solid var(--border-color) !important;
+    }
+    .launchpad .card.border-0 { border: 1px solid var(--border-color) !important; }
+    .launchpad .ad-tile { 
+      background: var(--surface-1) !important; 
+      color: var(--text-primary) !important; 
+      border: 2px dashed var(--border-color) !important;
+    }
     .launchpad .badge.text-bg-warning { color: #1f2937; }
     .launchpad .btn-link { color: var(--primary-color); }
+    .launchpad h1, .launchpad h2, .launchpad h3, .launchpad h4, .launchpad h5, .launchpad h6 {
+      color: var(--text-primary) !important;
+    }
 
     @media (max-width: 991px) {
       .hero { padding: 3rem 0 2.5rem; }

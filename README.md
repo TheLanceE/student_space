@@ -1,50 +1,231 @@
-# EduMind+ (student_space)
-
-> **Main branch is in work-in-progress integration.** We are merging all role experiences here; expect rapid changes.
-
-Lightweight PHP/MySQL portal for students, teachers, and admins. Includes Google OAuth login, role-based dashboards, quizzes, courses, events, and projects.
-
-## Integration status
 <p align="center">
-   <svg width="520" height="86" viewBox="0 0 520 86" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="10" y="22" width="500" height="24" rx="12" fill="#0f172a" stroke="#1d4ed8" stroke-width="2" />
-      <defs>
-         <pattern id="stripe" x="0" y="0" width="40" height="24" patternUnits="userSpaceOnUse" patternTransform="translate(0 0)">
-            <rect x="0" y="0" width="40" height="24" fill="#2563eb" />
-            <rect x="0" y="0" width="20" height="24" fill="#3b82f6" opacity="0.75" />
-         </pattern>
-      </defs>
-      <rect x="12" y="24" width="100" height="20" rx="10" fill="url(#stripe)">
-         <animate attributeName="x" values="12;32" dur="1.5s" repeatCount="indefinite" />
-      </rect>
-      <rect x="12" y="24" width="100" height="20" rx="10" fill="transparent" stroke="#60a5fa" stroke-width="1.5" />
-      <text x="122" y="40" fill="#e2e8f0" font-family="Inter,Segoe UI,Arial" font-size="14" font-weight="700">20% · Integration in progress</text>
-      <circle cx="480" cy="34" r="6" fill="#22c55e">
-         <animate attributeName="r" values="6;9;6" dur="1.8s" repeatCount="indefinite" />
-         <animate attributeName="opacity" values="1;0.4;1" dur="1.8s" repeatCount="indefinite" />
-      </circle>
-   </svg>
+  <img src="logo.jpg" alt="EduMind+ Logo" width="180" style="border-radius: 20px;">
 </p>
 
-![Student dashboard preview](shared-assets/img/dashboard-preview.jpg)
-![Teacher workspace preview](shared-assets/img/teacher-workspace.jpg)
+<h1 align="center">
+  <img src="https://readme-typing-svg.herokuapp.com?font=Inter&weight=700&size=32&pause=1000&color=4F46E5&center=true&vCenter=true&random=false&width=500&lines=EduMind%2B;Smart+Learning+Platform;Built+with+%E2%9D%A4%EF%B8%8F+by+TheLanceE" alt="Typing SVG" />
+</h1>
 
-## Quick start
-1. Import `database.sql` (and `database_updates.sql` if needed) into MySQL.
-2. Copy `Controllers/oauth_config.local.example.php` to `oauth_config.local.php` and fill Google credentials plus redirect URI (`http://localhost/edumind/Controllers/google_oauth_callback.php`).
-3. Set web root to the repo folder (or map `http://localhost/edumind/`).
-4. Default sample logins:
-   - Student: `superkid` / `password123`
-   - Teacher: `teacher_jane` / `password123`
-   - Admin: `admin` / `password123`
-5. Google login: choose role on the login page (defaults to student) then click "Sign in with Google".
+<p align="center">
+  <strong>A modern, lightweight PHP/MySQL learning management system for students, teachers, and administrators.</strong>
+</p>
 
-## Notes
-- Sessions are centralized via `Controllers/SessionManager.php` and `config.php` autoloads auth checks.
-- If Google email already exists, the flow links the account instead of failing.
-- Soft deletes: many tables use `deleted_at`; queries filter them out by default.
+<p align="center">
+  <a href="#features"><img src="https://img.shields.io/badge/Features-✨-4f46e5?style=for-the-badge" alt="Features"></a>
+  <a href="#quick-start"><img src="https://img.shields.io/badge/Quick%20Start-🚀-10b981?style=for-the-badge" alt="Quick Start"></a>
+  <a href="#tech-stack"><img src="https://img.shields.io/badge/Tech%20Stack-💻-3b82f6?style=for-the-badge" alt="Tech Stack"></a>
+</p>
 
-## Troubleshooting
-- If you see `oauth_failed`, confirm client ID/secret/redirect URI and that cookies are allowed.
-- If `not_logged_in` appears, ensure sessions are writable and that login callbacks complete.
-- For teacher access issues, verify `teachers` table has the account and `role=teacher` in session.
+<p align="center">
+  <img src="https://img.shields.io/badge/PHP-7.4+-777BB4?style=flat-square&logo=php&logoColor=white" alt="PHP">
+  <img src="https://img.shields.io/badge/MySQL-8.0+-4479A1?style=flat-square&logo=mysql&logoColor=white" alt="MySQL">
+  <img src="https://img.shields.io/badge/Bootstrap-5.3-7952B3?style=flat-square&logo=bootstrap&logoColor=white" alt="Bootstrap">
+  <img src="https://img.shields.io/badge/Chart.js-4.x-FF6384?style=flat-square&logo=chartdotjs&logoColor=white" alt="Chart.js">
+  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License">
+</p>
+
+---
+
+## ✨ Features
+
+<table>
+<tr>
+<td width="50%">
+
+### 🎓 For Students
+- 📊 Personal dashboard with progress tracking
+- 📝 Interactive quizzes with instant feedback
+- 🏆 Gamification: earn points, badges & rewards
+- 📅 Event calendar & course management
+- 🤖 AI-powered learning insights
+- 🌙 Dark/Light theme toggle
+
+</td>
+<td width="50%">
+
+### 👨‍🏫 For Teachers
+- 📋 Quiz builder with multiple question types
+- 📈 Class performance analytics
+- 📊 Detailed student reports
+- 🎯 Challenge & reward system
+- 📚 Course & project management
+- 🔔 Event announcements
+
+</td>
+</tr>
+<tr>
+<td colspan="2">
+
+### 🔐 For Administrators
+- 👥 Complete user management (CRUD)
+- 🔒 Role-based access control
+- 📊 System-wide analytics dashboard
+- ⚙️ Platform settings & configuration
+- 📜 Activity logs & audit trails
+- 🎨 Theme customization
+
+</td>
+</tr>
+</table>
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+- PHP 7.4 or higher
+- MySQL 8.0 / MariaDB 10.4+
+- Web server (Apache/Nginx)
+- Composer (optional, for dependencies)
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/TheLanceE/student_space.git
+
+# Navigate to project directory
+cd student_space
+
+# Import the database
+mysql -u your_username -p your_database < database.sql
+
+# Configure Google OAuth (optional)
+cp Controllers/oauth_config.local.example.php Controllers/oauth_config.local.php
+# Edit the file with your Google OAuth credentials
+
+# Set your web root to the project folder
+# Or configure virtual host to point to the project
+```
+
+### 🔑 Default Credentials
+
+| Role | Username | Password |
+|------|----------|----------|
+| 👨‍🎓 Student | `superkid` | `password123` |
+| 👨‍🏫 Teacher | `teacher_jane` | `password123` |
+| 👨‍💼 Admin | `admin` | `password123` |
+
+> ⚠️ **Security Note:** Change default passwords immediately in production!
+
+---
+
+## 💻 Tech Stack
+
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=php,mysql,bootstrap,js,css,html,git" alt="Tech Stack Icons" />
+</p>
+
+| Layer | Technology |
+|-------|------------|
+| **Backend** | PHP 7.4+ (MVC Architecture) |
+| **Database** | MySQL 8.0 / MariaDB |
+| **Frontend** | Bootstrap 5.3, Vanilla JS |
+| **Charts** | Chart.js |
+| **Authentication** | Session-based + Google OAuth 2.0 |
+| **Styling** | Custom CSS with CSS Variables (Dark/Light themes) |
+
+---
+
+## 📁 Project Structure
+
+```
+📦 EduMind+
+├── 📂 Controllers/      # Business logic & API handlers
+├── 📂 Models/           # Database models & entities
+├── 📂 Views/            # UI templates
+│   ├── 📂 front-office/     # Student interface
+│   ├── 📂 teacher-back-office/  # Teacher dashboard
+│   ├── 📂 admin-back-office/    # Admin panel
+│   └── 📂 partials/         # Reusable components
+├── 📂 shared-assets/    # CSS, JS, images
+│   ├── 📂 css/          # Global & component styles
+│   ├── 📂 js/           # Client-side scripts
+│   └── 📂 vendor/       # Third-party libraries
+├── 📂 uploads/          # User uploads (avatars, etc.)
+├── 📄 database.sql      # Database schema
+├── 📄 index.php         # Landing page
+└── 📄 .htaccess         # URL rewriting rules
+```
+
+---
+
+## 🌟 Screenshots
+
+<p align="center">
+  <img src="shared-assets/img/dashboard-preview.jpg" alt="Student Dashboard" width="45%">
+  <img src="shared-assets/img/teacher-workspace.jpg" alt="Teacher Workspace" width="45%">
+</p>
+
+---
+
+## 🔧 Configuration
+
+### Google OAuth Setup
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select existing
+3. Enable Google+ API
+4. Create OAuth 2.0 credentials
+5. Add authorized redirect URI:
+   ```
+   http://localhost/edumind/Controllers/google_oauth_callback.php
+   ```
+6. Copy credentials to `Controllers/oauth_config.local.php`
+
+### Session Configuration
+
+Sessions are managed centrally via `Controllers/SessionManager.php`. Customize timeout and security settings as needed.
+
+---
+
+## 🛡️ Security Features
+
+- 🔐 **Password Hashing** - Bcrypt with secure salts
+- 🛡️ **CSRF Protection** - Token-based form protection
+- 🧹 **Input Sanitization** - All inputs validated & escaped
+- 🔒 **Prepared Statements** - SQL injection prevention
+- 🍪 **Secure Sessions** - HttpOnly, SameSite cookies
+- 👁️ **Soft Deletes** - Data recovery capability
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- [Bootstrap](https://getbootstrap.com/) - Frontend framework
+- [Chart.js](https://www.chartjs.org/) - Beautiful charts
+- [Font Awesome](https://fontawesome.com/) - Icons
+- [Google Fonts](https://fonts.google.com/) - Inter typeface
+
+---
+
+<p align="center">
+  <strong>Made with ❤️ by <a href="https://github.com/TheLanceE">TheLanceE</a></strong>
+</p>
+
+<p align="center">
+  <a href="https://github.com/TheLanceE/student_space/stargazers">
+    <img src="https://img.shields.io/github/stars/TheLanceE/student_space?style=social" alt="Stars">
+  </a>
+  <a href="https://github.com/TheLanceE/student_space/network/members">
+    <img src="https://img.shields.io/github/forks/TheLanceE/student_space?style=social" alt="Forks">
+  </a>
+</p>

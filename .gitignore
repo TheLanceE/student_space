@@ -3,3 +3,21 @@ project_debug/
 
 # Google OAuth local config (contains secrets)
 Controllers/oauth_config.local.php
+
+# Development/Debug files
+Code_Audit.md
+audit_results.json
+audit_script.py
+check_teacher.php
+system_diagnostic.php
+teacher_side_improvements.md
+
+# Migration/backup SQL files (keep only database.sql in repo)
+database_challenges_rewards.sql
+database_merged.sql
+database_modernization_migration.sql
+database_reports.sql
+database_updates.sql
+database_verify_and_fix.sql
+fix_admin_password.sql
+seed_test_data.sql

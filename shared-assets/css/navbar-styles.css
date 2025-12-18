@@ -1,153 +1,291 @@
-/* Standardized Navbar Styles for All Roles */
+/* ===========================================
+   MODERN NAVBAR STYLES - Clean Compact Layout
+   =========================================== */
+
 :root {
-  --student-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --teacher-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-  --admin-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-  --student-gradient-dark: linear-gradient(135deg, #4c51bf 0%, #5b21b6 100%);
-  --teacher-gradient-dark: linear-gradient(135deg, #0f766e 0%, #22c55e 100%);
-  --admin-gradient-dark: linear-gradient(135deg, #0f172a 0%, #1f3a68 100%);
+  --student-primary: #667eea;
+  --student-secondary: #764ba2;
+  --teacher-primary: #11998e;
+  --teacher-secondary: #38ef7d;
+  --admin-primary: #1e3c72;
+  --admin-secondary: #2a5298;
+  --nav-height: 56px;
 }
 
-/* Student Navbar - Purple Gradient */
+/* Base Navbar - Clean and Compact */
+.navbar {
+  padding: 0.5rem 1rem;
+  min-height: var(--nav-height);
+}
+
+/* Student Navbar - Purple Theme */
 .navbar.student-nav {
-  background: var(--student-gradient) !important;
-  -webkit-backdrop-filter: saturate(120%) blur(4px);
-  backdrop-filter: saturate(120%) blur(4px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  animation: slideDown 0.6s ease-out;
+  background: linear-gradient(135deg, var(--student-primary), var(--student-secondary)) !important;
+  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
 }
 
-/* Teacher Navbar - Green Gradient */
+/* Teacher Navbar - Green Theme */
 .navbar.teacher-nav {
-  background: var(--teacher-gradient) !important;
-  -webkit-backdrop-filter: saturate(120%) blur(4px);
-  backdrop-filter: saturate(120%) blur(4px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  animation: slideDown 0.6s ease-out;
+  background: linear-gradient(135deg, var(--teacher-primary), var(--teacher-secondary)) !important;
+  box-shadow: 0 2px 10px rgba(17, 153, 142, 0.3);
 }
 
-/* Admin Navbar - Professional Blue Gradient */
+/* Admin Navbar - Blue Theme */
 .navbar.admin-nav {
-  background: var(--admin-gradient) !important;
-  -webkit-backdrop-filter: saturate(120%) blur(3px);
-  backdrop-filter: saturate(120%) blur(3px);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  border-bottom: 3px solid #1e3c72;
+  background: linear-gradient(135deg, var(--admin-primary), var(--admin-secondary)) !important;
+  box-shadow: 0 2px 10px rgba(30, 60, 114, 0.3);
 }
 
-/* Common Navbar Styles */
+/* Brand Styling */
 .navbar-brand {
   font-weight: 700;
-  font-size: 1.3rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: transform 0.3s ease;
+  font-size: 1.1rem;
+  padding: 0.25rem 0;
+  white-space: nowrap;
 }
 
 .navbar-brand:hover {
-  transform: scale(1.05);
+  opacity: 0.9;
 }
 
-.nav-link {
-  position: relative;
-  transition: all 0.3s ease;
+/* Nav Links - Compact Design */
+.navbar-nav {
+  gap: 0.1rem;
+}
+
+.navbar-nav .nav-link {
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 0.4rem 0.5rem;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.navbar-nav .nav-link:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.navbar-nav .nav-link.active {
+  background: rgba(255, 255, 255, 0.25);
+  font-weight: 600;
+}
+
+.navbar-nav .nav-link i {
+  font-size: 0.85rem;
+}
+
+/* Dropdown Menu Styling */
+.navbar .dropdown-menu {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(10px);
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  padding: 0.5rem;
+  min-width: 180px;
+}
+
+.navbar .dropdown-item {
+  font-size: 0.85rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #333;
+}
+
+.navbar .dropdown-item:hover {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+}
+
+.navbar .dropdown-item.active,
+.navbar .dropdown-item:active {
+  background: linear-gradient(135deg, var(--student-primary), var(--student-secondary));
+  color: white;
+}
+
+.teacher-nav .dropdown-item:hover {
+  background: linear-gradient(135deg, rgba(17, 153, 142, 0.1), rgba(56, 239, 125, 0.1));
+}
+
+.teacher-nav .dropdown-item.active,
+.teacher-nav .dropdown-item:active {
+  background: linear-gradient(135deg, var(--teacher-primary), var(--teacher-secondary));
+}
+
+.admin-nav .dropdown-item:hover {
+  background: linear-gradient(135deg, rgba(30, 60, 114, 0.1), rgba(42, 82, 152, 0.1));
+}
+
+.admin-nav .dropdown-item.active,
+.admin-nav .dropdown-item:active {
+  background: linear-gradient(135deg, var(--admin-primary), var(--admin-secondary));
+}
+
+/* Right Side User Section */
+.navbar .d-flex.align-items-center {
+  gap: 0.5rem;
+}
+
+.navbar .welcome-text {
+  font-size: 0.8rem;
   font-weight: 500;
   display: flex;
   align-items: center;
   gap: 0.3rem;
 }
 
-.nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  width: 0;
-  height: 2px;
-  background: rgba(255,255,255,0.85);
-  transition: all 0.3s ease;
-  transform: translateX(-50%);
-}
-
-.nav-link:hover::after,
-.nav-link.active::after {
-  width: 80%;
-}
-
-.nav-link:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.1);
-}
-
-.btn-outline-light {
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  border: 2px solid white;
+/* Logout Button */
+.navbar .btn-outline-light {
+  font-size: 0.78rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  border-width: 1.5px;
   font-weight: 600;
 }
 
-.btn-outline-light:hover {
-  transform: scale(1.05);
-  background: white;
-  box-shadow: 0 4px 10px rgba(255, 255, 255, 0.3);
+.navbar .btn-outline-light:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
 }
 
-.student-nav .btn-outline-light:hover {
-  color: #667eea;
+/* Badge for Points */
+.navbar .badge {
+  font-size: 0.72rem;
+  padding: 0.3rem 0.5rem;
 }
 
-.teacher-nav .btn-outline-light:hover {
-  color: #11998e;
-}
+/* ===========================
+   RESPONSIVE STYLES
+   =========================== */
 
-.admin-nav .btn-outline-light:hover {
-  color: #1e3c72;
-}
-
-/* Role-colored active underline */
-.student-nav .nav-link.active::after,
-.student-nav .nav-link:hover::after { background: #e4d4ff; }
-.teacher-nav .nav-link.active::after,
-.teacher-nav .nav-link:hover::after { background: #d6ffea; }
-.admin-nav .nav-link.active::after,
-.admin-nav .nav-link:hover::after { background: #d6e4ff; }
-
-/* Subtle pulse on brand for coolness */
-.navbar-brand { animation: brandPulse 6s ease-in-out infinite; }
-@keyframes brandPulse {
-  0%, 100% { text-shadow: 0 0 0 rgba(255,255,255,0); }
-  50% { text-shadow: 0 2px 12px rgba(255,255,255,0.25); }
-}
-
-/* Glow for active nav item */
-.nav-link.active { filter: drop-shadow(0 0 6px rgba(255,255,255,0.2)); }
-
-@keyframes slideDown {
-  from {
-    transform: translateY(-100%);
-    opacity: 0;
+/* Mobile: Collapsed Navbar */
+@media (max-width: 991.98px) {
+  .navbar-collapse {
+    background: inherit;
+    padding: 1rem;
+    margin-top: 0.5rem;
+    border-radius: 12px;
+    max-height: 70vh;
+    overflow-y: auto;
   }
-  to {
-    transform: translateY(0);
-    opacity: 1;
+
+  .navbar-nav {
+    gap: 0.25rem;
+  }
+
+  .navbar-nav .nav-link {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    border-radius: 8px;
+  }
+
+  .navbar-nav .nav-link:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  /* Show dropdown items inline on mobile */
+  .navbar .dropdown-menu {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    box-shadow: none;
+    padding-left: 1rem;
+  }
+
+  .navbar .dropdown-item {
+    color: white;
+    background: transparent;
+  }
+
+  .navbar .dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  .navbar .d-flex.align-items-center {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
   }
 }
 
-/* Welcome text styling */
-.navbar .welcome-text {
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+/* Desktop: Compact Horizontal Layout */
+@media (min-width: 992px) {
+  .navbar-nav {
+    flex-direction: row;
+    flex-wrap: nowrap;
+  }
+
+  .navbar-nav .nav-link {
+    font-size: 0.78rem;
+    padding: 0.35rem 0.4rem;
+  }
+  
+  .navbar-brand {
+    font-size: 1rem;
+  }
 }
 
-/* Dark theme navbar variants */
+/* Large Desktop */
+@media (min-width: 1200px) {
+  .navbar-nav .nav-link {
+    font-size: 0.82rem;
+    padding: 0.4rem 0.55rem;
+  }
+  
+  .navbar-brand {
+    font-size: 1.1rem;
+  }
+}
+
+/* Extra Large Desktop */
+@media (min-width: 1400px) {
+  .navbar-nav .nav-link {
+    font-size: 0.88rem;
+    padding: 0.45rem 0.7rem;
+  }
+  
+  .navbar-brand {
+    font-size: 1.15rem;
+  }
+}
+
+/* ===========================
+   DARK THEME VARIANTS
+   =========================== */
 :root[data-theme="dark"] .navbar.student-nav,
-body[data-theme="dark"] .navbar.student-nav { background: var(--student-gradient-dark) !important; }
+body[data-theme="dark"] .navbar.student-nav {
+  background: linear-gradient(135deg, #4c51bf, #5b21b6) !important;
+}
 
 :root[data-theme="dark"] .navbar.teacher-nav,
-body[data-theme="dark"] .navbar.teacher-nav { background: var(--teacher-gradient-dark) !important; }
+body[data-theme="dark"] .navbar.teacher-nav {
+  background: linear-gradient(135deg, #0f766e, #22c55e) !important;
+}
 
 :root[data-theme="dark"] .navbar.admin-nav,
-body[data-theme="dark"] .navbar.admin-nav { background: var(--admin-gradient-dark) !important; }
+body[data-theme="dark"] .navbar.admin-nav {
+  background: linear-gradient(135deg, #0f172a, #1f3a68) !important;
+}
+
+:root[data-theme="dark"] .navbar .dropdown-menu,
+body[data-theme="dark"] .navbar .dropdown-menu {
+  background: rgba(30, 41, 59, 0.98);
+}
+
+:root[data-theme="dark"] .navbar .dropdown-item,
+body[data-theme="dark"] .navbar .dropdown-item {
+  color: #e2e8f0;
+}
+
+:root[data-theme="dark"] .navbar .dropdown-item:hover,
+body[data-theme="dark"] .navbar .dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
