@@ -125,11 +125,27 @@ class ProjectController {
 
     public function addProject($data) {
         if (!$data || !isset($data['projectName'])) throw new Exception('Project data required');
+        $name = trim($data['projectName']);
+        // require at least 4 letters (Unicode-aware)
+        $letterCount = 0;
+        if (preg_match_all('/\p{L}/u', $name, $m)) { $letterCount = count($m[0]); }
+        if ($letterCount < 4) throw new Exception('Project name must contain at least 4 letters');
+
+        // description validation (optional but recommended)
+        $desc = trim($data['description'] ?? '');
+        if (strlen($desc) > 0 && mb_strlen($desc) < 10) throw new Exception('Description must be at least 10 characters');
+
+        // due date validation
+        if (!empty($data['dueDate'])){
+            $today = date('Y-m-d');
+            if ($data['dueDate'] < $today) throw new Exception('Due date must be today or later');
+        }
+
         $id = 'proj_'.bin2hex(random_bytes(8)); $user = $this->getCurrentUserId();
         $expectedTaskCount = (int)($data['expectedTaskCount'] ?? 0);
         if ($expectedTaskCount < 1) throw new Exception('Expected task count must be at least 1');
         $stmt = $this->db->prepare("INSERT INTO projects (id,projectName,description,createdBy,assignedTo,status,dueDate,expectedTaskCount,createdAt) VALUES (:id,:name,:desc,:createdBy,:assignedTo,:status,:dueDate,:expectedTaskCount,NOW())");
-        $stmt->execute([':id'=>$id,':name'=>$data['projectName'],':desc'=>$data['description']??'',':createdBy'=>$user,':assignedTo'=>$user,':status'=>$data['status']??'not_started',':dueDate'=>$data['dueDate']??null,':expectedTaskCount'=>$expectedTaskCount]);
+        $stmt->execute([':id'=>$id,':name'=>$name,':desc'=>$desc,':createdBy'=>$user,':assignedTo'=>$user,':status'=>$data['status']??'not_started',':dueDate'=>$data['dueDate']??null,':expectedTaskCount'=>$expectedTaskCount]);
         return $id;
     }
 
