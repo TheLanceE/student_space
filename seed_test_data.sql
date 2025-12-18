@@ -61,6 +61,9 @@ ON DUPLICATE KEY UPDATE title=title;
 
 /* QUIZZES - Math */
 INSERT INTO quizzes (id, courseId, title, durationSec, difficulty, questions, createdBy, createdAt) VALUES
+('math101_quiz1', 'math101', 'Math Basics · Quiz 1', 60, 'beginner',
+'[{"id":"m1_q1","text":"2 + 2 = ?","options":["3","4","5","6"],"correctIndex":1},{"id":"m1_q2","text":"5 - 3 = ?","options":["1","2","3","4"],"correctIndex":1},{"id":"m1_q3","text":"10 / 2 = ?","options":["2","4","5","10"],"correctIndex":2},{"id":"m1_q4","text":"3 × 3 = ?","options":["6","7","8","9"],"correctIndex":3},{"id":"m1_q5","text":"Solve for x: x + 1 = 4","options":["1","2","3","4"],"correctIndex":2}]',
+'teach_jane', DATE_SUB(NOW(), INTERVAL 20 DAY)),
 ('math101_quiz2', 'math101', 'Math Basics Quiz 2', 90, 'beginner',
 '[{"id":"m2_q1","text":"7 x 8 = ?","options":["54","56","58","60"],"correctIndex":1},{"id":"m2_q2","text":"What is 25% of 80?","options":["15","18","20","25"],"correctIndex":2},{"id":"m2_q3","text":"9 squared = ?","options":["72","81","90","99"],"correctIndex":1},{"id":"m2_q4","text":"What is the next prime after 13?","options":["15","16","17","19"],"correctIndex":2},{"id":"m2_q5","text":"15 / 3 + 2 = ?","options":["5","6","7","8"],"correctIndex":2}]',
 'teach_jane', DATE_SUB(NOW(), INTERVAL 15 DAY)),
@@ -74,6 +77,9 @@ ON DUPLICATE KEY UPDATE title=title;
 
 /* QUIZZES - Science */
 INSERT INTO quizzes (id, courseId, title, durationSec, difficulty, questions, createdBy, createdAt) VALUES
+('sci101_quiz1', 'sci101', 'Science Basics · Quiz 1', 60, 'beginner',
+'[{"id":"s1_q1","text":"Water boils at what °C?","options":["50","80","100","120"],"correctIndex":2},{"id":"s1_q2","text":"What gas do plants produce?","options":["CO₂","O₂","N₂","CH₄"],"correctIndex":1},{"id":"s1_q3","text":"Earth is the ___ planet from the Sun.","options":["2nd","3rd","4th","5th"],"correctIndex":1},{"id":"s1_q4","text":"Basic unit of life is the:","options":["Atom","Molecule","Cell","Organ"],"correctIndex":2},{"id":"s1_q5","text":"H₂O is:","options":["Oxygen","Hydrogen","Water","Helium"],"correctIndex":2}]',
+'teach_lee', DATE_SUB(NOW(), INTERVAL 18 DAY)),
 ('sci101_quiz2', 'sci101', 'The Human Body', 90, 'beginner',
 '[{"id":"sb_q1","text":"How many bones in adult body?","options":["186","206","226","246"],"correctIndex":1},{"id":"sb_q2","text":"Largest organ in the body?","options":["Heart","Liver","Skin","Brain"],"correctIndex":2},{"id":"sb_q3","text":"Blood is pumped by the:","options":["Brain","Lungs","Heart","Kidney"],"correctIndex":2},{"id":"sb_q4","text":"Oxygen is carried by:","options":["White blood cells","Platelets","Red blood cells","Plasma"],"correctIndex":2},{"id":"sb_q5","text":"The brain is part of the:","options":["Circulatory system","Nervous system","Digestive system","Respiratory system"],"correctIndex":1}]',
 'teach_lee', DATE_SUB(NOW(), INTERVAL 14 DAY)),
@@ -136,6 +142,13 @@ INSERT INTO quizzes (id, courseId, title, durationSec, difficulty, questions, cr
 ('art201_quiz1', 'art201', 'Digital Illustration Basics', 110, 'intermediate',
 '[{"id":"a201_q1","text":"Common vector format:","options":["SVG","JPG","BMP","TIFF"],"correctIndex":0},{"id":"a201_q2","text":"Tablet pressure helps control:","options":["Line weight","Canvas size","File type","Export speed"],"correctIndex":0},{"id":"a201_q3","text":"Layer blending mode for lightening:","options":["Multiply","Screen","Overlay","Difference"],"correctIndex":1},{"id":"a201_q4","text":"Shortcut concept:","options":["Use only mouse","Flatten often","Name layers","Avoid references"],"correctIndex":2},{"id":"a201_q5","text":"Resolution for print (dpi):","options":["72","96","150","300"],"correctIndex":3}]',
 'teach_omar', DATE_SUB(NOW(), INTERVAL 7 DAY))
+ON DUPLICATE KEY UPDATE title=title;
+
+/* QUIZZES - Challenge Daily (from database.sql) */
+INSERT INTO quizzes (id, courseId, title, durationSec, difficulty, questions, createdBy, createdAt) VALUES
+('challenge_daily', 'math101', 'Daily Math Challenge', 120, 'intermediate',
+'[{"id":"c1_q1","text":"15 + 27 = ?","options":["40","41","42","43"],"correctIndex":2},{"id":"c1_q2","text":"100 - 37 = ?","options":["62","63","64","65"],"correctIndex":1},{"id":"c1_q3","text":"12 × 8 = ?","options":["84","92","96","104"],"correctIndex":2},{"id":"c1_q4","text":"144 / 12 = ?","options":["10","11","12","13"],"correctIndex":2},{"id":"c1_q5","text":"Solve: 2x + 5 = 15","options":["3","4","5","6"],"correctIndex":2},{"id":"c1_q6","text":"√64 = ?","options":["6","7","8","9"],"correctIndex":2},{"id":"c1_q7","text":"3² + 4² = ?","options":["20","23","25","27"],"correctIndex":2},{"id":"c1_q8","text":"50% of 200 = ?","options":["75","100","125","150"],"correctIndex":1},{"id":"c1_q9","text":"Prime number after 7:","options":["8","9","10","11"],"correctIndex":3},{"id":"c1_q10","text":"Area of 5×6 rectangle:","options":["11","22","30","36"],"correctIndex":2}]',
+'teach_jane', DATE_SUB(NOW(), INTERVAL 15 DAY))
 ON DUPLICATE KEY UPDATE title=title;
 
 /* CHALLENGES */
