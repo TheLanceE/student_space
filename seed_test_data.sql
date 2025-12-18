@@ -193,44 +193,8 @@ INSERT INTO rewards (id, name, category, costPoints, tierRequired, stock, create
 ('rw_time_boost', 'Time Boost (+30 sec)', 'Power-up', 40, 1, NULL, DATE_SUB(NOW(), INTERVAL 18 DAY))
 ON DUPLICATE KEY UPDATE name=name;
 
-/* Safety: ensure foreign key checks remain off before inserting scores */
+/* General student scores across all subjects */
 SET FOREIGN_KEY_CHECKS = 0;
-
-/* SUPERKID SCORES - Math */
-INSERT INTO scores (id, userId, username, courseId, quizId, score, total, durationSec, attempt, type, timestamp) VALUES
-('sc_sk_1', 'stu_superkid', 'superkid', 'math101', 'math101_quiz1', 5, 5, 42, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 14 DAY)),
-('sc_sk_2', 'stu_superkid', 'superkid', 'math101', 'math101_quiz2', 4, 5, 65, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 12 DAY)),
-('sc_sk_3', 'stu_superkid', 'superkid', 'math101', 'math101_quiz3', 5, 5, 88, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 10 DAY)),
-('sc_sk_4', 'stu_superkid', 'superkid', 'math101', 'challenge_daily', 9, 10, 115, 1, 'challenge', DATE_SUB(NOW(), INTERVAL 8 DAY)),
-('sc_sk_5', 'stu_superkid', 'superkid', 'math201', 'math201_quiz1', 4, 5, 130, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 5 DAY))
-ON DUPLICATE KEY UPDATE score=score;
-
-/* SUPERKID SCORES - Science */
-INSERT INTO scores (id, userId, username, courseId, quizId, score, total, durationSec, attempt, type, timestamp) VALUES
-('sc_sk_6', 'stu_superkid', 'superkid', 'sci101', 'sci101_quiz1', 5, 5, 48, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 13 DAY)),
-('sc_sk_7', 'stu_superkid', 'superkid', 'sci101', 'sci101_quiz2', 4, 5, 72, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 11 DAY)),
-('sc_sk_8', 'stu_superkid', 'superkid', 'sci101', 'sci101_quiz3', 5, 5, 95, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 9 DAY)),
-('sc_sk_9', 'stu_superkid', 'superkid', 'sci201', 'sci201_quiz1', 4, 5, 125, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 4 DAY))
-ON DUPLICATE KEY UPDATE score=score;
-
-/* SUPERKID SCORES - CS */
-INSERT INTO scores (id, userId, username, courseId, quizId, score, total, durationSec, attempt, type, timestamp) VALUES
-('sc_sk_10', 'stu_superkid', 'superkid', 'cs101', 'cs101_quiz1', 5, 5, 55, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 7 DAY)),
-('sc_sk_11', 'stu_superkid', 'superkid', 'cs101', 'cs101_quiz2', 4, 5, 78, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 6 DAY)),
-('sc_sk_12', 'stu_superkid', 'superkid', 'cs101', 'cs101_quiz3', 5, 5, 102, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 3 DAY))
-ON DUPLICATE KEY UPDATE score=score;
-
-/* SUPERKID SCORES - English */
-INSERT INTO scores (id, userId, username, courseId, quizId, score, total, durationSec, attempt, type, timestamp) VALUES
-('sc_sk_13', 'stu_superkid', 'superkid', 'eng101', 'eng101_quiz1', 4, 5, 62, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 6 DAY)),
-('sc_sk_14', 'stu_superkid', 'superkid', 'eng101', 'eng101_quiz2', 5, 5, 70, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 2 DAY))
-ON DUPLICATE KEY UPDATE score=score;
-
-/* SUPERKID SCORES - History */
-INSERT INTO scores (id, userId, username, courseId, quizId, score, total, durationSec, attempt, type, timestamp) VALUES
-('sc_sk_15', 'stu_superkid', 'superkid', 'hist101', 'hist101_quiz1', 5, 5, 58, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 5 DAY)),
-('sc_sk_16', 'stu_superkid', 'superkid', 'hist101', 'hist101_quiz2', 4, 5, 98, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 1 DAY))
-ON DUPLICATE KEY UPDATE score=score;
 
 /* OTHER STUDENTS SCORES */
 INSERT INTO scores (id, userId, username, courseId, quizId, score, total, durationSec, attempt, type, timestamp) VALUES
@@ -259,57 +223,55 @@ INSERT INTO scores (id, userId, username, courseId, quizId, score, total, durati
 ('sc_zara_1', 'stu_zara', 'zara', 'geo201', 'geo201_quiz1', 4, 5, 130, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 1 DAY))
 ON DUPLICATE KEY UPDATE score=score;
 
-/* CHALLENGE COMPLETIONS FOR SUPERKID */
+/* CHALLENGE COMPLETIONS FOR OTHER STUDENTS */
 INSERT INTO challenge_completions (id, challengeId, studentId, rating, completedAt) VALUES
-('cc_sk_1', 'ch_math_basic', 'stu_superkid', 5, DATE_SUB(NOW(), INTERVAL 10 DAY)),
-('cc_sk_2', 'ch_math_adept', 'stu_superkid', 5, DATE_SUB(NOW(), INTERVAL 8 DAY)),
-('cc_sk_3', 'ch_sci_explorer', 'stu_superkid', 4, DATE_SUB(NOW(), INTERVAL 12 DAY)),
-('cc_sk_4', 'ch_sci_researcher', 'stu_superkid', 5, DATE_SUB(NOW(), INTERVAL 6 DAY)),
-('cc_sk_5', 'ch_code_beginner', 'stu_superkid', 5, DATE_SUB(NOW(), INTERVAL 7 DAY)),
-('cc_sk_6', 'ch_code_builder', 'stu_superkid', 4, DATE_SUB(NOW(), INTERVAL 3 DAY)),
-('cc_sk_7', 'ch_wordsmith', 'stu_superkid', 4, DATE_SUB(NOW(), INTERVAL 5 DAY)),
-('cc_sk_8', 'ch_historian', 'stu_superkid', 5, DATE_SUB(NOW(), INTERVAL 4 DAY)),
-('cc_sk_9', 'ch_streak_3', 'stu_superkid', 5, DATE_SUB(NOW(), INTERVAL 9 DAY)),
-('cc_sk_10', 'ch_streak_7', 'stu_superkid', 5, DATE_SUB(NOW(), INTERVAL 2 DAY))
+('cc_emma_1', 'ch_math_basic', 'stu_emma', 5, DATE_SUB(NOW(), INTERVAL 9 DAY)),
+('cc_liam_1', 'ch_code_beginner', 'stu_liam', 4, DATE_SUB(NOW(), INTERVAL 7 DAY)),
+('cc_liam_2', 'ch_code_builder', 'stu_liam', 4, DATE_SUB(NOW(), INTERVAL 3 DAY)),
+('cc_sophia_1', 'ch_sci_explorer', 'stu_sophia', 5, DATE_SUB(NOW(), INTERVAL 10 DAY)),
+('cc_noah_1', 'ch_historian', 'stu_noah', 4, DATE_SUB(NOW(), INTERVAL 6 DAY)),
+('cc_olivia_1', 'ch_math_adept', 'stu_olivia', 5, DATE_SUB(NOW(), INTERVAL 5 DAY)),
+('cc_james_1', 'ch_code_beginner', 'stu_james', 5, DATE_SUB(NOW(), INTERVAL 4 DAY)),
+('cc_ava_1', 'ch_wordsmith', 'stu_ava', 4, DATE_SUB(NOW(), INTERVAL 2 DAY)),
+('cc_isabella_1', 'ch_streak_3', 'stu_isabella', 5, DATE_SUB(NOW(), INTERVAL 3 DAY)),
+('cc_mason_1', 'ch_perfectionist', 'stu_mason', 5, DATE_SUB(NOW(), INTERVAL 4 DAY)),
+('cc_mia_1', 'ch_math_basic', 'stu_mia', 4, DATE_SUB(NOW(), INTERVAL 2 DAY)),
+('cc_ethan_1', 'ch_full_stack', 'stu_ethan', 5, DATE_SUB(NOW(), INTERVAL 1 DAY)),
+('cc_charlotte_1', 'ch_streak_7', 'stu_charlotte', 4, DATE_SUB(NOW(), INTERVAL 2 DAY)),
+('cc_ben_1', 'ch_math_basic', 'stu_ben', 5, DATE_SUB(NOW(), INTERVAL 1 DAY))
 ON DUPLICATE KEY UPDATE rating=rating;
 
-/* POINTS LEDGER - Challenge completions */
+/* POINTS LEDGER - General challenge completions and scores */
 INSERT INTO points_ledger (id, studentId, delta, reason, refType, refId, createdAt) VALUES
-('pl_sk_1', 'stu_superkid', 50, 'Completed: Math Novice challenge', 'challenge', 'ch_math_basic', DATE_SUB(NOW(), INTERVAL 10 DAY)),
-('pl_sk_2', 'stu_superkid', 100, 'Completed: Math Adept challenge', 'challenge', 'ch_math_adept', DATE_SUB(NOW(), INTERVAL 8 DAY)),
-('pl_sk_3', 'stu_superkid', 50, 'Completed: Science Explorer challenge', 'challenge', 'ch_sci_explorer', DATE_SUB(NOW(), INTERVAL 12 DAY)),
-('pl_sk_4', 'stu_superkid', 150, 'Completed: Science Researcher challenge', 'challenge', 'ch_sci_researcher', DATE_SUB(NOW(), INTERVAL 6 DAY)),
-('pl_sk_5', 'stu_superkid', 75, 'Completed: Code Beginner challenge', 'challenge', 'ch_code_beginner', DATE_SUB(NOW(), INTERVAL 7 DAY)),
-('pl_sk_6', 'stu_superkid', 150, 'Completed: Code Builder challenge', 'challenge', 'ch_code_builder', DATE_SUB(NOW(), INTERVAL 3 DAY)),
-('pl_sk_7', 'stu_superkid', 50, 'Completed: Wordsmith challenge', 'challenge', 'ch_wordsmith', DATE_SUB(NOW(), INTERVAL 5 DAY)),
-('pl_sk_8', 'stu_superkid', 50, 'Completed: History Buff challenge', 'challenge', 'ch_historian', DATE_SUB(NOW(), INTERVAL 4 DAY)),
-('pl_sk_9', 'stu_superkid', 100, 'Completed: 3-Day Streak challenge', 'challenge', 'ch_streak_3', DATE_SUB(NOW(), INTERVAL 9 DAY)),
-('pl_sk_10', 'stu_superkid', 250, 'Completed: Weekly Warrior challenge', 'challenge', 'ch_streak_7', DATE_SUB(NOW(), INTERVAL 2 DAY))
+('pl_1', 'stu_emma', 50, 'Completed: Math Novice challenge', 'challenge', 'ch_math_basic', DATE_SUB(NOW(), INTERVAL 9 DAY)),
+('pl_2', 'stu_liam', 75, 'Completed: Code Beginner challenge', 'challenge', 'ch_code_beginner', DATE_SUB(NOW(), INTERVAL 7 DAY)),
+('pl_3', 'stu_liam', 150, 'Completed: Code Builder challenge', 'challenge', 'ch_code_builder', DATE_SUB(NOW(), INTERVAL 3 DAY)),
+('pl_4', 'stu_sophia', 50, 'Completed: Science Explorer challenge', 'challenge', 'ch_sci_explorer', DATE_SUB(NOW(), INTERVAL 10 DAY)),
+('pl_5', 'stu_noah', 50, 'Completed: History Buff challenge', 'challenge', 'ch_historian', DATE_SUB(NOW(), INTERVAL 6 DAY)),
+('pl_6', 'stu_olivia', 100, 'Completed: Math Adept challenge', 'challenge', 'ch_math_adept', DATE_SUB(NOW(), INTERVAL 5 DAY)),
+('pl_7', 'stu_james', 75, 'Completed: Code Beginner challenge', 'challenge', 'ch_code_beginner', DATE_SUB(NOW(), INTERVAL 4 DAY)),
+('pl_8', 'stu_ava', 50, 'Completed: Wordsmith challenge', 'challenge', 'ch_wordsmith', DATE_SUB(NOW(), INTERVAL 2 DAY)),
+('pl_9', 'stu_isabella', 100, 'Completed: 3-Day Streak challenge', 'challenge', 'ch_streak_3', DATE_SUB(NOW(), INTERVAL 3 DAY)),
+('pl_10', 'stu_mason', 500, 'Completed: Perfectionist challenge', 'challenge', 'ch_perfectionist', DATE_SUB(NOW(), INTERVAL 4 DAY)),
+('pl_11', 'stu_mia', 50, 'Completed: Math Novice challenge', 'challenge', 'ch_math_basic', DATE_SUB(NOW(), INTERVAL 2 DAY)),
+('pl_12', 'stu_ethan', 300, 'Completed: Full Stack Ready challenge', 'challenge', 'ch_full_stack', DATE_SUB(NOW(), INTERVAL 1 DAY)),
+('pl_13', 'stu_charlotte', 250, 'Completed: Weekly Warrior challenge', 'challenge', 'ch_streak_7', DATE_SUB(NOW(), INTERVAL 2 DAY)),
+('pl_14', 'stu_ben', 50, 'Completed: Math Novice challenge', 'challenge', 'ch_math_basic', DATE_SUB(NOW(), INTERVAL 1 DAY)),
+('pl_15', 'stu_emma', 20, 'Perfect score: Math Basics Quiz 1', 'quiz', 'math101_quiz1', DATE_SUB(NOW(), INTERVAL 10 DAY)),
+('pl_16', 'stu_liam', 20, 'Perfect score: Programming Basics', 'quiz', 'cs101_quiz1', DATE_SUB(NOW(), INTERVAL 9 DAY)),
+('pl_17', 'stu_sophia', 20, 'Perfect score: Science Basics Quiz 1', 'quiz', 'sci101_quiz1', DATE_SUB(NOW(), INTERVAL 11 DAY)),
+('pl_18', 'stu_olivia', 20, 'Perfect score: Math Basics Quiz 1', 'quiz', 'math101_quiz1', DATE_SUB(NOW(), INTERVAL 7 DAY)),
+('pl_19', 'stu_ava', 20, 'Perfect score: Grammar Essentials', 'quiz', 'eng101_quiz1', DATE_SUB(NOW(), INTERVAL 3 DAY)),
+('pl_20', 'stu_isabella', 20, 'Perfect score: World Geography', 'quiz', 'geo101_quiz1', DATE_SUB(NOW(), INTERVAL 4 DAY))
 ON DUPLICATE KEY UPDATE delta=delta;
 
-/* POINTS LEDGER - Perfect quiz scores */
-INSERT INTO points_ledger (id, studentId, delta, reason, refType, refId, createdAt) VALUES
-('pl_sk_11', 'stu_superkid', 25, 'Perfect score: Math Basics Quiz 1', 'quiz', 'math101_quiz1', DATE_SUB(NOW(), INTERVAL 14 DAY)),
-('pl_sk_12', 'stu_superkid', 25, 'Perfect score: Fractions Challenge', 'quiz', 'math101_quiz3', DATE_SUB(NOW(), INTERVAL 10 DAY)),
-('pl_sk_13', 'stu_superkid', 25, 'Perfect score: Science Basics Quiz 1', 'quiz', 'sci101_quiz1', DATE_SUB(NOW(), INTERVAL 13 DAY)),
-('pl_sk_14', 'stu_superkid', 25, 'Perfect score: Chemistry Basics', 'quiz', 'sci101_quiz3', DATE_SUB(NOW(), INTERVAL 9 DAY)),
-('pl_sk_15', 'stu_superkid', 25, 'Perfect score: Programming Basics', 'quiz', 'cs101_quiz1', DATE_SUB(NOW(), INTERVAL 7 DAY)),
-('pl_sk_16', 'stu_superkid', 25, 'Perfect score: JavaScript Intro', 'quiz', 'cs101_quiz3', DATE_SUB(NOW(), INTERVAL 3 DAY)),
-('pl_sk_17', 'stu_superkid', 25, 'Perfect score: Vocabulary Builder', 'quiz', 'eng101_quiz2', DATE_SUB(NOW(), INTERVAL 2 DAY)),
-('pl_sk_18', 'stu_superkid', 25, 'Perfect score: World History Basics', 'quiz', 'hist101_quiz1', DATE_SUB(NOW(), INTERVAL 5 DAY))
-ON DUPLICATE KEY UPDATE delta=delta;
-
-/* POINTS LEDGER - Reward redemptions */
-INSERT INTO points_ledger (id, studentId, delta, reason, refType, refId, createdAt) VALUES
-('pl_sk_19', 'stu_superkid', -100, 'Redeemed: Golden Avatar Frame', 'reward', 'rw_avatar_gold', DATE_SUB(NOW(), INTERVAL 6 DAY)),
-('pl_sk_20', 'stu_superkid', -50, 'Redeemed: Dark Theme Unlock', 'reward', 'rw_theme_dark', DATE_SUB(NOW(), INTERVAL 4 DAY))
-ON DUPLICATE KEY UPDATE delta=delta;
-
-/* REWARD REDEMPTIONS FOR SUPERKID */
+/* REWARD REDEMPTIONS */
 INSERT INTO reward_redemptions (id, rewardId, studentId, status, requestedBalance, shortBy, note, requestedAt) VALUES
-('rr_sk_1', 'rw_avatar_gold', 'stu_superkid', 'redeemed', 650, 0, 'First reward!', DATE_SUB(NOW(), INTERVAL 6 DAY)),
-('rr_sk_2', 'rw_theme_dark', 'stu_superkid', 'redeemed', 600, 0, 'Love dark mode!', DATE_SUB(NOW(), INTERVAL 4 DAY)),
-('rr_sk_3', 'rw_badge_scholar', 'stu_superkid', 'pending', 1075, 0, 'Want this badge!', DATE_SUB(NOW(), INTERVAL 1 DAY))
+('rr_1', 'rw_avatar_gold', 'stu_emma', 'redeemed', 150, 0, 'First reward!', DATE_SUB(NOW(), INTERVAL 5 DAY)),
+('rr_2', 'rw_theme_dark', 'stu_liam', 'redeemed', 100, 0, 'Love dark mode!', DATE_SUB(NOW(), INTERVAL 3 DAY)),
+('rr_3', 'rw_badge_scholar', 'stu_sophia', 'pending', 200, 0, 'Want this badge!', DATE_SUB(NOW(), INTERVAL 1 DAY)),
+('rr_4', 'rw_avatar_gold', 'stu_olivia', 'redeemed', 200, 0, 'Second gold frame', DATE_SUB(NOW(), INTERVAL 2 DAY)),
+('rr_5', 'rw_theme_ocean', 'stu_james', 'redeemed', 250, 0, 'Ocean theme is cool', DATE_SUB(NOW(), INTERVAL 1 DAY))
 ON DUPLICATE KEY UPDATE status=status;
 
 /* MORE EVENTS */
@@ -323,14 +285,16 @@ ON DUPLICATE KEY UPDATE title=title;
 
 /* MORE LOGS */
 INSERT INTO logs (id, level, message, ts) VALUES
-('log_3', 'info', 'Student superkid completed Weekly Warrior challenge', DATE_SUB(NOW(), INTERVAL 2 DAY)),
+('log_3', 'info', 'Student emma completed Math Novice challenge', DATE_SUB(NOW(), INTERVAL 9 DAY)),
 ('log_4', 'info', 'New course submitted: Web Development', DATE_SUB(NOW(), INTERVAL 10 DAY)),
 ('log_5', 'info', 'New course submitted: Public Speaking', DATE_SUB(NOW(), INTERVAL 8 DAY)),
 ('log_6', 'warn', 'High traffic detected on quiz server', DATE_SUB(NOW(), INTERVAL 5 DAY)),
-('log_7', 'info', 'Student emma achieved perfect score on Grammar Essentials', DATE_SUB(NOW(), INTERVAL 8 DAY)),
+('log_7', 'info', 'Student liam achieved perfect score on Programming Basics', DATE_SUB(NOW(), INTERVAL 9 DAY)),
 ('log_8', 'info', 'New course submitted: Ancient Civilizations', DATE_SUB(NOW(), INTERVAL 5 DAY)),
 ('log_9', 'error', 'Database connection timeout (recovered)', DATE_SUB(NOW(), INTERVAL 3 DAY)),
-('log_10', 'info', 'Backup completed successfully', DATE_SUB(NOW(), INTERVAL 1 DAY))
+('log_10', 'info', 'Backup completed successfully', DATE_SUB(NOW(), INTERVAL 1 DAY)),
+('log_11', 'info', 'Student mason completed Perfectionist challenge', DATE_SUB(NOW(), INTERVAL 4 DAY)),
+('log_12', 'warn', 'Unusual activity on student profile uploads', DATE_SUB(NOW(), INTERVAL 2 DAY))
 ON DUPLICATE KEY UPDATE message=message;
 
 /* QUIZ REPORTS */
@@ -341,11 +305,16 @@ INSERT INTO quiz_reports (id, quizId, questionId, reportedBy, reportType, descri
 ('qr_4', 'hist101_quiz1', 'h1_q2', 'stu_noah', 'incorrect_answer', 'Columbus didnt really discover America, Vikings were first', 'pending', DATE_SUB(NOW(), INTERVAL 2 DAY))
 ON DUPLICATE KEY UPDATE description=description;
 
-/* RECOMMENDATIONS FOR SUPERKID */
+/* RECOMMENDATIONS FOR STUDENTS */
 INSERT INTO recommendations (id, userId, courseId, reason, createdAt) VALUES
-('rec_sk_1', 'stu_superkid', 'math201', 'Based on your excellent performance in Math Basics, try Algebra II!', DATE_SUB(NOW(), INTERVAL 7 DAY)),
-('rec_sk_2', 'stu_superkid', 'cs201', 'You aced the CS quizzes! Web Development is the natural next step.', DATE_SUB(NOW(), INTERVAL 3 DAY)),
-('rec_sk_3', 'stu_superkid', 'sci201', 'Your science scores are impressive. Physics Fundamentals awaits!', DATE_SUB(NOW(), INTERVAL 5 DAY))
+('rec_1', 'stu_emma', 'math201', 'Based on your excellent performance in Math Basics, try Algebra II!', DATE_SUB(NOW(), INTERVAL 8 DAY)),
+('rec_2', 'stu_liam', 'cs201', 'You aced the CS quizzes! Web Development is the natural next step.', DATE_SUB(NOW(), INTERVAL 6 DAY)),
+('rec_3', 'stu_sophia', 'sci201', 'Your science scores are impressive. Physics Fundamentals awaits!', DATE_SUB(NOW(), INTERVAL 4 DAY)),
+('rec_4', 'stu_olivia', 'math201', 'Strong math fundamentals! Consider advancing to Algebra II.', DATE_SUB(NOW(), INTERVAL 5 DAY)),
+('rec_5', 'stu_james', 'cs201', 'Javascript mastery - time for Web Development!', DATE_SUB(NOW(), INTERVAL 3 DAY)),
+('rec_6', 'stu_ava', 'eng201', 'Grammar excellence unlocked! Ready for Public Speaking.', DATE_SUB(NOW(), INTERVAL 2 DAY)),
+('rec_7', 'stu_isabella', 'geo201', 'World Geography fundamentals strong. Climate studies next!', DATE_SUB(NOW(), INTERVAL 3 DAY)),
+('rec_8', 'stu_mason', 'art201', 'Art Foundations mastered! Digital Illustration awaits.', DATE_SUB(NOW(), INTERVAL 2 DAY))
 ON DUPLICATE KEY UPDATE reason=reason;
 
 /* Re-enable foreign key checks */
