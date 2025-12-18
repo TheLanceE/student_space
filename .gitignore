@@ -21,3 +21,11 @@ database_updates.sql
 database_verify_and_fix.sql
 fix_admin_password.sql
 seed_test_data.sql
+
+# Projects branch temp/log files
+scripts/http_*.html
+scripts/last_*.html
+*.tmp
+*.log
+.DS_Store
+Thumbs.db
