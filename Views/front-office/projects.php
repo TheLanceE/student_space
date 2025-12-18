@@ -1,10 +1,15 @@
 <?php
 require_once __DIR__ . '/../../Controllers/auth_check.php';
 
-if (($_SESSION['role'] ?? null) !== 'student') {
-	http_response_code(403);
-	die('Forbidden');
+// Allow students, teachers, and admins
+$role = $_SESSION['role'] ?? null;
+if (!in_array($role, ['student', 'teacher', 'admin'])) {
+    http_response_code(403);
+    die('Forbidden - Please log in');
 }
+
+// Determine page title based on role
+$pageTitle = $role === 'student' ? 'My Projects' : 'All Projects';
 ?>
 
 <!doctype html>
@@ -21,11 +26,20 @@ if (($_SESSION['role'] ?? null) !== 'student') {
  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 </head>
 <body data-page="front-projects">
- <?php include __DIR__ . '/../partials/navbar_student.php'; ?>
+ <?php 
+ // Include appropriate navbar based on role
+ if ($role === 'teacher') {
+     include __DIR__ . '/../partials/navbar_teacher.php';
+ } elseif ($role === 'admin') {
+     include __DIR__ . '/../partials/navbar_admin.php';
+ } else {
+     include __DIR__ . '/../partials/navbar_student.php';
+ }
+ ?>
 
  <main class="container py-4">
  <div class="d-flex justify-content-between align-items-center mb-4">
- <h1 class="h3">My Projects</h1>
+ <h1 class="h3"><?php echo htmlspecialchars($pageTitle); ?></h1>
  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#projectModal" onclick="ProjectDebug.openProjectModal()">
  <i class="bi bi-plus"></i> New Project
  </button>
