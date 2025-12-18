@@ -19,11 +19,28 @@ INSERT INTO students (id, username, password, fullName, email, mobile, address, 
 ('stu_ava', 'ava', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Ava Martinez', 'ava@edumind.app', '+2526272829', '88 Quest Ct', 'Grade 8', DATE_SUB(NOW(), INTERVAL 15 DAY), DATE_SUB(NOW(), INTERVAL 2 DAY))
 ON DUPLICATE KEY UPDATE lastLoginAt=NOW();
 
+/* EXTRA STUDENTS FOR TESTING */
+INSERT INTO students (id, username, password, fullName, email, mobile, address, gradeLevel, createdAt, lastLoginAt) VALUES
+('stu_isabella', 'isabella', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Isabella Rivera', 'isabella@edumind.app', '+3031323334', '12 Skyline Dr', 'Grade 10', DATE_SUB(NOW(), INTERVAL 18 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY)),
+('stu_mason', 'mason', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Mason Patel', 'mason@edumind.app', '+3536373839', '90 Park Ave', 'Grade 9', DATE_SUB(NOW(), INTERVAL 16 DAY), DATE_SUB(NOW(), INTERVAL 3 DAY)),
+('stu_mia', 'mia', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Mia Nguyen', 'mia@edumind.app', '+4041424344', '70 Garden St', 'Grade 8', DATE_SUB(NOW(), INTERVAL 12 DAY), DATE_SUB(NOW(), INTERVAL 2 DAY)),
+('stu_ethan', 'ethan', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Ethan Garcia', 'ethan@edumind.app', '+4546474849', '11 Maple Cir', 'Grade 11', DATE_SUB(NOW(), INTERVAL 10 DAY), DATE_SUB(NOW(), INTERVAL 4 DAY)),
+('stu_charlotte', 'charlotte', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Charlotte Brooks', 'charlotte@edumind.app', '+5051525354', '9 Lakeview Rd', 'Grade 9', DATE_SUB(NOW(), INTERVAL 8 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY)),
+('stu_ben', 'ben', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Benjamin Lopez', 'ben@edumind.app', '+5556575859', '81 River St', 'Grade 10', DATE_SUB(NOW(), INTERVAL 7 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY)),
+('stu_zara', 'zara', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Zara Ali', 'zara@edumind.app', '+6061626364', '3 Summit Pl', 'Grade 8', DATE_SUB(NOW(), INTERVAL 5 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY))
+ON DUPLICATE KEY UPDATE lastLoginAt=NOW();
+
 /* ADDITIONAL TEACHERS */
 INSERT INTO teachers (id, username, password, fullName, email, mobile, address, specialty, nationalId, createdAt, lastLoginAt) VALUES
 ('teach_kim', 'teacher_kim', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Dr. Kim Park', 'kim@edumind.app', '+555111222', '100 Faculty Dr', 'Computer Science', 'NAT-003-KP', DATE_SUB(NOW(), INTERVAL 50 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY)),
 ('teach_sarah', 'teacher_sarah', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Sarah Adams', 'sarah@edumind.app', '+555333444', '200 Academic Way', 'English Literature', 'NAT-004-SA', DATE_SUB(NOW(), INTERVAL 45 DAY), DATE_SUB(NOW(), INTERVAL 2 DAY)),
 ('teach_mark', 'teacher_mark', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Mark Thompson', 'mark@edumind.app', '+555555666', '300 Campus Blvd', 'History', 'NAT-005-MT', DATE_SUB(NOW(), INTERVAL 40 DAY), DATE_SUB(NOW(), INTERVAL 3 DAY))
+ON DUPLICATE KEY UPDATE lastLoginAt=NOW();
+
+/* EXTRA TEACHERS */
+INSERT INTO teachers (id, username, password, fullName, email, mobile, address, specialty, nationalId, createdAt, lastLoginAt) VALUES
+('teach_nina', 'teacher_nina', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Nina Torres', 'nina@edumind.app', '+555777888', '400 Learning Ln', 'Geography', 'NAT-006-NT', DATE_SUB(NOW(), INTERVAL 38 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY)),
+('teach_omar', 'teacher_omar', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Omar Khalil', 'omar@edumind.app', '+555888999', '500 Mentor Rd', 'Art & Design', 'NAT-007-OK', DATE_SUB(NOW(), INTERVAL 35 DAY), DATE_SUB(NOW(), INTERVAL 2 DAY))
 ON DUPLICATE KEY UPDATE lastLoginAt=NOW();
 
 /* MORE COURSES */
@@ -35,7 +52,11 @@ INSERT INTO courses (id, title, description, teacherId, status, createdAt) VALUE
 ('sci201', 'Physics Fundamentals', 'Motion, forces, energy, and waves.', 'teach_lee', 'active', DATE_SUB(NOW(), INTERVAL 26 DAY)),
 ('cs201', 'Web Development', 'HTML, CSS, JavaScript, and modern frameworks.', 'teach_kim', 'pending', DATE_SUB(NOW(), INTERVAL 10 DAY)),
 ('eng201', 'Public Speaking', 'Build confidence and communication skills.', 'teach_sarah', 'pending', DATE_SUB(NOW(), INTERVAL 8 DAY)),
-('hist201', 'Ancient Civilizations', 'Egypt, Rome, Greece, and Mesopotamia.', 'teach_mark', 'pending', DATE_SUB(NOW(), INTERVAL 5 DAY))
+('hist201', 'Ancient Civilizations', 'Egypt, Rome, Greece, and Mesopotamia.', 'teach_mark', 'pending', DATE_SUB(NOW(), INTERVAL 5 DAY)),
+('geo101', 'World Geography', 'Maps, regions, and climate systems.', 'teach_nina', 'active', DATE_SUB(NOW(), INTERVAL 20 DAY)),
+('art101', 'Art Foundations', 'Color theory, sketching, and design basics.', 'teach_omar', 'active', DATE_SUB(NOW(), INTERVAL 18 DAY)),
+('geo201', 'Climate Change Studies', 'Impacts, mitigation, and global policy.', 'teach_nina', 'pending', DATE_SUB(NOW(), INTERVAL 7 DAY)),
+('art201', 'Digital Illustration', 'Tablets, vectors, and composition.', 'teach_omar', 'pending', DATE_SUB(NOW(), INTERVAL 6 DAY))
 ON DUPLICATE KEY UPDATE title=title;
 
 /* QUIZZES - Math */
@@ -97,6 +118,26 @@ INSERT INTO quizzes (id, courseId, title, durationSec, difficulty, questions, cr
 'teach_mark', DATE_SUB(NOW(), INTERVAL 15 DAY))
 ON DUPLICATE KEY UPDATE title=title;
 
+/* QUIZZES - Geography */
+INSERT INTO quizzes (id, courseId, title, durationSec, difficulty, questions, createdBy, createdAt) VALUES
+('geo101_quiz1', 'geo101', 'Map Skills', 90, 'beginner',
+'[{"id":"g1_q1","text":"Largest ocean:","options":["Atlantic","Indian","Pacific","Arctic"],"correctIndex":2},{"id":"g1_q2","text":"The Equator is a line of:","options":["Longitude","Latitude","Altitude","Attitude"],"correctIndex":1},{"id":"g1_q3","text":"Mount Everest is in:","options":["Andes","Alps","Himalayas","Rockies"],"correctIndex":2},{"id":"g1_q4","text":"Sahara is in:","options":["Asia","Europe","Africa","Australia"],"correctIndex":2},{"id":"g1_q5","text":"Number of continents:","options":["5","6","7","8"],"correctIndex":2}]',
+'teach_nina', DATE_SUB(NOW(), INTERVAL 14 DAY)),
+('geo201_quiz1', 'geo201', 'Climate Systems', 120, 'intermediate',
+'[{"id":"gc_q1","text":"Greenhouse gas NOT commonly cited:","options":["CO2","CH4","N2","N2O"],"correctIndex":2},{"id":"gc_q2","text":"Current CO2 ppm ~:","options":["150","280","420","600"],"correctIndex":2},{"id":"gc_q3","text":"El Niño impacts:","options":["Pacific temperatures","Atlantic salinity","Indian Ocean depth","Arctic ice age"],"correctIndex":0},{"id":"gc_q4","text":"Main driver of sea level rise:","options":["Tectonics","Thermal expansion + ice melt","River flooding","Sand mining"],"correctIndex":1},{"id":"gc_q5","text":"IPCC stands for:","options":["International Panel on Climate Change","Intergovernmental Panel on Climate Change","Interplanetary Climate Council","International Pollution Control Commission"],"correctIndex":1}]',
+'teach_nina', DATE_SUB(NOW(), INTERVAL 9 DAY))
+ON DUPLICATE KEY UPDATE title=title;
+
+/* QUIZZES - Art */
+INSERT INTO quizzes (id, courseId, title, durationSec, difficulty, questions, createdBy, createdAt) VALUES
+('art101_quiz1', 'art101', 'Color Theory', 80, 'beginner',
+'[{"id":"a101_q1","text":"Primary colors (RGB model):","options":["Red, Green, Blue","Red, Yellow, Blue","Cyan, Magenta, Yellow","Red, Green, Yellow"],"correctIndex":0},{"id":"a101_q2","text":"Complement of blue in RGB:","options":["Red","Green","Cyan","Orange"],"correctIndex":1},{"id":"a101_q3","text":"Value refers to:","options":["Lightness/darkness","Texture","Hue","Saturation"],"correctIndex":0},{"id":"a101_q4","text":"Warm color example:","options":["Blue","Green","Purple","Orange"],"correctIndex":3},{"id":"a101_q5","text":"Analogous palette uses colors:","options":["Opposite on wheel","Next to each other","Randomly picked","Only neutrals"],"correctIndex":1}]',
+'teach_omar', DATE_SUB(NOW(), INTERVAL 12 DAY)),
+('art201_quiz1', 'art201', 'Digital Illustration Basics', 110, 'intermediate',
+'[{"id":"a201_q1","text":"Common vector format:","options":["SVG","JPG","BMP","TIFF"],"correctIndex":0},{"id":"a201_q2","text":"Tablet pressure helps control:","options":["Line weight","Canvas size","File type","Export speed"],"correctIndex":0},{"id":"a201_q3","text":"Layer blending mode for lightening:","options":["Multiply","Screen","Overlay","Difference"],"correctIndex":1},{"id":"a201_q4","text":"Shortcut concept:","options":["Use only mouse","Flatten often","Name layers","Avoid references"],"correctIndex":2},{"id":"a201_q5","text":"Resolution for print (dpi):","options":["72","96","150","300"],"correctIndex":3}]',
+'teach_omar', DATE_SUB(NOW(), INTERVAL 7 DAY))
+ON DUPLICATE KEY UPDATE title=title;
+
 /* CHALLENGES */
 INSERT INTO challenges (id, title, description, level, points, category, skillTags, prerequisiteLevel, createdBy, createdAt) VALUES
 ('ch_math_basic', 'Math Novice', 'Complete 3 math quizzes with at least 60% score', 1, 50, 'Mathematics', '["arithmetic", "basics"]', NULL, 'teach_jane', DATE_SUB(NOW(), INTERVAL 30 DAY)),
@@ -138,6 +179,9 @@ INSERT INTO rewards (id, name, category, costPoints, tierRequired, stock, create
 ('rw_hint_pack', 'Hint Pack (5 hints)', 'Power-up', 60, 1, NULL, DATE_SUB(NOW(), INTERVAL 18 DAY)),
 ('rw_time_boost', 'Time Boost (+30 sec)', 'Power-up', 40, 1, NULL, DATE_SUB(NOW(), INTERVAL 18 DAY))
 ON DUPLICATE KEY UPDATE name=name;
+
+/* Safety: ensure foreign key checks remain off before inserting scores */
+SET FOREIGN_KEY_CHECKS = 0;
 
 /* SUPERKID SCORES - Math */
 INSERT INTO scores (id, userId, username, courseId, quizId, score, total, durationSec, attempt, type, timestamp) VALUES
@@ -189,6 +233,17 @@ INSERT INTO scores (id, userId, username, courseId, quizId, score, total, durati
 ('sc_james_1', 'stu_james', 'james', 'cs101', 'cs101_quiz3', 4, 5, 95, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 4 DAY)),
 ('sc_ava_1', 'stu_ava', 'ava', 'eng101', 'eng101_quiz1', 4, 5, 65, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 3 DAY)),
 ('sc_ava_2', 'stu_ava', 'ava', 'eng101', 'eng101_quiz2', 5, 5, 72, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 1 DAY))
+ON DUPLICATE KEY UPDATE score=score;
+
+/* EXTRA SCORES FOR NEW STUDENTS/COURSES */
+INSERT INTO scores (id, userId, username, courseId, quizId, score, total, durationSec, attempt, type, timestamp) VALUES
+('sc_isabella_1', 'stu_isabella', 'isabella', 'geo101', 'geo101_quiz1', 5, 5, 78, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 4 DAY)),
+('sc_mason_1', 'stu_mason', 'mason', 'art101', 'art101_quiz1', 4, 5, 82, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 5 DAY)),
+('sc_mia_1', 'stu_mia', 'mia', 'geo101', 'geo101_quiz1', 4, 5, 93, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 3 DAY)),
+('sc_ethan_1', 'stu_ethan', 'ethan', 'art201', 'art201_quiz1', 5, 5, 110, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 2 DAY)),
+('sc_charlotte_1', 'stu_charlotte', 'charlotte', 'geo201', 'geo201_quiz1', 3, 5, 120, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 2 DAY)),
+('sc_ben_1', 'stu_ben', 'ben', 'art101', 'art101_quiz1', 5, 5, 70, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 1 DAY)),
+('sc_zara_1', 'stu_zara', 'zara', 'geo201', 'geo201_quiz1', 4, 5, 130, 1, 'quiz', DATE_SUB(NOW(), INTERVAL 1 DAY))
 ON DUPLICATE KEY UPDATE score=score;
 
 /* CHALLENGE COMPLETIONS FOR SUPERKID */
