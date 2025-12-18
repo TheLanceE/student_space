@@ -102,9 +102,9 @@ cp Controllers/oauth_config.local.example.php Controllers/oauth_config.local.php
 
 | Role | Username | Password |
 |------|----------|----------|
-| 👨‍🎓 Student | `superkid` | `password123` |
-| 👨‍🏫 Teacher | `teacher_jane` | `password123` |
-| 👨‍💼 Admin | `admin` | `password123` |
+| 👨‍🎓 Student | `superkid` | `password` |
+| 👨‍🏫 Teacher | `teacher_jane` | `password` |
+| 👨‍💼 Admin | `admin` | `admin123` |
 
 > ⚠️ **Security Note:** Change default passwords immediately in production!
 
